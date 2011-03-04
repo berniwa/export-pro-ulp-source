@@ -1,0 +1,127 @@
+/************************************************************/
+/* HTLExportPro_ImageExport.ulp                             */
+/* Exports images of what the PCB will look like            */
+/************************************************************/
+/* (c) Copyright 2011, Bernhard Wörndl-Aichriedler          */
+/* E-Mail: bwa@berniwa.com                                  */
+/* Homepage: www.berniwa.com                                */
+/************************************************************/
+/* Letzte Änderung am 18.02.2011                            */
+/* Version 1                                                */
+/************************************************************/
+
+string getFilename(string basename, string ends_with)
+{
+	return filesetext(basename,ends_with);
+}
+
+
+void exportImages(int exportBot, string botImage, int exportTop, string topImage, int resolution, int crop, int mirror, string colorPcb, string colorCopper, string colorSilkscreen, string colorPlating)
+{
+	string cmd = "";
+
+	string bname = "";
+	board(B)
+	{
+		bname = B.name;
+	}
+
+	cmd += "SET PALETTE COLORED;";
+
+	cmd += "SET COLOR_LAYER 1 16;";
+	cmd += "SET COLOR_LAYER 16 17;";
+	//cmd += "SET COLOR_LAYER 17 18;";
+	//cmd += "SET COLOR_LAYER 18 18;";
+	cmd += "SET COLOR_LAYER 124 18;";
+	cmd += "SET COLOR_LAYER 120 20;";
+	cmd += "SET COLOR_LAYER 121 21;";
+	cmd += "SET COLOR_LAYER 122 21;";
+	cmd += "SET COLOR_LAYER 125 18;";
+	cmd += "SET COLOR_LAYER 126 18;";
+	cmd += "SET COLOR_LAYER 127 20;";
+
+	cmd += "SET PALETTE 16 " + colorCopper + ";";
+	cmd += "SET PALETTE 17 " + colorCopper + ";";
+	cmd += "SET PALETTE 18 " + colorPlating + ";";
+	cmd += "SET PALETTE 20 0xFF000000;";
+	cmd += "SET PALETTE 21 " + colorSilkscreen + ";";
+	cmd += "SET PALETTE 0 " + colorPcb + ";";
+
+	if(EAGLE_VERSION > 5 || (EAGLE_VERSION == 5 && EAGLE_RELEASE >= 11) ) //Support for SET CONFIRM form Eagle 5.11 on
+	{
+		cmd += "SET CONFIRM YES;";
+	}
+
+	if(exportBot)
+	{
+		cmd += "DISPLAY NONE;DISPLAY 1 121 123 124 125 127 ;";
+		sprintf(cmd, "%s EXPORT IMAGE '%s' %d;", cmd, topImage, resolution);
+	}
+	if(exportTop)
+	{
+		cmd += "DISPLAY NONE;DISPLAY 16 122 123 124 126 127;";
+		sprintf(cmd, "%s EXPORT IMAGE '%s' %d;", cmd, botImage, resolution);
+	}
+
+
+	if(EAGLE_VERSION > 5 || (EAGLE_VERSION == 5 && EAGLE_RELEASE >= 11) ) //Support for SET CONFIRM form Eagle 5.11 on
+	{
+		cmd += "SET CONFIRM NO;";
+	}
+
+	cmd += "SET PALETTE 0 0xFFFFFFFF;";
+
+	cmd += "SET COLOR_LAYER 1 4;";
+	cmd += "SET COLOR_LAYER 16 1;";
+	//cmd += "SET COLOR_LAYER 17 2;";
+	//cmd += "SET COLOR_LAYER 18 2;";
+	
+
+	string layers = "";
+
+	board(B)
+	{
+		
+		B.layers(L)
+		{
+			if(L.visible)
+			{
+				sprintf(layers, layers + " %d", L.number);
+			}
+		}
+	}
+
+	cmd += "DISPLAY NONE; DISPLAY " + layers + ";";
+
+	if(palette(-1) == PALETTE_BLACK)
+	{
+		cmd += "SET PALETTE BLACK;";
+	}
+	else if(palette(-1) == PALETTE_WHITE)
+	{
+		cmd += "SET PALETTE WHITE;";
+	}
+	else
+	{
+		cmd += "SET PALETTE COLORED;";
+	}
+	
+	if(exportBot && crop)
+	{
+		sprintf(cmd, "%s RUN HTLExportPro_CropColor.ulp '%s' %d;", cmd, botImage, resolution);
+	}
+	if(exportTop && crop)
+	{
+		sprintf(cmd, "%s RUN HTLExportPro_CropColor.ulp '%s' %d;", cmd, topImage, resolution);
+	}
+
+	if(exportBot && mirror)
+	{
+		sprintf(cmd, "%s RUN HTLExportPro_MirrorColor.ulp '%s';", cmd, botImage);
+	}	
+	
+	exit(cmd);
+}
+
+
+exportImages(strtol(argv[2]),argv[1],strtol(argv[4]),argv[3],strtol(argv[5]),strtol(argv[6]),strtol(argv[7]), argv[8], argv[9], argv[10], argv[11]);

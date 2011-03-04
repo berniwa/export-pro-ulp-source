@@ -1,0 +1,228 @@
+#include "HTLExportPro_Download.ulp";
+
+int QUERIES_PER_REQUEST = 5;
+string DOWNLOAD_URL = "http://eagle.berniwa.com/price.php";
+
+string working_dir = "";
+
+string partDistributor[], partOrderNo[], partPrices[], partAvailableQuantity[], 
+partDatasheet[], partPartsPerPackage[], partMinimumQuantity[], partQuantityMultiplier[], partPrice[];
+int	partQuantity[];
+
+int PartCount = 0;
+
+void requestPrices(int from_id, int to_id)
+{
+	string tsv = "";
+
+	string headline[] = {"ID", "DISTRIBUTOR", "ORDER_NO", "QUANTITY"};
+	sprintf(tsv, "%s%s\n", tsv,  strjoin(headline,'\t'));
+
+	for(int i = from_id; i < to_id; i++)
+	{	
+		string data[] = {partDistributor[i] + "-" + partOrderNo[i], partDistributor[i], partOrderNo[i], ""};
+		sprintf(data[3], "%d", partQuantity[i]);
+		sprintf(tsv, "%s%s\n", tsv, strjoin(data,'\t'));
+	}
+
+	string lines[];
+	int nlines = netpost(lines, DOWNLOAD_URL, "tsv=" + downloadEscapeString(tsv));
+
+	if(nlines >= 0)
+	{
+		for(i = from_id; i < to_id; i++)
+		{
+			partPrices[i] = lookup(lines, partDistributor[i] + "-" + partOrderNo[i], "PRICES");
+			partDatasheet[i] = lookup(lines, partDistributor[i] + "-" + partOrderNo[i], "DATASHEET");
+			partAvailableQuantity[i] = lookup(lines, partDistributor[i] + "-" + partOrderNo[i], "AVAILABLE_QUANTITY");
+			partPartsPerPackage[i] = lookup(lines, partDistributor[i] + "-" + partOrderNo[i], "PARTS_PER_PACKAGE");
+			partMinimumQuantity[i] = lookup(lines, partDistributor[i] + "-" + partOrderNo[i], "MINIMUM_QUANTITY");
+			partPrice[i] = lookup(lines, partDistributor[i] + "-" + partOrderNo[i], "PRICE");
+			partQuantityMultiplier[i] = lookup(lines, partDistributor[i] + "-" + partOrderNo[i], "QUANTITY_MULTIPLIER");		
+		}
+	}
+}
+
+void requestAllPrices()
+{
+	string mstatus = "";
+
+	for(int i = 0; i < PartCount; i+=QUERIES_PER_REQUEST)
+	{
+  		sprintf(mstatus, "Downloading pricing data - Finished %.0f%%", (i*1.0/PartCount*100.0));
+  		status(mstatus);
+		requestPrices(i, i+QUERIES_PER_REQUEST);
+	}	
+}
+
+int getPartId(string distributor, string orderNo)
+{
+	for(int i = 0; i < PartCount; i++)
+	{
+		if(partDistributor[i] == distributor && partOrderNo[i] == orderNo)
+		{
+			return i;
+		}
+	}
+	return -1;
+}
+
+void collectData()
+{
+	project.schematic(S) 
+	{
+		S.parts(P) 
+		{
+			if (P.device.package) 
+			{
+				string distributor 	= "";
+				string orderNo 		= "";
+
+				P.attributes(A) 
+				{
+     					if(A.name == "DISTRIBUTOR")
+					{
+						distributor = A.value;
+					}
+					else if(A.name == "ORDER_NO")
+					{
+						orderNo = A.value;
+					}
+      				}
+				if(distributor != "" && orderNo != "")
+				{
+					int id = 0;
+					int present = getPartId(distributor, orderNo);
+					if(present != -1)
+					{
+						id = present;
+						partQuantity[id]++;
+					}
+					else
+					{
+						id = PartCount++;
+						partDistributor[id] = distributor;
+						partOrderNo[id] = orderNo;	
+						partQuantity[id] = 1;
+						partPrice[id] = "0";
+						partPrices[id] = "";
+						partAvailableQuantity[id] = "0";
+						partPartsPerPackage[id] = "0";
+						partMinimumQuantity[id] = "0"; 
+						partQuantityMultiplier[id] = "0";
+						partDatasheet[id] = "";
+					}
+				}
+				
+			}
+		}
+	}	
+}
+
+void writeUpdateScript()
+{
+
+	project.schematic(SCH) 
+	{
+		SCH.sheets(S)
+		{
+
+		printf("EDIT .s%d;\n", S.number);
+		printf("CHANGE DISPLAY OFF;\n");
+		
+		S.parts(P) 
+		{
+			if (P.device.package) 
+			{
+				string distributor 	= "";
+				string orderNo 		= "";
+
+				P.attributes(A) 
+				{
+     					if(A.name == "DISTRIBUTOR")
+					{
+						distributor = A.value;
+					}
+					else if(A.name == "ORDER_NO")
+					{
+						orderNo = A.value;
+					}
+      				}
+				if(distributor != "" && orderNo != "")
+				{
+					int id = getPartId(distributor, orderNo);
+					if(partPrices[id] != "")
+					{
+						printf("ATTRIBUTE %s PRICES '%s';\n", P.name, partPrices[id]);
+					}
+					if(partPrice[id] != "")
+					{
+						printf("ATTRIBUTE %s PRICE '%s';\n", P.name, partPrice[id]);
+					}
+					if(partAvailableQuantity[id] != "")
+					{
+						printf("ATTRIBUTE %s AVAILABLE_QUANTITY '%s';\n", P.name, partAvailableQuantity[id]);
+					}
+					if(partPartsPerPackage[id] != "")
+					{
+						printf("ATTRIBUTE %s PARTS_PER_PACKAGE '%s';\n", P.name, partPartsPerPackage[id]);
+					}
+					if(partMinimumQuantity[id] != "")
+					{
+						printf("ATTRIBUTE %s MINIMUM_QUANTITY '%s';\n", P.name, partMinimumQuantity[id]);
+					}
+					if(partQuantityMultiplier[id] != "")
+					{
+						printf("ATTRIBUTE %s QUANTITY_MULTIPLIER '%s';\n", P.name, partQuantityMultiplier[id]);
+					}
+					if(partDatasheet[id] != "")
+					{
+						printf("ATTRIBUTE %s DATASHEET '%s';\n", P.name, partDatasheet[id]);
+					}
+				}
+				
+			}
+		}
+		}
+	}
+}
+
+void run()
+{
+	collectData();
+	requestAllPrices();
+	string scr = working_dir + "prices.scr";
+
+	output(scr)
+	{
+		writeUpdateScript();
+	}
+
+	exit("; SCR '" + scr + "';\n");	
+}
+
+void init()
+{	
+	if(schematic)
+	{
+		schematic(S)
+		{
+			working_dir = filedir(S.name);	
+		}
+	}
+	else if(board)
+	{
+		board(B)
+		{
+			working_dir = filedir(B.name);	
+		}
+	}
+	else
+	{
+		dlgMessageBox("Please change to board or schematic editor!");
+	}
+}
+
+
+init();
+run();

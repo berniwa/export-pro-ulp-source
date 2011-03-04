@@ -1,0 +1,154 @@
+/************************************************************/
+/* HTL_Export3_Mirror.ulp                                   */
+/* - Spiegel Monochrome BMP Images                          */
+/************************************************************/
+/* (c) Copyright 2009, Bernhard Wörndl-Aichriedler          */
+/* xDevelop OG - Hardware Developer			*/
+/* E-Mail: bwa@berniwa.com (bwa@xdevelop.at)                */
+/* Homepage: www.berniwa.com (www.xdevelop.at)              */
+/************************************************************/
+/* Die Verwendung, das Kopieren bzw. die Weiterverbreitung  */
+/* dieses ULP sind nur nach ausdrücklicher Erlaubnis des    */
+/* Autors gestattet! 				*/
+/************************************************************/
+/* Letzte Änderung am 28.01.2009                            */
+/* Version 1.0 (in Export 3.3)                              */
+/************************************************************/
+
+
+int BMP_bfOffBits = 10;
+int BMP_biWidth 	= 18;
+int BMP_biHeight	= 22;
+
+char bmpData[];
+int bmpOffset = 0;
+int bmpWidth = 0;
+int bmpHeight = 0;
+int bmpBlockSize = 0;
+
+char bmpExtractBit(char value , int bit)
+{
+	return (((value) & (1 << (bit))) >> (bit));
+}
+
+char bmpGetPixel(int offset, int pixel)
+{
+	if(pixel < 0 || pixel > bmpWidth)
+	{
+		return 0;
+	}
+	else
+	{
+		char tmp = 0;
+		tmp |= bmpExtractBit(bmpData[offset + (pixel/8)], 7 - (pixel%8));
+		return tmp;
+	}
+
+}
+
+int bmpReadInt(int offset)
+{
+	int value = 0;
+			
+	for(int i = 0; i < 4; i++) 
+	{
+		value |= bmpData[offset + i] << (i*8);
+	}
+
+	return value;	
+}
+
+void bmpConvert(string ifilename)
+{
+
+	int nBytes = fileread(bmpData, ifilename);
+	output(ifilename, "wb")
+	{	
+  		string mstatus = "";
+  		sprintf(mstatus, "Mirroring image: %s - Loading image information", ifilename);
+  		status(mstatus);
+  	
+  
+  		/*
+  			Read status information
+  		*/
+  		bmpOffset = bmpReadInt(BMP_bfOffBits);
+  		bmpWidth = bmpReadInt(BMP_biWidth);
+  		bmpHeight = bmpReadInt(BMP_biHeight);
+  	
+  		/*
+  			Calculate blocksize
+  		*/
+  		bmpBlockSize = 4 * ( ( bmpWidth + 31 ) / 32 );
+  	
+  		/*
+  			Copy header
+  		*/
+  		for(int i = 0; i < bmpOffset; i++)
+  		{
+  			printf("%c", bmpData[i]);	
+  		}
+  	
+  		sprintf(mstatus, "Mirroring image: %s - Copying image data", ifilename);
+  		status(mstatus);
+  
+  		/*
+  			Walk thru - line by line
+  		*/
+  		for(int line = 0; line < bmpHeight; line++)
+  		{
+  			int offset = bmpOffset+line*bmpBlockSize;
+  	
+  			sprintf(mstatus, "Mirroring image: %s - Finished %.0f%%", ifilename, (line*1.0/bmpHeight*100.0));
+  			status(mstatus);
+
+			string xdata = "";
+  	
+  			for(int byte = 0; byte < bmpBlockSize; byte++)
+  			{
+  				char tmp = 0;
+  				int pixel = bmpWidth - 1 - (byte*8);
+  				int poffset = offset*8 + pixel;
+  				int bit = 7-poffset%8;
+  				
+  				if(pixel - 7 > 0) //Repack everything except for the last pixel - problematic due negative pixel
+  				{
+  					/*
+  						Don't try to understand this =) - it's highly optimized and
+  						and reduces the conversion time to 1/4 of the method used below
+  					*/
+  					tmp |= (((bmpData[poffset--/8]) & (1 << (bit%8))) >> (bit++%8))  << 7;
+  					tmp |= (((bmpData[poffset--/8]) & (1 << (bit%8))) >> (bit++%8))  << 6;
+  					tmp |= (((bmpData[poffset--/8]) & (1 << (bit%8))) >> (bit++%8))  << 5;
+  					tmp |= (((bmpData[poffset--/8]) & (1 << (bit%8))) >> (bit++%8))  << 4;
+  					tmp |= (((bmpData[poffset--/8]) & (1 << (bit%8))) >> (bit++%8))  << 3;
+  					tmp |= (((bmpData[poffset--/8]) & (1 << (bit%8))) >> (bit++%8))  << 2;
+  					tmp |= (((bmpData[poffset--/8]) & (1 << (bit%8))) >> (bit++%8))  << 1;
+  					tmp |= (((bmpData[poffset--/8]) & (1 << (bit%8))) >> (bit++%8))  << 0;
+  					xdata += tmp;
+  				}
+  				else
+  				{
+  					/*
+  						Do resampling of the last pixel with the save but extremely slow functions
+  					*/
+  					tmp |= bmpGetPixel(offset, pixel) << 7;
+  					tmp |= bmpGetPixel(offset, pixel-1) << 6;
+  					tmp |= bmpGetPixel(offset, pixel-2) << 5;
+  					tmp |= bmpGetPixel(offset, pixel-3) << 4;
+  					tmp |= bmpGetPixel(offset, pixel-4) << 3;
+  					tmp |= bmpGetPixel(offset, pixel-5) << 2;
+  					tmp |= bmpGetPixel(offset, pixel-6) << 1;
+  					tmp |= bmpGetPixel(offset, pixel-7) << 0;
+  					xdata += tmp;							
+  				}
+  			}
+
+			printf(xdata);		
+  		}
+
+	}
+}
+
+
+bmpConvert(argv[1]);

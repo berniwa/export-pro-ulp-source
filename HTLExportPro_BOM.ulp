@@ -1,0 +1,1972 @@
+/************************************************************/
+/* HTL_Export4_BOM.ulp                                      */
+/* - Generiert eine Stückliste nach den FTKL Richtlinien    */
+/*   der HTL - Salzburg                                     */
+/************************************************************/
+/* (c) Copyright 2009, Bernhard Wörndl-Aichriedler          */
+/* xDevelop OG - Hardware Developer			*/
+/* E-Mail: bwa@berniwa.com (bwa@xdevelop.at)                */
+/* Homepage: www.berniwa.com (www.xdevelop.at)              */
+/************************************************************/
+/* Die Verwendung, das Kopieren bzw. die Weiterverbreitung  */
+/* dieses ULP sind nur nach ausdrücklicher Erlaubnis des    */
+/* Autors gestattet! 				*/
+/************************************************************/
+/* Letzte Änderung am 28.01.2009                            */
+/* Version 1.0 (in Export 3.3)                              */
+/************************************************************/
+/* Letzte Änderung am 10.12.2009                            */
+/* Version 2.0 (in Export 4.0)                              */
+/************************************************************/
+
+
+/* SI_VALUE_DEFINITION */
+char 	BOM_SI_NAMES[]	= {'R', 'F', 'H', 'f', 'p', 'n', 'u', 'µ', 'm', 'k', 'K', 'M', 'G', 'T'};
+int	BOM_SI_VALUE[]	= { 0 ,  0 ,  0 , -15, -12,  -9,  -6,  -6,  -3,  3 ,  3 ,  6 ,  9 ,  12};
+
+/* WILDCARD */
+string BOM_WILDCARD_STR = "%%";
+
+
+/* Part definition - devices are sorted by id */
+int BOM_PART_RESISTOR		= 0;
+int BOM_PART_RPOT			= 1;
+int BOM_PART_CAPACITOR		= 2;
+int BOM_PART_CAPACITOR_POLARIZED	= 3;
+int BOM_PART_INDUCTOR		= 4;
+
+int BOM_PART_DIODE			= 6;
+int BOM_PART_ZENER_DIODE		= 7;
+int BOM_PART_LED			= 8;
+int BOM_PART_TRANS_N		= 10;
+int BOM_PART_TRANS_P		= 11;
+int BOM_PART_FET_N			= 12;
+int BOM_PART_FET_P			= 13;
+int BOM_PART_IC_ANALOG		= 16;
+int BOM_PART_VREG			= 17;
+int BOM_PART_IC_DIGITAL		= 18;
+int BOM_PART_DISP			= 19;
+
+
+int BOM_PART_PUSH_BUTTON		= 24;
+int BOM_PART_SWITCH			= 25;
+int BOM_PART_CONNECTOR		= 26;
+int BOM_PART_FUSE			= 30;
+int BOM_PART_TRAFO			= 31;
+int BOM_PART_SPEAKER		= 34;
+int BOM_PART_BUZZER			= 35;
+int BOM_PART_QUARZ			= 36;
+
+int BOM_PART_UNRECOGNISED		= 50;
+
+/* Data Info arrays */
+
+int 	BOM_DATA_PART_ID			[];
+int	BOM_DATA_PARSE_VALUE		[];
+string 	BOM_DATA_NAME 			[];
+string 	BOM_DATA_NOTE			[];
+string 	BOM_DATA_GP1			[];
+string 	BOM_DATA_GP2			[];
+string 	BOM_DATA_GP3			[];
+string 	BOM_DATA_GP4			[];
+string 	BOM_DATA_GP5			[];
+string 	BOM_DATA_IN_FIELD_PARTS 		[];
+string 	BOM_DATA_IN_FIELD_VALUE 		[];
+string 	BOM_DATA_IN_FIELD_DEVICE 		[];
+string 	BOM_DATA_IN_FIELD_PACKAGE 		[];
+string 	BOM_DATA_IN_FIELD_DESCRIPTION 	[];
+
+
+/* 
+
+  PART DEFINITIONS
+
+*/
+int BOM_DATA_COUNT = 0;
+
+
+/* Potentiometer */
+BOM_DATA_PART_ID[BOM_DATA_COUNT]		= BOM_PART_RPOT;
+BOM_DATA_PARSE_VALUE[BOM_DATA_COUNT]		= 1;
+BOM_DATA_NAME[BOM_DATA_COUNT]			= "POTI";
+BOM_DATA_NOTE[BOM_DATA_COUNT]			= "%%PSIZE%% %%GRID%%";
+BOM_DATA_GP1[BOM_DATA_COUNT]			= "%%PSIZE%%";
+BOM_DATA_GP2[BOM_DATA_COUNT]			= "%%GRID%%";
+BOM_DATA_GP3[BOM_DATA_COUNT]			= "";
+BOM_DATA_GP4[BOM_DATA_COUNT]			= "%%VALUE%%";
+BOM_DATA_GP5[BOM_DATA_COUNT]			= "%%PARSED_VALUE%%";
+BOM_DATA_IN_FIELD_PARTS[BOM_DATA_COUNT] 	= "R*";
+BOM_DATA_IN_FIELD_VALUE[BOM_DATA_COUNT] 	= "";
+BOM_DATA_IN_FIELD_DEVICE[BOM_DATA_COUNT]	= "TRIM*";
+BOM_DATA_IN_FIELD_PACKAGE[BOM_DATA_COUNT]	= "";
+BOM_DATA_IN_FIELD_DESCRIPTION[BOM_DATA_COUNT] 	= "";	
+
+/* Resistors */
+BOM_DATA_COUNT++;
+BOM_DATA_PART_ID[BOM_DATA_COUNT]		= BOM_PART_RESISTOR;
+BOM_DATA_PARSE_VALUE[BOM_DATA_COUNT]		= 1;
+BOM_DATA_NAME[BOM_DATA_COUNT]			= "WID";
+BOM_DATA_NOTE[BOM_DATA_COUNT]			= "%%PSIZE%% %%GRID%%";
+BOM_DATA_GP1[BOM_DATA_COUNT]			= "%%PSIZE%%";
+BOM_DATA_GP2[BOM_DATA_COUNT]			= "%%GRID%%";
+BOM_DATA_GP3[BOM_DATA_COUNT]			= "";
+BOM_DATA_GP4[BOM_DATA_COUNT]			= "%%VALUE%%";
+BOM_DATA_GP5[BOM_DATA_COUNT]			= "%%PARSED_VALUE%%";
+BOM_DATA_IN_FIELD_PARTS[BOM_DATA_COUNT] 	= "R*";
+BOM_DATA_IN_FIELD_VALUE[BOM_DATA_COUNT] 	= "";
+BOM_DATA_IN_FIELD_DEVICE[BOM_DATA_COUNT]	= "";
+BOM_DATA_IN_FIELD_PACKAGE[BOM_DATA_COUNT]	= "";
+BOM_DATA_IN_FIELD_DESCRIPTION[BOM_DATA_COUNT] 	= "";
+
+/* TODO - RPOT */
+
+/* Polarized Caps */
+BOM_DATA_COUNT++;
+BOM_DATA_PART_ID[BOM_DATA_COUNT]		= BOM_PART_CAPACITOR_POLARIZED;
+BOM_DATA_PARSE_VALUE[BOM_DATA_COUNT]		= 1;
+BOM_DATA_NAME[BOM_DATA_COUNT]			= "ELKO";
+BOM_DATA_NOTE[BOM_DATA_COUNT]			= "%%PSIZE%% %%GRID%%";
+BOM_DATA_GP1[BOM_DATA_COUNT]			= "%%PSIZE%%";
+BOM_DATA_GP2[BOM_DATA_COUNT]			= "%%GRID%%";
+BOM_DATA_GP3[BOM_DATA_COUNT]			= "";
+BOM_DATA_GP4[BOM_DATA_COUNT]			= "%%VALUE%%";
+BOM_DATA_GP5[BOM_DATA_COUNT]			= "%%PARSED_VALUE%%";
+BOM_DATA_IN_FIELD_PARTS[BOM_DATA_COUNT] 	= "C*";
+BOM_DATA_IN_FIELD_VALUE[BOM_DATA_COUNT] 	= "";
+BOM_DATA_IN_FIELD_DEVICE[BOM_DATA_COUNT]	= "CPOL*";
+BOM_DATA_IN_FIELD_PACKAGE[BOM_DATA_COUNT]	= "";
+BOM_DATA_IN_FIELD_DESCRIPTION[BOM_DATA_COUNT] 	= "";
+
+/* Caps */
+BOM_DATA_COUNT++;
+BOM_DATA_PART_ID[BOM_DATA_COUNT]		= BOM_PART_CAPACITOR;
+BOM_DATA_PARSE_VALUE[BOM_DATA_COUNT]		= 1;
+BOM_DATA_NAME[BOM_DATA_COUNT]			= "KERKO";
+BOM_DATA_NOTE[BOM_DATA_COUNT]			= "%%PSIZE%% %%GRID%%";
+BOM_DATA_GP1[BOM_DATA_COUNT]			= "%%PSIZE%%";
+BOM_DATA_GP2[BOM_DATA_COUNT]			= "%%GRID%%";
+BOM_DATA_GP3[BOM_DATA_COUNT]			= "";
+BOM_DATA_GP4[BOM_DATA_COUNT]			= "%%VALUE%%";
+BOM_DATA_GP5[BOM_DATA_COUNT]			= "%%PARSED_VALUE%%";
+BOM_DATA_IN_FIELD_PARTS[BOM_DATA_COUNT] 	= "C*";
+BOM_DATA_IN_FIELD_VALUE[BOM_DATA_COUNT] 	= "";
+BOM_DATA_IN_FIELD_DEVICE[BOM_DATA_COUNT]	= "C-EU*";
+BOM_DATA_IN_FIELD_PACKAGE[BOM_DATA_COUNT]	= "";
+BOM_DATA_IN_FIELD_DESCRIPTION[BOM_DATA_COUNT] 	= "";
+
+/* Inductors */
+BOM_DATA_COUNT++;
+BOM_DATA_PART_ID[BOM_DATA_COUNT]		= BOM_PART_INDUCTOR;
+BOM_DATA_PARSE_VALUE[BOM_DATA_COUNT]		= 1;
+BOM_DATA_NAME[BOM_DATA_COUNT]			= "IND";
+BOM_DATA_NOTE[BOM_DATA_COUNT]			= "%%PSIZE%% %%GRID%%";
+BOM_DATA_GP1[BOM_DATA_COUNT]			= "%%PSIZE%%";
+BOM_DATA_GP2[BOM_DATA_COUNT]			= "%%GRID%%";
+BOM_DATA_GP3[BOM_DATA_COUNT]			= "";
+BOM_DATA_GP4[BOM_DATA_COUNT]			= "%%VALUE%%";
+BOM_DATA_GP5[BOM_DATA_COUNT]			= "%%PARSED_VALUE%%";
+BOM_DATA_IN_FIELD_PARTS[BOM_DATA_COUNT] 	= "L*";
+BOM_DATA_IN_FIELD_VALUE[BOM_DATA_COUNT] 	= "";
+BOM_DATA_IN_FIELD_DEVICE[BOM_DATA_COUNT]	= "";
+BOM_DATA_IN_FIELD_PACKAGE[BOM_DATA_COUNT]	= "";
+BOM_DATA_IN_FIELD_DESCRIPTION[BOM_DATA_COUNT] 	= "";
+
+/* Zener Diode */
+BOM_DATA_COUNT++;
+BOM_DATA_PART_ID[BOM_DATA_COUNT]		= BOM_PART_ZENER_DIODE;
+BOM_DATA_PARSE_VALUE[BOM_DATA_COUNT]		= 1;
+BOM_DATA_NAME[BOM_DATA_COUNT]			= "ZDIO";
+BOM_DATA_NOTE[BOM_DATA_COUNT]			= "%%PACKAGE%%";
+BOM_DATA_GP1[BOM_DATA_COUNT]			= "%%PACKAGE%%";
+BOM_DATA_GP2[BOM_DATA_COUNT]			= "";
+BOM_DATA_GP3[BOM_DATA_COUNT]			= "";
+BOM_DATA_GP4[BOM_DATA_COUNT]			= "%%VALUE%%";
+BOM_DATA_GP5[BOM_DATA_COUNT]			= "";
+BOM_DATA_IN_FIELD_PARTS[BOM_DATA_COUNT] 	= "V*";
+BOM_DATA_IN_FIELD_VALUE[BOM_DATA_COUNT] 	= "";
+BOM_DATA_IN_FIELD_DEVICE[BOM_DATA_COUNT]	= "ZENER-DIODE*";
+BOM_DATA_IN_FIELD_PACKAGE[BOM_DATA_COUNT]	= "";
+BOM_DATA_IN_FIELD_DESCRIPTION[BOM_DATA_COUNT] 	= "";
+
+/* FET N */
+BOM_DATA_COUNT++;
+BOM_DATA_PART_ID[BOM_DATA_COUNT]		= BOM_PART_FET_N;
+BOM_DATA_PARSE_VALUE[BOM_DATA_COUNT]		= 0;
+BOM_DATA_NAME[BOM_DATA_COUNT]			= "MFET-N";
+BOM_DATA_NOTE[BOM_DATA_COUNT]			= "%%PACKAGE%%";
+BOM_DATA_GP1[BOM_DATA_COUNT]			= "%%PACKAGE%%";
+BOM_DATA_GP2[BOM_DATA_COUNT]			= "";
+BOM_DATA_GP3[BOM_DATA_COUNT]			= "";
+BOM_DATA_GP4[BOM_DATA_COUNT]			= "%%VALUE%%";
+BOM_DATA_GP5[BOM_DATA_COUNT]			= "";
+BOM_DATA_IN_FIELD_PARTS[BOM_DATA_COUNT] 	= "V*";
+BOM_DATA_IN_FIELD_VALUE[BOM_DATA_COUNT] 	= "";
+BOM_DATA_IN_FIELD_DEVICE[BOM_DATA_COUNT]	= "";
+BOM_DATA_IN_FIELD_PACKAGE[BOM_DATA_COUNT]	= "";
+BOM_DATA_IN_FIELD_DESCRIPTION[BOM_DATA_COUNT] 	= "*N-*FET*";
+
+/* FET P */
+BOM_DATA_COUNT++;
+BOM_DATA_PART_ID[BOM_DATA_COUNT]		= BOM_PART_FET_P;
+BOM_DATA_PARSE_VALUE[BOM_DATA_COUNT]		= 0;
+BOM_DATA_NAME[BOM_DATA_COUNT]			= "MFET-P";
+BOM_DATA_NOTE[BOM_DATA_COUNT]			= "%%PACKAGE%%";
+BOM_DATA_GP1[BOM_DATA_COUNT]			= "%%PACKAGE%%";
+BOM_DATA_GP2[BOM_DATA_COUNT]			= "";
+BOM_DATA_GP3[BOM_DATA_COUNT]			= "";
+BOM_DATA_GP4[BOM_DATA_COUNT]			= "%%VALUE%%";
+BOM_DATA_GP5[BOM_DATA_COUNT]			= "";
+BOM_DATA_IN_FIELD_PARTS[BOM_DATA_COUNT] 	= "V*";
+BOM_DATA_IN_FIELD_VALUE[BOM_DATA_COUNT] 	= "";
+BOM_DATA_IN_FIELD_DEVICE[BOM_DATA_COUNT]	= "";
+BOM_DATA_IN_FIELD_PACKAGE[BOM_DATA_COUNT]	= "";
+BOM_DATA_IN_FIELD_DESCRIPTION[BOM_DATA_COUNT] 	= "*P-*FET*";
+
+/* TRANS N */
+BOM_DATA_COUNT++;
+BOM_DATA_PART_ID[BOM_DATA_COUNT]		= BOM_PART_TRANS_N;
+BOM_DATA_PARSE_VALUE[BOM_DATA_COUNT]		= 0;
+BOM_DATA_NAME[BOM_DATA_COUNT]			= "TRANS N";
+BOM_DATA_NOTE[BOM_DATA_COUNT]			= "%%PACKAGE%%";
+BOM_DATA_GP1[BOM_DATA_COUNT]			= "%%PACKAGE%%";
+BOM_DATA_GP2[BOM_DATA_COUNT]			= "";
+BOM_DATA_GP3[BOM_DATA_COUNT]			= "";
+BOM_DATA_GP4[BOM_DATA_COUNT]			= "%%VALUE%%";
+BOM_DATA_GP5[BOM_DATA_COUNT]			= "";
+BOM_DATA_IN_FIELD_PARTS[BOM_DATA_COUNT] 	= "V*";
+BOM_DATA_IN_FIELD_VALUE[BOM_DATA_COUNT] 	= "";
+BOM_DATA_IN_FIELD_DEVICE[BOM_DATA_COUNT]	= "";
+BOM_DATA_IN_FIELD_PACKAGE[BOM_DATA_COUNT]	= "";
+BOM_DATA_IN_FIELD_DESCRIPTION[BOM_DATA_COUNT] 	= "*NPN*";
+
+/* TRANS N */
+BOM_DATA_COUNT++;
+BOM_DATA_PART_ID[BOM_DATA_COUNT]		= BOM_PART_TRANS_N;
+BOM_DATA_PARSE_VALUE[BOM_DATA_COUNT]		= 0;
+BOM_DATA_NAME[BOM_DATA_COUNT]			= "TRANS N";
+BOM_DATA_NOTE[BOM_DATA_COUNT]			= "%%PACKAGE%%";
+BOM_DATA_GP1[BOM_DATA_COUNT]			= "%%PACKAGE%%";
+BOM_DATA_GP2[BOM_DATA_COUNT]			= "";
+BOM_DATA_GP3[BOM_DATA_COUNT]			= "";
+BOM_DATA_GP4[BOM_DATA_COUNT]			= "%%VALUE%%";
+BOM_DATA_GP5[BOM_DATA_COUNT]			= "";
+BOM_DATA_IN_FIELD_PARTS[BOM_DATA_COUNT] 	= "V*";
+BOM_DATA_IN_FIELD_VALUE[BOM_DATA_COUNT] 	= "";
+BOM_DATA_IN_FIELD_DEVICE[BOM_DATA_COUNT]	= "*NPN*";
+BOM_DATA_IN_FIELD_PACKAGE[BOM_DATA_COUNT]	= "";
+BOM_DATA_IN_FIELD_DESCRIPTION[BOM_DATA_COUNT] 	= "";
+
+/* TRANS P */
+BOM_DATA_COUNT++;
+BOM_DATA_PART_ID[BOM_DATA_COUNT]		= BOM_PART_TRANS_P;
+BOM_DATA_PARSE_VALUE[BOM_DATA_COUNT]		= 0;
+BOM_DATA_NAME[BOM_DATA_COUNT]			= "TRANS P";
+BOM_DATA_NOTE[BOM_DATA_COUNT]			= "%%PACKAGE%%";
+BOM_DATA_GP1[BOM_DATA_COUNT]			= "%%PACKAGE%%";
+BOM_DATA_GP2[BOM_DATA_COUNT]			= "";
+BOM_DATA_GP3[BOM_DATA_COUNT]			= "";
+BOM_DATA_GP4[BOM_DATA_COUNT]			= "%%VALUE%%";
+BOM_DATA_GP5[BOM_DATA_COUNT]			= "";
+BOM_DATA_IN_FIELD_PARTS[BOM_DATA_COUNT] 	= "V*";
+BOM_DATA_IN_FIELD_VALUE[BOM_DATA_COUNT] 	= "";
+BOM_DATA_IN_FIELD_DEVICE[BOM_DATA_COUNT]	= "";
+BOM_DATA_IN_FIELD_PACKAGE[BOM_DATA_COUNT]	= "";
+BOM_DATA_IN_FIELD_DESCRIPTION[BOM_DATA_COUNT] 	= "*PNP*";
+
+/* TRANS P */
+BOM_DATA_COUNT++;
+BOM_DATA_PART_ID[BOM_DATA_COUNT]		= BOM_PART_TRANS_P;
+BOM_DATA_PARSE_VALUE[BOM_DATA_COUNT]		= 0;
+BOM_DATA_NAME[BOM_DATA_COUNT]			= "TRANS P";
+BOM_DATA_NOTE[BOM_DATA_COUNT]			= "%%PACKAGE%%";
+BOM_DATA_GP1[BOM_DATA_COUNT]			= "%%PACKAGE%%";
+BOM_DATA_GP2[BOM_DATA_COUNT]			= "";
+BOM_DATA_GP3[BOM_DATA_COUNT]			= "";
+BOM_DATA_GP4[BOM_DATA_COUNT]			= "%%VALUE%%";
+BOM_DATA_GP5[BOM_DATA_COUNT]			= "";
+BOM_DATA_IN_FIELD_PARTS[BOM_DATA_COUNT] 	= "V*";
+BOM_DATA_IN_FIELD_VALUE[BOM_DATA_COUNT] 	= "";
+BOM_DATA_IN_FIELD_DEVICE[BOM_DATA_COUNT]	= "*PNP*";
+BOM_DATA_IN_FIELD_PACKAGE[BOM_DATA_COUNT]	= "";
+BOM_DATA_IN_FIELD_DESCRIPTION[BOM_DATA_COUNT] 	= "";
+
+
+/* DISPLAY */
+BOM_DATA_COUNT++;
+BOM_DATA_PART_ID[BOM_DATA_COUNT]		= BOM_PART_DISP;
+BOM_DATA_PARSE_VALUE[BOM_DATA_COUNT]		= 0;
+BOM_DATA_NAME[BOM_DATA_COUNT]			= "DISP";
+BOM_DATA_NOTE[BOM_DATA_COUNT]			= "%%PACKAGE%%";
+BOM_DATA_GP1[BOM_DATA_COUNT]			= "%%PACKAGE%%";
+BOM_DATA_GP2[BOM_DATA_COUNT]			= "";
+BOM_DATA_GP3[BOM_DATA_COUNT]			= "";
+BOM_DATA_GP4[BOM_DATA_COUNT]			= "%%VALUE%%";
+BOM_DATA_GP5[BOM_DATA_COUNT]			= "";
+BOM_DATA_IN_FIELD_PARTS[BOM_DATA_COUNT] 	= "H*";
+BOM_DATA_IN_FIELD_VALUE[BOM_DATA_COUNT] 	= "";
+BOM_DATA_IN_FIELD_DEVICE[BOM_DATA_COUNT]	= "";
+BOM_DATA_IN_FIELD_PACKAGE[BOM_DATA_COUNT]	= "*LCD*";
+BOM_DATA_IN_FIELD_DESCRIPTION[BOM_DATA_COUNT] 	= "";
+
+
+/* 7 SEGMENT */
+BOM_DATA_COUNT++;
+BOM_DATA_PART_ID[BOM_DATA_COUNT]		= BOM_PART_DISP;
+BOM_DATA_PARSE_VALUE[BOM_DATA_COUNT]		= 0;
+BOM_DATA_NAME[BOM_DATA_COUNT]			= "DISP";
+BOM_DATA_NOTE[BOM_DATA_COUNT]			= "%%PACKAGE%%";
+BOM_DATA_GP1[BOM_DATA_COUNT]			= "%%PACKAGE%%";
+BOM_DATA_GP2[BOM_DATA_COUNT]			= "";
+BOM_DATA_GP3[BOM_DATA_COUNT]			= "";
+BOM_DATA_GP4[BOM_DATA_COUNT]			= "%%VALUE%%";
+BOM_DATA_GP5[BOM_DATA_COUNT]			= "";
+BOM_DATA_IN_FIELD_PARTS[BOM_DATA_COUNT] 	= "H*";
+BOM_DATA_IN_FIELD_VALUE[BOM_DATA_COUNT] 	= "";
+BOM_DATA_IN_FIELD_DEVICE[BOM_DATA_COUNT]	= "";
+BOM_DATA_IN_FIELD_PACKAGE[BOM_DATA_COUNT]	= "";
+BOM_DATA_IN_FIELD_DESCRIPTION[BOM_DATA_COUNT] 	= "*7 segment*";
+
+
+/* LED */
+BOM_DATA_COUNT++;
+BOM_DATA_PART_ID[BOM_DATA_COUNT]		= BOM_PART_LED;
+BOM_DATA_PARSE_VALUE[BOM_DATA_COUNT]		= 0;
+BOM_DATA_NAME[BOM_DATA_COUNT]			= "LED";
+BOM_DATA_NOTE[BOM_DATA_COUNT]			= "%%PSIZE%%";
+BOM_DATA_GP1[BOM_DATA_COUNT]			= "%%PSIZE%%";
+BOM_DATA_GP2[BOM_DATA_COUNT]			= "";
+BOM_DATA_GP3[BOM_DATA_COUNT]			= "";
+BOM_DATA_GP4[BOM_DATA_COUNT]			= "%%VALUE%%";
+BOM_DATA_GP5[BOM_DATA_COUNT]			= "";
+BOM_DATA_IN_FIELD_PARTS[BOM_DATA_COUNT] 	= "H*";
+BOM_DATA_IN_FIELD_VALUE[BOM_DATA_COUNT] 	= "";
+BOM_DATA_IN_FIELD_DEVICE[BOM_DATA_COUNT]	= "";
+BOM_DATA_IN_FIELD_PACKAGE[BOM_DATA_COUNT]	= "";
+BOM_DATA_IN_FIELD_DESCRIPTION[BOM_DATA_COUNT] 	= "";
+
+/* LED */
+BOM_DATA_COUNT++;
+BOM_DATA_PART_ID[BOM_DATA_COUNT]		= BOM_PART_LED;
+BOM_DATA_PARSE_VALUE[BOM_DATA_COUNT]		= 0;
+BOM_DATA_NAME[BOM_DATA_COUNT]			= "LED";
+BOM_DATA_NOTE[BOM_DATA_COUNT]			= "%%PSIZE%%";
+BOM_DATA_GP1[BOM_DATA_COUNT]			= "%%PSIZE%%";
+BOM_DATA_GP2[BOM_DATA_COUNT]			= "";
+BOM_DATA_GP3[BOM_DATA_COUNT]			= "";
+BOM_DATA_GP4[BOM_DATA_COUNT]			= "%%VALUE%%";
+BOM_DATA_GP5[BOM_DATA_COUNT]			= "";
+BOM_DATA_IN_FIELD_PARTS[BOM_DATA_COUNT] 	= "V*";
+BOM_DATA_IN_FIELD_VALUE[BOM_DATA_COUNT] 	= "";
+BOM_DATA_IN_FIELD_DEVICE[BOM_DATA_COUNT]	= "LED*";
+BOM_DATA_IN_FIELD_PACKAGE[BOM_DATA_COUNT]	= "";
+BOM_DATA_IN_FIELD_DESCRIPTION[BOM_DATA_COUNT] 	= "";
+
+/* LED */
+BOM_DATA_COUNT++;
+BOM_DATA_PART_ID[BOM_DATA_COUNT]		= BOM_PART_LED;
+BOM_DATA_PARSE_VALUE[BOM_DATA_COUNT]		= 0;
+BOM_DATA_NAME[BOM_DATA_COUNT]			= "LED";
+BOM_DATA_NOTE[BOM_DATA_COUNT]			= "%%PSIZE%%";
+BOM_DATA_GP1[BOM_DATA_COUNT]			= "%%PSIZE%%";
+BOM_DATA_GP2[BOM_DATA_COUNT]			= "";
+BOM_DATA_GP3[BOM_DATA_COUNT]			= "";
+BOM_DATA_GP4[BOM_DATA_COUNT]			= "%%VALUE%%";
+BOM_DATA_GP5[BOM_DATA_COUNT]			= "";
+BOM_DATA_IN_FIELD_PARTS[BOM_DATA_COUNT] 	= "V*";
+BOM_DATA_IN_FIELD_VALUE[BOM_DATA_COUNT] 	= "";
+BOM_DATA_IN_FIELD_DEVICE[BOM_DATA_COUNT]	= "";
+BOM_DATA_IN_FIELD_PACKAGE[BOM_DATA_COUNT]	= "LED*";
+BOM_DATA_IN_FIELD_DESCRIPTION[BOM_DATA_COUNT] 	= "";
+
+/* LED */
+BOM_DATA_COUNT++;
+BOM_DATA_PART_ID[BOM_DATA_COUNT]		= BOM_PART_LED;
+BOM_DATA_PARSE_VALUE[BOM_DATA_COUNT]		= 0;
+BOM_DATA_NAME[BOM_DATA_COUNT]			= "LED";
+BOM_DATA_NOTE[BOM_DATA_COUNT]			= "%%PSIZE%%";
+BOM_DATA_GP1[BOM_DATA_COUNT]			= "%%PSIZE%%";
+BOM_DATA_GP2[BOM_DATA_COUNT]			= "";
+BOM_DATA_GP3[BOM_DATA_COUNT]			= "";
+BOM_DATA_GP4[BOM_DATA_COUNT]			= "%%VALUE%%";
+BOM_DATA_GP5[BOM_DATA_COUNT]			= "";
+BOM_DATA_IN_FIELD_PARTS[BOM_DATA_COUNT] 	= "V*";
+BOM_DATA_IN_FIELD_VALUE[BOM_DATA_COUNT] 	= "";
+BOM_DATA_IN_FIELD_DEVICE[BOM_DATA_COUNT]	= "";
+BOM_DATA_IN_FIELD_PACKAGE[BOM_DATA_COUNT]	= "";
+BOM_DATA_IN_FIELD_DESCRIPTION[BOM_DATA_COUNT] 	= "LED*";
+
+/* NORMAL DIODE */
+BOM_DATA_COUNT++;
+BOM_DATA_PART_ID[BOM_DATA_COUNT]		= BOM_PART_DIODE;
+BOM_DATA_PARSE_VALUE[BOM_DATA_COUNT]		= 0;
+BOM_DATA_NAME[BOM_DATA_COUNT]			= "DIO";
+BOM_DATA_NOTE[BOM_DATA_COUNT]			= "%%PACKAGE%%";
+BOM_DATA_GP1[BOM_DATA_COUNT]			= "%%PACKAGE%%";
+BOM_DATA_GP2[BOM_DATA_COUNT]			= "";
+BOM_DATA_GP3[BOM_DATA_COUNT]			= "";
+BOM_DATA_GP4[BOM_DATA_COUNT]			= "%%VALUE%%";
+BOM_DATA_GP5[BOM_DATA_COUNT]			= "";
+BOM_DATA_IN_FIELD_PARTS[BOM_DATA_COUNT] 	= "V*";
+BOM_DATA_IN_FIELD_VALUE[BOM_DATA_COUNT] 	= "";
+BOM_DATA_IN_FIELD_DEVICE[BOM_DATA_COUNT]	= "";
+BOM_DATA_IN_FIELD_PACKAGE[BOM_DATA_COUNT]	= "";
+BOM_DATA_IN_FIELD_DESCRIPTION[BOM_DATA_COUNT] 	= "";
+
+
+/* VREG */
+BOM_DATA_COUNT++;
+BOM_DATA_PART_ID[BOM_DATA_COUNT]		= BOM_PART_VREG;
+BOM_DATA_PARSE_VALUE[BOM_DATA_COUNT]		= 0;
+BOM_DATA_NAME[BOM_DATA_COUNT]			= "VREG";
+BOM_DATA_NOTE[BOM_DATA_COUNT]			= "%%PACKAGE%%";
+BOM_DATA_GP1[BOM_DATA_COUNT]			= "%%PACKAGE%%";
+BOM_DATA_GP2[BOM_DATA_COUNT]			= "";
+BOM_DATA_GP3[BOM_DATA_COUNT]			= "";
+BOM_DATA_GP4[BOM_DATA_COUNT]			= "%%VALUE%%";
+BOM_DATA_GP5[BOM_DATA_COUNT]			= "";
+BOM_DATA_IN_FIELD_PARTS[BOM_DATA_COUNT] 	= "N*";
+BOM_DATA_IN_FIELD_VALUE[BOM_DATA_COUNT] 	= "";
+BOM_DATA_IN_FIELD_DEVICE[BOM_DATA_COUNT]	= "*78XX*";
+BOM_DATA_IN_FIELD_PACKAGE[BOM_DATA_COUNT]	= "";
+BOM_DATA_IN_FIELD_DESCRIPTION[BOM_DATA_COUNT] 	= "";
+
+/* VREG */
+BOM_DATA_COUNT++;
+BOM_DATA_PART_ID[BOM_DATA_COUNT]		= BOM_PART_VREG;
+BOM_DATA_PARSE_VALUE[BOM_DATA_COUNT]		= 0;
+BOM_DATA_NAME[BOM_DATA_COUNT]			= "VREG";
+BOM_DATA_NOTE[BOM_DATA_COUNT]			= "%%PACKAGE%%";
+BOM_DATA_GP1[BOM_DATA_COUNT]			= "%%PACKAGE%%";
+BOM_DATA_GP2[BOM_DATA_COUNT]			= "";
+BOM_DATA_GP3[BOM_DATA_COUNT]			= "";
+BOM_DATA_GP4[BOM_DATA_COUNT]			= "%%VALUE%%";
+BOM_DATA_GP5[BOM_DATA_COUNT]			= "";
+BOM_DATA_IN_FIELD_PARTS[BOM_DATA_COUNT] 	= "N*";
+BOM_DATA_IN_FIELD_VALUE[BOM_DATA_COUNT] 	= "";
+BOM_DATA_IN_FIELD_DEVICE[BOM_DATA_COUNT]	= "";
+BOM_DATA_IN_FIELD_PACKAGE[BOM_DATA_COUNT]	= "";
+BOM_DATA_IN_FIELD_DESCRIPTION[BOM_DATA_COUNT] 	= "*VOLTAGE REGULATOR*";
+
+
+/* IC - Analog */
+BOM_DATA_COUNT++;
+BOM_DATA_PART_ID[BOM_DATA_COUNT]		= BOM_PART_IC_ANALOG;
+BOM_DATA_PARSE_VALUE[BOM_DATA_COUNT]		= 0;
+BOM_DATA_NAME[BOM_DATA_COUNT]			= "IC";
+BOM_DATA_NOTE[BOM_DATA_COUNT]			= "%%PACKAGE%%";
+BOM_DATA_GP1[BOM_DATA_COUNT]			= "%%PACKAGE%%";
+BOM_DATA_GP2[BOM_DATA_COUNT]			= "";
+BOM_DATA_GP3[BOM_DATA_COUNT]			= "";
+BOM_DATA_GP4[BOM_DATA_COUNT]			= "%%VALUE%%";
+BOM_DATA_GP5[BOM_DATA_COUNT]			= "";
+BOM_DATA_IN_FIELD_PARTS[BOM_DATA_COUNT] 	= "N*";
+BOM_DATA_IN_FIELD_VALUE[BOM_DATA_COUNT] 	= "";
+BOM_DATA_IN_FIELD_DEVICE[BOM_DATA_COUNT]	= "";
+BOM_DATA_IN_FIELD_PACKAGE[BOM_DATA_COUNT]	= "";
+BOM_DATA_IN_FIELD_DESCRIPTION[BOM_DATA_COUNT] 	= "";
+
+/* IC - Digital */
+BOM_DATA_COUNT++;
+BOM_DATA_PART_ID[BOM_DATA_COUNT]		= BOM_PART_IC_DIGITAL;
+BOM_DATA_PARSE_VALUE[BOM_DATA_COUNT]		= 0;
+BOM_DATA_NAME[BOM_DATA_COUNT]			= "IC";
+BOM_DATA_NOTE[BOM_DATA_COUNT]			= "%%PACKAGE%%";
+BOM_DATA_GP1[BOM_DATA_COUNT]			= "%%PACKAGE%%";
+BOM_DATA_GP2[BOM_DATA_COUNT]			= "";
+BOM_DATA_GP3[BOM_DATA_COUNT]			= "";
+BOM_DATA_GP4[BOM_DATA_COUNT]			= "%%VALUE%%";
+BOM_DATA_GP5[BOM_DATA_COUNT]			= "";
+BOM_DATA_IN_FIELD_PARTS[BOM_DATA_COUNT] 	= "D*";
+BOM_DATA_IN_FIELD_VALUE[BOM_DATA_COUNT] 	= "";
+BOM_DATA_IN_FIELD_DEVICE[BOM_DATA_COUNT]	= "";
+BOM_DATA_IN_FIELD_PACKAGE[BOM_DATA_COUNT]	= "";
+BOM_DATA_IN_FIELD_DESCRIPTION[BOM_DATA_COUNT] 	= "";
+
+/* Pushbutton */
+BOM_DATA_COUNT++;
+BOM_DATA_PART_ID[BOM_DATA_COUNT]		= BOM_PART_PUSH_BUTTON;
+BOM_DATA_PARSE_VALUE[BOM_DATA_COUNT]		= 0;
+BOM_DATA_NAME[BOM_DATA_COUNT]			= "TASTER";
+BOM_DATA_NOTE[BOM_DATA_COUNT]			= "%%PACKAGE%%";
+BOM_DATA_GP1[BOM_DATA_COUNT]			= "%%PACKAGE%%";
+BOM_DATA_GP2[BOM_DATA_COUNT]			= "";
+BOM_DATA_GP3[BOM_DATA_COUNT]			= "";
+BOM_DATA_GP4[BOM_DATA_COUNT]			= "%%VALUE%%";
+BOM_DATA_GP5[BOM_DATA_COUNT]			= "";
+BOM_DATA_IN_FIELD_PARTS[BOM_DATA_COUNT] 	= "S*";
+BOM_DATA_IN_FIELD_VALUE[BOM_DATA_COUNT] 	= "";
+BOM_DATA_IN_FIELD_DEVICE[BOM_DATA_COUNT]	= "";
+BOM_DATA_IN_FIELD_PACKAGE[BOM_DATA_COUNT]	= "";
+BOM_DATA_IN_FIELD_DESCRIPTION[BOM_DATA_COUNT] 	= "*OMRON SWITCH*";
+
+/* Button */
+BOM_DATA_COUNT++;
+BOM_DATA_PART_ID[BOM_DATA_COUNT]		= BOM_PART_SWITCH;
+BOM_DATA_PARSE_VALUE[BOM_DATA_COUNT]		= 0;
+BOM_DATA_NAME[BOM_DATA_COUNT]			= "SCHALTER";
+BOM_DATA_NOTE[BOM_DATA_COUNT]			= "%%PACKAGE%%";
+BOM_DATA_GP1[BOM_DATA_COUNT]			= "%%PACKAGE%%";
+BOM_DATA_GP2[BOM_DATA_COUNT]			= "";
+BOM_DATA_GP3[BOM_DATA_COUNT]			= "";
+BOM_DATA_GP4[BOM_DATA_COUNT]			= "%%VALUE%%";
+BOM_DATA_GP5[BOM_DATA_COUNT]			= "";
+BOM_DATA_IN_FIELD_PARTS[BOM_DATA_COUNT] 	= "S*";
+BOM_DATA_IN_FIELD_VALUE[BOM_DATA_COUNT] 	= "";
+BOM_DATA_IN_FIELD_DEVICE[BOM_DATA_COUNT]	= "";
+BOM_DATA_IN_FIELD_PACKAGE[BOM_DATA_COUNT]	= "";
+BOM_DATA_IN_FIELD_DESCRIPTION[BOM_DATA_COUNT] 	= "";
+
+/* Connectors */
+BOM_DATA_COUNT++;
+BOM_DATA_PART_ID[BOM_DATA_COUNT]		= BOM_PART_CONNECTOR;
+BOM_DATA_PARSE_VALUE[BOM_DATA_COUNT]		= 0;
+BOM_DATA_NAME[BOM_DATA_COUNT]			= "CON";
+BOM_DATA_NOTE[BOM_DATA_COUNT]			= "%%PACKAGE%%";
+BOM_DATA_GP1[BOM_DATA_COUNT]			= "%%PACKAGE%%";
+BOM_DATA_GP2[BOM_DATA_COUNT]			= "";
+BOM_DATA_GP3[BOM_DATA_COUNT]			= "";
+BOM_DATA_GP4[BOM_DATA_COUNT]			= "%%VALUE%%";
+BOM_DATA_GP5[BOM_DATA_COUNT]			= "";
+BOM_DATA_IN_FIELD_PARTS[BOM_DATA_COUNT] 	= "X*";
+BOM_DATA_IN_FIELD_VALUE[BOM_DATA_COUNT] 	= "";
+BOM_DATA_IN_FIELD_DEVICE[BOM_DATA_COUNT]	= "";
+BOM_DATA_IN_FIELD_PACKAGE[BOM_DATA_COUNT]	= "";
+BOM_DATA_IN_FIELD_DESCRIPTION[BOM_DATA_COUNT] 	= "";
+
+/* Fuse */
+BOM_DATA_COUNT++;
+BOM_DATA_PART_ID[BOM_DATA_COUNT]		= BOM_PART_FUSE;
+BOM_DATA_PARSE_VALUE[BOM_DATA_COUNT]		= 0;
+BOM_DATA_NAME[BOM_DATA_COUNT]			= "SICH";
+BOM_DATA_NOTE[BOM_DATA_COUNT]			= "%%PACKAGE%%";
+BOM_DATA_GP1[BOM_DATA_COUNT]			= "%%PACKAGE%%";
+BOM_DATA_GP2[BOM_DATA_COUNT]			= "";
+BOM_DATA_GP3[BOM_DATA_COUNT]			= "";
+BOM_DATA_GP4[BOM_DATA_COUNT]			= "%%VALUE%%";
+BOM_DATA_GP5[BOM_DATA_COUNT]			= "";
+BOM_DATA_IN_FIELD_PARTS[BOM_DATA_COUNT] 	= "F*";
+BOM_DATA_IN_FIELD_VALUE[BOM_DATA_COUNT] 	= "";
+BOM_DATA_IN_FIELD_DEVICE[BOM_DATA_COUNT]	= "";
+BOM_DATA_IN_FIELD_PACKAGE[BOM_DATA_COUNT]	= "";
+BOM_DATA_IN_FIELD_DESCRIPTION[BOM_DATA_COUNT] 	= "";
+
+/* Trafo */
+BOM_DATA_COUNT++;
+BOM_DATA_PART_ID[BOM_DATA_COUNT]		= BOM_PART_TRAFO;
+BOM_DATA_PARSE_VALUE[BOM_DATA_COUNT]		= 0;
+BOM_DATA_NAME[BOM_DATA_COUNT]			= "SICH";
+BOM_DATA_NOTE[BOM_DATA_COUNT]			= "%%PACKAGE%%";
+BOM_DATA_GP1[BOM_DATA_COUNT]			= "%%PACKAGE%%";
+BOM_DATA_GP2[BOM_DATA_COUNT]			= "";
+BOM_DATA_GP3[BOM_DATA_COUNT]			= "";
+BOM_DATA_GP4[BOM_DATA_COUNT]			= "%%VALUE%%";
+BOM_DATA_GP5[BOM_DATA_COUNT]			= "";
+BOM_DATA_IN_FIELD_PARTS[BOM_DATA_COUNT] 	= "T*";
+BOM_DATA_IN_FIELD_VALUE[BOM_DATA_COUNT] 	= "";
+BOM_DATA_IN_FIELD_DEVICE[BOM_DATA_COUNT]	= "";
+BOM_DATA_IN_FIELD_PACKAGE[BOM_DATA_COUNT]	= "";
+BOM_DATA_IN_FIELD_DESCRIPTION[BOM_DATA_COUNT] 	= "";
+
+
+/* Speaker */
+BOM_DATA_COUNT++;
+BOM_DATA_PART_ID[BOM_DATA_COUNT]		= BOM_PART_SPEAKER;
+BOM_DATA_PARSE_VALUE[BOM_DATA_COUNT]		= 0;
+BOM_DATA_NAME[BOM_DATA_COUNT]			= "LS";
+BOM_DATA_NOTE[BOM_DATA_COUNT]			= "%%PACKAGE%%";
+BOM_DATA_GP1[BOM_DATA_COUNT]			= "%%PACKAGE%%";
+BOM_DATA_GP2[BOM_DATA_COUNT]			= "";
+BOM_DATA_GP3[BOM_DATA_COUNT]			= "";
+BOM_DATA_GP4[BOM_DATA_COUNT]			= "%%VALUE%%";
+BOM_DATA_GP5[BOM_DATA_COUNT]			= "";
+BOM_DATA_IN_FIELD_PARTS[BOM_DATA_COUNT] 	= "B*";
+BOM_DATA_IN_FIELD_VALUE[BOM_DATA_COUNT] 	= "";
+BOM_DATA_IN_FIELD_DEVICE[BOM_DATA_COUNT]	= "";
+BOM_DATA_IN_FIELD_PACKAGE[BOM_DATA_COUNT]	= "";
+BOM_DATA_IN_FIELD_DESCRIPTION[BOM_DATA_COUNT] 	= "*SPEAKER*";
+
+/* Buzzer */
+BOM_DATA_COUNT++;
+BOM_DATA_PART_ID[BOM_DATA_COUNT]		= BOM_PART_BUZZER;
+BOM_DATA_PARSE_VALUE[BOM_DATA_COUNT]		= 0;
+BOM_DATA_NAME[BOM_DATA_COUNT]			= "LS";
+BOM_DATA_NOTE[BOM_DATA_COUNT]			= "%%PACKAGE%%";
+BOM_DATA_GP1[BOM_DATA_COUNT]			= "%%PACKAGE%%";
+BOM_DATA_GP2[BOM_DATA_COUNT]			= "";
+BOM_DATA_GP3[BOM_DATA_COUNT]			= "";
+BOM_DATA_GP4[BOM_DATA_COUNT]			= "%%VALUE%%";
+BOM_DATA_GP5[BOM_DATA_COUNT]			= "";
+BOM_DATA_IN_FIELD_PARTS[BOM_DATA_COUNT] 	= "B*";
+BOM_DATA_IN_FIELD_VALUE[BOM_DATA_COUNT] 	= "";
+BOM_DATA_IN_FIELD_DEVICE[BOM_DATA_COUNT]	= "";
+BOM_DATA_IN_FIELD_PACKAGE[BOM_DATA_COUNT]	= "";
+BOM_DATA_IN_FIELD_DESCRIPTION[BOM_DATA_COUNT] 	= "*BUZZER*";
+
+
+/* Quarz */
+BOM_DATA_COUNT++;
+BOM_DATA_PART_ID[BOM_DATA_COUNT]		= BOM_PART_QUARZ;
+BOM_DATA_PARSE_VALUE[BOM_DATA_COUNT]		= 0;
+BOM_DATA_NAME[BOM_DATA_COUNT]			= "QU";
+BOM_DATA_NOTE[BOM_DATA_COUNT]			= "%%PACKAGE%%";
+BOM_DATA_GP1[BOM_DATA_COUNT]			= "%%PACKAGE%%";
+BOM_DATA_GP2[BOM_DATA_COUNT]			= "";
+BOM_DATA_GP3[BOM_DATA_COUNT]			= "";
+BOM_DATA_GP4[BOM_DATA_COUNT]			= "%%VALUE%%";
+BOM_DATA_GP5[BOM_DATA_COUNT]			= "";
+BOM_DATA_IN_FIELD_PARTS[BOM_DATA_COUNT] 	= "B*";
+BOM_DATA_IN_FIELD_VALUE[BOM_DATA_COUNT] 	= "";
+BOM_DATA_IN_FIELD_DEVICE[BOM_DATA_COUNT]	= "";
+BOM_DATA_IN_FIELD_PACKAGE[BOM_DATA_COUNT]	= "";
+BOM_DATA_IN_FIELD_DESCRIPTION[BOM_DATA_COUNT] 	= "";
+
+
+/* OTHER PARTS */
+BOM_DATA_COUNT++;
+BOM_DATA_PART_ID[BOM_DATA_COUNT]		= BOM_PART_UNRECOGNISED;
+BOM_DATA_PARSE_VALUE[BOM_DATA_COUNT]		= 0;
+BOM_DATA_NAME[BOM_DATA_COUNT]			= "";
+BOM_DATA_NOTE[BOM_DATA_COUNT]			= "%%PACKAGE%%";
+BOM_DATA_GP1[BOM_DATA_COUNT]			= "%%PACKAGE%%";
+BOM_DATA_GP2[BOM_DATA_COUNT]			= "";
+BOM_DATA_GP3[BOM_DATA_COUNT]			= "";
+BOM_DATA_GP4[BOM_DATA_COUNT]			= "%%VALUE%%";
+BOM_DATA_GP5[BOM_DATA_COUNT]			= "";
+BOM_DATA_IN_FIELD_PARTS[BOM_DATA_COUNT] 	= "";
+BOM_DATA_IN_FIELD_VALUE[BOM_DATA_COUNT] 	= "";
+BOM_DATA_IN_FIELD_DEVICE[BOM_DATA_COUNT]	= "";
+BOM_DATA_IN_FIELD_PACKAGE[BOM_DATA_COUNT]	= "";
+BOM_DATA_IN_FIELD_DESCRIPTION[BOM_DATA_COUNT] 	= "";
+
+BOM_DATA_COUNT++;
+
+int 	bomDisplayPackageType = 0;
+int 	bomShortPartNames = 0;
+int 	bomExportXls = 0;
+int 	bomExportXlsx = 0;
+int 	bomExportCsv = 0;
+int 	bomExportDbase3 = 0;
+
+int	bomInfoCount = 0;
+
+/* Data field definitions */
+int	bomInfoPartId[];
+int	bomInfoPartCount[];
+string	bomInfoName[];
+string	bomInfoParts[];
+string	bomInfoValue[];
+int	bomInfoHasParsedValue[];
+real	bomInfoParsedValue[];
+string	bomInfoPackage[];
+string	bomInfoDevice[];
+string	bomInfoDescription[]; 
+string	bomAttributeDistributor[];
+string	bomAttributeOrderNo[];
+string	bomAttributeManufacturer[];
+string 	bomAttributePartNo[];
+string	bomAttributeReferenceNo[];
+string	bomAttributeReserved1[];
+string	bomAttributeReserved2[];
+string	bomAttributePrice[];
+string	bomAttributePrices[];
+string	bomAttributeAvailableQuantity[];
+string	bomAttributePartsPerPackage[];
+string	bomAttributeMinimumQuantity[];
+string	bomAttributeQuantityMultiplier[];
+string	bomAttributeDatasheet[];
+
+
+int	bomOutputCount[];
+string	bomOutputName[];
+string	bomOutputParts[];
+string	bomOutputNote[];
+string	bomOutputGP1[];
+string	bomOutputGP2[];
+string	bomOutputGP3[];
+string	bomOutputGP4[];
+
+
+string bomStringFTrim(string str)
+{
+	string str2;
+	int trimmed = 0;
+
+	for(int i = 0; str[i]; i++)
+	{
+		if(trimmed)
+		{
+			str2 += str[i];
+		}
+		else if(str[i] != ' ' && str[i] != '\n' && str[i] != '\t')
+		{
+			trimmed = 1;
+			str2 += str[i];
+		}
+	}
+
+	return str2;
+}
+
+string bomStringLTrim(string str)
+{
+	string str2;
+	int trimmed = 0;
+
+	for(int i = strlen(str)-1; i >= 0; i--)
+	{
+		if(trimmed)
+		{
+			sprintf(str2, "%c%s", str[i], str2);
+		}
+		else if(str[i] != ' ' && str[i] != '\n' && str[i] != '\t')
+		{
+			trimmed = 1;
+			sprintf(str2, "%c%s", str[i], str2);
+		}
+	}
+
+	return str2;
+}
+
+string bomStringTrim(string str)
+{
+	return bomStringLTrim(bomStringFTrim(str));
+}
+
+
+
+string bomStringReplace(string str, string search, string replace)
+{
+	int offset = 0;
+	while(strstr(str, search, offset) != -1)
+	{
+		int start = strstr(str, search, offset);
+		int end = start + strlen(search);
+		string str1 = strsub(str, 0, start);
+		string str2 = strsub(str, end);
+		
+		offset = strlen(str1) + strlen(replace) + 1;
+
+		str = str1 + replace + str2;
+	}
+
+	return str;
+}
+
+string bomStringConvertDotToComma(string str)
+{
+	return str; //bomStringReplace(str, ".", ",");
+}
+
+int bomSiGetIndex(char c)
+{
+	for(int i = 0; BOM_SI_NAMES[i]; i++)
+	{
+		if(BOM_SI_NAMES[i] == c)
+		{
+			return i;
+		}
+	}
+
+	return -1;	
+}
+
+// EAGLE ADDS A ":" to sprintf's real value, why?
+string bomStringFromReal(real value)
+{
+	string tmp;
+	sprintf(tmp, "%e", value);
+	
+	if(strchr(tmp, ':') != -1)
+	{
+		tmp[strchr(tmp, ':')] = '0';
+	}
+
+	return tmp;
+}
+
+real bomSiParseValue(string value)
+{
+	value = bomStringTrim(value);
+
+	string tmpvalue = "";
+	real multiplier = 1;
+	real rdata = 0;
+
+
+	for (int i = 0; value[i]; ++i) 
+	{
+		if(value[i] >= '0' && value[i] <= '9' || value[i] == '.') //ASCII TABLE Comparison - 0123456789 <-
+		{
+			tmpvalue += value[i];
+		}
+		else if(bomSiGetIndex(value[i]) != -1)
+		{
+			tmpvalue += ".";
+			if(multiplier == 1) // If another multi was set: example 2k2R <-- Wrong but recognised correct
+			{
+				multiplier = pow(10,BOM_SI_VALUE[bomSiGetIndex(value[i])]);
+			}
+		}
+		else
+		{
+			break;
+		}
+	}
+
+	rdata = strtod(tmpvalue);
+	rdata *= multiplier;
+
+	return rdata;
+}
+
+int bomStringAdvancedMatch(string needle, string haystack)
+{
+	string search[];
+	int index = 0;
+
+	int count = strsplit(search, needle, '*');
+
+	if(bomStringTrim(haystack) == "" && needle != "")
+	{
+		return 0;
+	}
+
+	for(int i = 0; i < count; i++)
+	{
+		if(search[i] != "" && (index = strstr(haystack, search[i], index)) == -1)
+		{
+			return 0;
+		}
+	}
+
+	
+	return 1;
+}
+
+/* Parameters look like: grid 5 mm, outline 5 x 5 mm */
+string bomStringParameterValue(string parameter, string haystack)
+{
+	string data = "";
+
+	int start = strstr(haystack, parameter, 0);
+	int len = strlen(parameter) + 1;
+	int end = 0;
+
+	if(start != -1)
+	{
+		end = strstr(haystack, ",", start);
+		end = end==-1?strlen(haystack):end;
+
+		data = strsub(haystack, start + len , end-(start+len));
+	}
+
+	return bomStringTrim(data);
+}
+
+int bomStringParameterPresent(string parameter, string haystack)
+{
+	return (strstr(haystack, parameter, 0) != -1)?1:0;
+}
+
+
+string bomStringWildcardGetNext(string wildcarded)
+{
+	int start = strstr(wildcarded, BOM_WILDCARD_STR);
+	int end = strstr(wildcarded, BOM_WILDCARD_STR, start+1);
+
+	return strsub(wildcarded, start+2, end-start-2);
+}
+
+string bomStringWildcardReplace(string wildcarded, string wildcard, string replacement)
+{
+	int start = strstr(wildcarded, BOM_WILDCARD_STR + wildcard + BOM_WILDCARD_STR, 0);
+	int end = start + strlen(BOM_WILDCARD_STR + wildcard + BOM_WILDCARD_STR);
+	string str1 = strsub(wildcarded, 0, start);
+	string str2 = strsub(wildcarded, end);
+
+	return str1 + replacement + str2;
+}
+
+
+string bomValuesGet(int pid, string name)
+{
+	if(name == "PACKAGE")
+	{
+		return bomInfoPackage[pid];
+	}
+	else if(name == "DEVICE")
+	{
+		return bomInfoDevice[pid];
+	}
+	else if(name == "DESCRIPTION")
+	{
+		return bomInfoDescription[pid];
+	}
+	else if(name == "PARTS")
+	{
+		return bomInfoParts[pid];
+	}
+	else if(name == "VALUE")
+	{
+		return bomInfoValue[pid];
+	}
+	else if(name == "PARSED_VALUE")
+	{
+		string tmp;
+		sprintf(tmp, "%e",bomInfoParsedValue[pid]);
+		return tmp;
+	}
+	else if(name == "GRID")
+	{
+		string tmp;
+		if((tmp = bomStringParameterValue("grid", bomInfoDescription[pid])) != "")
+		{
+			tmp = bomStringReplace(tmp, "mm", "");
+			return "RM" + tmp;
+		}
+		return "";
+	}
+	else if(name == "PSIZE")
+	{
+		string tmp;
+		
+
+		if(bomStringParameterPresent("chip", bomInfoDescription[pid]))
+		{
+			if(bomDisplayPackageType)
+			{
+				return "SMD " + strsub(bomInfoPackage[pid], 1);
+			}
+			else
+			{
+				return strsub(bomInfoPackage[pid], 1);
+			}
+		}
+		else if(bomStringParameterPresent("MELF", bomInfoDescription[pid]))
+		{
+			if(bomDisplayPackageType)
+			{
+				return "MELF " + strsub(bomInfoPackage[pid], 1);
+			}
+			else
+			{
+				return strsub(bomInfoPackage[pid], 1);
+			}
+		}
+		else if(bomStringParameterPresent("outline", bomInfoDescription[pid]))
+		{
+			return bomStringParameterValue("outline", bomInfoDescription[pid]);
+		}
+		else if(bomStringParameterPresent("diameter", bomInfoDescription[pid]))
+		{
+			return bomStringParameterValue("diameter", bomInfoDescription[pid]) + " radial";
+		}
+		else if(bomStringParameterPresent("type", bomInfoDescription[pid]))
+		{
+			return bomStringParameterValue("type", bomInfoDescription[pid]);
+		}
+		else
+		{
+			return bomInfoPackage[pid];
+		}
+		
+	}
+	else
+	{
+		return "";
+	}
+}
+
+string bomWildcardReplaceWithValues(int pid, string wildcarded)
+{
+	while(strstr(wildcarded, BOM_WILDCARD_STR) != -1)
+	{
+		string wildcard = bomStringWildcardGetNext(wildcarded);
+		wildcarded = bomStringWildcardReplace(wildcarded, wildcard, bomValuesGet(pid, wildcard));
+	}
+	return wildcarded;
+}
+
+int bomPartPresent(string value, string dev, string pack, string desc, string distributor, string orderNo, string manufacturer, string partNo, string referenceNo, string reserved1, string reserved2)
+{
+	for(int i = 0; i < bomInfoCount; i++)
+	{
+		if(	distributor != "" && orderNo != "" &&
+			bomAttributeDistributor[i] == distributor && 
+			bomAttributeOrderNo[i] == orderNo && 
+			bomAttributeManufacturer[i] == manufacturer && 
+			bomAttributePartNo[i] == partNo && 
+			bomAttributeReferenceNo[i] == referenceNo &&
+			bomAttributeReserved1[i] == reserved1 && 
+			bomAttributeReserved2[i] == reserved2
+		)
+		{
+			if(value != bomInfoValue[i])
+			{
+				bomInfoValue[i] = "";
+			}
+			return i;
+		}
+
+		if(	bomInfoValue[i] == value && 
+			bomInfoDevice[i] == dev && 
+			bomInfoPackage[i] == pack && 
+			bomInfoDescription[i] == desc
+		)
+		{
+			return i;
+		}
+	}
+	return -1;
+}
+
+
+void bomPartsLoad()
+{
+	project.schematic(S) 
+	{
+		S.parts(P) 
+		{
+			if (P.device.package) 
+			{
+				int pdevice = 0;
+
+				string distributor 		= "";
+				string orderNo 		= "";
+				string manufacturer 	= "";
+				string partNo 		= "";
+				string referenceNo 		= "";
+				string reserved1 		= "";
+				string reserved2 		= "";
+				string price 		= "";
+				string prices 		= "";
+				string availableQuantity 	= "";
+				string partsPerPackage	= "";
+				string minimumQuantity	= "";
+				string quantityMultiplier	= "";
+				string datasheet 		= "";
+
+				
+				P.attributes(A) {
+     					if(A.name == "DISTRIBUTOR")
+					{
+						distributor = A.value;
+					}
+					else if(A.name == "ORDER_NO")
+					{
+						orderNo = A.value;
+					}
+					else if(A.name == "MANUFACTURER")
+					{
+						manufacturer = A.value;
+					}
+					else if(A.name == "PART_NO")
+					{
+						partNo = A.value;
+					}
+					else if(A.name == "REFERENCE_NO")
+					{
+						referenceNo = A.value;
+					}
+					else if(A.name == "RESERVED1")
+					{
+						reserved1 = A.value;
+					}
+					else if(A.name == "RESERVED2")
+					{
+						reserved2 = A.value;
+					}
+     					else if(A.name == "PRICE")
+					{
+						price = A.value;
+					}
+					else if(A.name == "PRICES")
+					{
+						prices = A.value;
+					}
+					else if(A.name == "AVAILABLE_QUANTITY")
+					{
+						availableQuantity = A.value;
+					}
+					else if(A.name == "PARTS_PER_PACKAGE")
+					{
+						partsPerPackage = A.value;
+					}
+					else if(A.name == "MINIMUM_QUANTITY")
+					{
+						minimumQuantity = A.value;
+					}
+					else if(A.name == "QUANTITY_MULTIPLIER")
+					{
+						quantityMultiplier = A.value;
+					}
+					else if(A.name == "DATASHEET")
+					{
+						datasheet = A.value;
+					}
+      				}
+				
+
+				if((pdevice = bomPartPresent(P.value,P.device.name,P.device.package.name,P.device.package.description,distributor, orderNo, manufacturer, partNo, referenceNo, reserved1, reserved2)) != -1)
+				{
+					bomInfoParts[pdevice] += "," + P.name;
+					bomInfoPartCount[pdevice]++;
+				
+					
+				}
+				else
+				{
+					bomInfoParts[bomInfoCount] = P.name;
+					bomInfoValue[bomInfoCount] = P.value;
+					bomInfoDevice[bomInfoCount] = P.device.name;
+					bomInfoPackage[bomInfoCount] = P.device.package.name;
+					bomInfoDescription[bomInfoCount] = P.device.package.description;
+					bomAttributeDistributor[bomInfoCount] = distributor;
+					bomAttributeOrderNo[bomInfoCount] = orderNo;
+					bomAttributeManufacturer[bomInfoCount] = manufacturer;
+					bomAttributePartNo[bomInfoCount] = partNo;
+					bomAttributeReferenceNo[bomInfoCount] = referenceNo;
+					bomAttributeReserved1[bomInfoCount] = reserved1;
+					bomAttributeReserved2[bomInfoCount] = reserved2;
+					bomAttributePrice[bomInfoCount] = price;
+					bomAttributePrices[bomInfoCount] = prices;
+					bomAttributeAvailableQuantity[bomInfoCount] = availableQuantity;
+					bomAttributePartsPerPackage[bomInfoCount] = partsPerPackage;
+					bomAttributeMinimumQuantity[bomInfoCount] = minimumQuantity;
+					bomAttributeQuantityMultiplier[bomInfoCount] = quantityMultiplier;
+					bomAttributeDatasheet[bomInfoCount] = datasheet;
+
+					bomInfoPartCount[bomInfoCount] = 1;
+					bomInfoCount++;
+				}
+			}
+	      	}
+	
+	}
+
+}
+
+
+void bomPartsCategorize()
+{
+	for(int i = 0; i < bomInfoCount; i++)
+	{
+		for(int k = 0; k < BOM_DATA_COUNT; k++)
+		{
+			if(
+				bomStringAdvancedMatch(BOM_DATA_IN_FIELD_PARTS[k], bomInfoParts[i]) &&
+				bomStringAdvancedMatch(BOM_DATA_IN_FIELD_VALUE[k], bomInfoValue[i]) &&
+				bomStringAdvancedMatch(BOM_DATA_IN_FIELD_DEVICE[k], bomInfoDevice[i]) &&
+				bomStringAdvancedMatch(BOM_DATA_IN_FIELD_PACKAGE[k], bomInfoPackage[i]) &&
+				bomStringAdvancedMatch(BOM_DATA_IN_FIELD_DESCRIPTION[k], bomInfoDescription[i])				
+			)
+			{
+				if(BOM_DATA_PARSE_VALUE[k])
+				{
+					bomInfoHasParsedValue[i] = 1;
+					bomInfoParsedValue[i] = bomSiParseValue(bomInfoValue[i]);
+				}
+				bomInfoPartId[i] = BOM_DATA_PART_ID[k];
+				bomOutputCount[i] = bomInfoPartCount[i];
+				bomOutputName[i] = BOM_DATA_NAME[k] + " " + bomInfoValue[i];
+				bomOutputParts[i] = bomInfoParts[i];
+				bomOutputNote[i] = bomWildcardReplaceWithValues(i, BOM_DATA_NOTE[k]);
+				bomOutputGP1[i] = bomWildcardReplaceWithValues(i, bomOutputGP1[k]);
+				bomOutputGP2[i] = bomWildcardReplaceWithValues(i, bomOutputGP2[k]);
+				bomOutputGP3[i] = bomWildcardReplaceWithValues(i, bomOutputGP3[k]);
+				bomOutputGP4[i] = bomWildcardReplaceWithValues(i, bomOutputGP4[k]);
+				break;
+			}	
+
+		}
+	}
+}
+
+
+void bomPartSwitch(int pid1, int pid2)
+{
+	string	tmpOutputName		= bomOutputName[pid1];
+	string	tmpOutputParts		= bomOutputParts[pid1];
+	string	tmpOutputNote		= bomOutputNote[pid1];
+	string	tmpOutputGP1		= bomOutputGP1[pid1];
+	string	tmpOutputGP2		= bomOutputGP2[pid1];
+	string	tmpOutputGP3		= bomOutputGP3[pid1];
+	string	tmpOutputGP4		= bomOutputGP4[pid1];
+	int	tmpInfoPartId		= bomInfoPartId[pid1];
+	int	tmpInfoPartCount		= bomInfoPartCount[pid1];
+	string	tmpInfoName		= bomInfoName[pid1];
+	string	tmpInfoParts		= bomInfoParts[pid1];
+	string	tmpInfoValue		= bomInfoValue[pid1];
+	int	tmpInfoHasParsedValue 	= bomInfoHasParsedValue[pid1];
+	real	tmpInfoParsedValue		= bomInfoParsedValue[pid1];
+	string	tmpInfoPackage		= bomInfoPackage[pid1];
+	string	tmpInfoDevice		= bomInfoDevice[pid1];
+	string	tmpInfoDescription		= bomInfoDescription[pid1]; 
+	string	tmpAttributeDistributor	= bomAttributeDistributor[pid1];
+ 	string	tmpAttributeOrderNo		= bomAttributeOrderNo[pid1];
+ 	string	tmpAttributeManufacturer	= bomAttributeManufacturer[pid1];
+ 	string	tmpAttributePartNo		= bomAttributePartNo[pid1];
+ 	string	tmpAttributeReferenceNo	= bomAttributeReferenceNo[pid1];
+	string 	tmpAttributeReserved1	= bomAttributeReserved1[pid1];
+	string 	tmpAttributeReserved2	= bomAttributeReserved2[pid1];
+	string 	tmpAttributePrice		= bomAttributePrice[pid1];
+	string 	tmpAttributePrices		= bomAttributePrices[pid1];
+	string 	tmpAttributeAvailableQuantity	= bomAttributeAvailableQuantity[pid1];
+	string 	tmpAttributePartsPerPackage	= bomAttributePartsPerPackage[pid1];
+	string 	tmpAttributeMinimumQuantity	= bomAttributeMinimumQuantity[pid1];
+	string 	tmpAttributeQuantityMultiplier= bomAttributeQuantityMultiplier[pid1];
+	string 	tmpAttributeDatasheet	= bomAttributeDatasheet[pid1];
+
+	
+	bomOutputName[pid1]		= bomOutputName[pid2];
+	bomOutputParts[pid1]	= bomOutputParts[pid2];
+	bomOutputNote[pid1]		= bomOutputNote[pid2];
+	bomOutputGP1[pid1]		= bomOutputGP1[pid2];
+	bomOutputGP2[pid1]		= bomOutputGP2[pid2];
+	bomOutputGP3[pid1]		= bomOutputGP3[pid2];
+	bomOutputGP4[pid1]		= bomOutputGP4[pid2];
+	bomInfoPartId[pid1]		= bomInfoPartId[pid2];
+	bomInfoPartCount[pid1]	= bomInfoPartCount[pid2];
+	bomInfoName[pid1]		= bomInfoName[pid2];
+	bomInfoParts[pid1]		= bomInfoParts[pid2];
+	bomInfoValue[pid1]		= bomInfoValue[pid2];
+	bomInfoHasParsedValue[pid1]	= bomInfoHasParsedValue[pid2];
+	bomInfoParsedValue[pid1]	= bomInfoParsedValue[pid2];
+	bomInfoPackage[pid1]	= bomInfoPackage[pid2];
+	bomInfoDevice[pid1]		= bomInfoDevice[pid2];
+	bomInfoDescription[pid1]	= bomInfoDescription[pid2]; 
+	bomAttributeDistributor[pid1] = bomAttributeDistributor[pid2];
+	bomAttributeOrderNo[pid1] 	= bomAttributeOrderNo[pid2];
+	bomAttributeManufacturer[pid1] = bomAttributeManufacturer[pid2];
+	bomAttributePartNo[pid1] 	= bomAttributePartNo[pid2];
+	bomAttributeReferenceNo[pid1] = bomAttributeReferenceNo[pid2];	
+	bomAttributeReserved1[pid1]	= bomAttributeReserved1[pid2];
+	bomAttributeReserved2[pid1]	= bomAttributeReserved2[pid2];
+	bomAttributePrice[pid1]	= bomAttributePrice[pid2];
+	bomAttributePrices[pid1]	= bomAttributePrices[pid2];
+	bomAttributeAvailableQuantity[pid1]	= bomAttributeAvailableQuantity[pid2];
+	bomAttributePartsPerPackage[pid1]	= bomAttributePartsPerPackage[pid2];
+	bomAttributeMinimumQuantity[pid1]	= bomAttributeMinimumQuantity[pid2];
+	bomAttributeQuantityMultiplier[pid1]	= bomAttributeQuantityMultiplier[pid2];
+	bomAttributeDatasheet[pid1]	= bomAttributeDatasheet[pid2];
+
+
+	bomOutputName[pid2]		= tmpOutputName;
+	bomOutputParts[pid2]	= tmpOutputParts;
+	bomOutputNote[pid2]		= tmpOutputNote;
+	bomOutputGP1[pid2]		= tmpOutputGP1;
+	bomOutputGP2[pid2]		= tmpOutputGP2;
+	bomOutputGP3[pid2]		= tmpOutputGP3;
+	bomOutputGP4[pid2]		= tmpOutputGP4;
+	bomInfoPartId[pid2]		= tmpInfoPartId;
+	bomInfoPartCount[pid2]	= tmpInfoPartCount;
+	bomInfoName[pid2]		= tmpInfoName;
+	bomInfoParts[pid2]		= tmpInfoParts;
+	bomInfoValue[pid2]		= tmpInfoValue;
+	bomInfoHasParsedValue[pid2]	= tmpInfoHasParsedValue;
+	bomInfoParsedValue[pid2]	= tmpInfoParsedValue;
+	bomInfoPackage[pid2]	= tmpInfoPackage;
+	bomInfoDevice[pid2]		= tmpInfoDevice;
+	bomInfoDescription[pid2]	= tmpInfoDescription; 
+	bomAttributeDistributor[pid2] = tmpAttributeDistributor;
+	bomAttributeOrderNo[pid2] 	= tmpAttributeOrderNo;
+	bomAttributeManufacturer[pid2] = tmpAttributeManufacturer;
+	bomAttributePartNo[pid2] 	= tmpAttributePartNo;
+	bomAttributeReferenceNo[pid2] = tmpAttributeReferenceNo;	
+	bomAttributeReserved1[pid2]	= tmpAttributeReserved1;
+	bomAttributeReserved2[pid2]	= tmpAttributeReserved2;
+	bomAttributePrice[pid2]	= tmpAttributePrice;
+	bomAttributePrices[pid2]	= tmpAttributePrices;
+	bomAttributeAvailableQuantity[pid2]	= tmpAttributeAvailableQuantity;
+	bomAttributePartsPerPackage[pid2]	= tmpAttributePartsPerPackage;
+	bomAttributeMinimumQuantity[pid2]	= tmpAttributeMinimumQuantity;
+	bomAttributeQuantityMultiplier[pid2]	= tmpAttributeQuantityMultiplier;
+	bomAttributeDatasheet[pid2]	= tmpAttributeDatasheet;	
+}
+
+int bomStringCompare(string s1, string s2)
+{
+	for(int i = 0; i  < strlen(s1) && i < strlen(s2); i++)
+	{
+		if(s1[i] > s2[i]) { return 1;}
+		else if(s1[i] < s2[i]) { return -1;}
+	}
+
+	return 0;
+}
+
+int bomPartSortRoutine(int pid1, int pid2)
+{
+
+	if(bomInfoPartId[pid1] == bomInfoPartId[pid2])
+	{
+		if(bomInfoHasParsedValue[pid1]) //Values computed
+		{
+			if(bomInfoParsedValue[pid1] > bomInfoParsedValue[pid2])
+			{
+				return 1;
+			}
+			else if(bomInfoParsedValue[pid1] == bomInfoParsedValue[pid2])
+			{
+				if(bomOutputNote[pid1] > bomOutputNote[pid2])
+				{
+					return 1;
+				}
+				else
+				{
+					return 0;
+				}
+			}
+			else
+			{
+				return 0;
+			}
+		}
+		else
+		{
+			int compare = bomStringCompare(bomInfoValue[pid1], bomInfoValue[pid2]);
+
+			if(compare == 0)
+			{
+				if(bomOutputNote[pid1] > bomOutputNote[pid2])
+				{
+					return 1;
+				}
+				else
+				{
+					return 0;
+				}
+			}
+			else if(compare > 0)
+			{
+				return 0;
+			}
+			else
+			{
+				return 1;
+			}
+		}
+
+	}
+	else if(bomInfoPartId[pid1] > bomInfoPartId[pid2])
+	{
+		return 1;
+	}	
+	else
+	{
+		return 0;	
+	}
+
+	
+}
+
+
+void bomPartsSort()
+{
+	int ready = 0;
+
+	while(!ready)
+	{
+		ready = 1;
+
+		for(int i = 0; i < bomInfoCount-1; i++)
+		{		
+			if(bomPartSortRoutine(i, i+1))
+			{
+				ready = 0;
+				bomPartSwitch(i, i+1);
+			}
+		}
+
+	}	
+}
+
+void bomShortenNames()
+{
+	for(int i = 0; i < bomInfoCount-1; i++)
+	{
+		numeric string names[];
+		int count = strsplit(names, bomOutputParts[i], ',');
+		sort(count, names);
+ 
+		int start_id = -1, last_id = -1;
+		string snames = "";
+
+		for(int k = 0; k < count; k++)
+		{
+			if(snames == "")	
+			{
+				snames = strsub(names[k], 0, 1);
+			}
+			
+			string sid = strsub(names[k], 1);
+			int id = strtol(sid);
+			
+			if(start_id == -1)
+			{
+				start_id = id;
+				last_id = id;
+			}
+			else if(last_id + 1 == id)
+			{
+				last_id = id;
+			}
+			else
+			{
+				if(strlen(snames) > 1)
+				{
+					snames += ",";
+				}
+				if(last_id == start_id)
+				{
+					string tmp = "";
+					sprintf(tmp, "%d", start_id);
+					snames += tmp;
+				}
+				else
+				{	
+					string tmp = "";
+					sprintf(tmp, "%d-%d", start_id, last_id);
+					snames += tmp;				
+				}
+				
+				start_id = id;
+				last_id = id;
+			}
+			
+		}
+
+		
+		if(strlen(snames) > 1)
+		{
+			snames += ",";
+		}
+		if(last_id == start_id)
+		{
+			string tmp = "";
+			sprintf(tmp, "%d", start_id);
+			snames += tmp;
+		}
+		else
+		{	
+			string tmp = "";
+			sprintf(tmp, "%d-%d", start_id, last_id);
+			snames += tmp;				
+		}
+
+
+		bomOutputParts[i] = snames;
+	}	
+}
+
+
+
+string bomXMLSafe(string str)
+{
+	str = bomStringReplace(str, "&", "&amp;");
+	str = bomStringReplace(str, "\"", "&quot;");	
+	str = bomStringReplace(str, "'", "&#039;");
+	str = bomStringReplace(str, "<", "&lt;");	
+	str = bomStringReplace(str, ">", "&gt;");
+
+	return str;
+}
+
+void bomOutputXslFile(string ofilename)
+{
+	output(ofilename)
+	{
+		printf("\
+			<?xml version=\"1.0\" ?> \n\
+			<?mso-application progid=\"Excel.Sheet\"?> \n\
+			<Workbook xmlns=\"urn:schemas-microsoft-com:office:spreadsheet\" xmlns:ss=\"urn:schemas-microsoft-com:office:spreadsheet\">\n\
+			 	<Worksheet ss:Name=\"Parts\">\n\
+					<Table>\n\
+		");
+
+		
+		printf("\
+			<Row> \n\
+        				<Cell ss:Index=\"1\">\n\
+          				<Data ss:Type=\"String\">Lfd. Nr.</Data>\n\
+        				</Cell>\n\
+        				<Cell ss:Index=\"2\">\n\
+          				<Data ss:Type=\"String\">Stueckzahl</Data>\n\
+        				</Cell>\n\
+        				<Cell ss:Index=\"3\">\n\
+          				<Data ss:Type=\"String\">Benennung</Data>\n\
+        				</Cell>\n\
+        				<Cell ss:Index=\"4\">\n\
+          				<Data ss:Type=\"String\">Referenzkennzeichen</Data>\n\
+        				</Cell>\n\
+        				<Cell ss:Index=\"5\">\n\
+          				<Data ss:Type=\"String\">Lieferant</Data>\n\
+        				</Cell>\n\
+        				<Cell ss:Index=\"6\">\n\
+          				<Data ss:Type=\"String\">Bestellnummer</Data>\n\
+        				</Cell>\n\
+        				<Cell ss:Index=\"7\">\n\
+          				<Data ss:Type=\"String\">RoHS</Data>\n\
+        				</Cell>\n\
+        				<Cell ss:Index=\"8\">\n\
+          				<Data ss:Type=\"String\">Preis / VE</Data>\n\
+        				</Cell>\n\
+        				<Cell ss:Index=\"9\">\n\
+          				<Data ss:Type=\"String\">VE</Data>\n\
+        				</Cell>\n\
+        				<Cell ss:Index=\"10\">\n\
+     					<Data ss:Type=\"String\">Bemerkung</Data>\n\
+        				</Cell>\n\
+      			</Row>\n\
+		");
+
+
+
+		for(int i = 0; i < bomInfoCount; i++)
+		{
+			printf("\
+			<Row> \n\
+        				<Cell ss:Index=\"1\">\n\
+          				<Data ss:Type=\"Number\">%d</Data>\n\
+        				</Cell>\n\
+        				<Cell ss:Index=\"2\">\n\
+          				<Data ss:Type=\"Number\">%d</Data>\n\
+        				</Cell>\n\
+        				<Cell ss:Index=\"3\">\n\
+          				<Data ss:Type=\"String\">%s</Data>\n\
+        				</Cell>\n\
+        				<Cell ss:Index=\"4\">\n\
+          				<Data ss:Type=\"String\">%s</Data>\n\
+        				</Cell>\n\
+        				<Cell ss:Index=\"5\">\n\
+          				<Data ss:Type=\"String\">%s</Data>\n\
+        				</Cell>\n\
+        				<Cell ss:Index=\"6\">\n\
+          				<Data ss:Type=\"String\">%s</Data>\n\
+        				</Cell>\n\
+        				<Cell ss:Index=\"7\">\n\
+          				<Data ss:Type=\"String\">J</Data>\n\
+        				</Cell>\n\
+        				<Cell ss:Index=\"8\">\n\
+          				<Data ss:Type=\"Number\">%s</Data>\n\
+        				</Cell>\n\
+        				<Cell ss:Index=\"9\">\n\
+          				<Data ss:Type=\"Number\">%s</Data>\n\
+        				</Cell>\n\
+        				<Cell ss:Index=\"10\">\n\
+     					<Data ss:Type=\"String\">%s</Data>\n\
+        				</Cell>\n\
+      			</Row>\n\
+			",i+1, bomInfoPartCount[i], bomXMLSafe(bomOutputName[i]), bomXMLSafe(bomOutputParts[i]), 
+				bomXMLSafe(bomAttributeDistributor[i]), bomXMLSafe(bomAttributeOrderNo[i]), bomXMLSafe(bomStringConvertDotToComma(bomAttributePrice[i])), bomXMLSafe(bomAttributePartsPerPackage[i]), bomXMLSafe(bomOutputNote[i]));			
+		}
+			
+
+		printf("\
+				</Table>\n\
+  			</Worksheet>\n\
+			<Worksheet ss:Name=\"Advanced\">\n\
+				<Table>\n\
+		");
+
+		printf("\
+			<Row> \n\
+        				<Cell ss:Index=\"1\">\n\
+          				<Data ss:Type=\"String\">Lfd. Nr.</Data>\n\
+        				</Cell>\n\
+        				<Cell ss:Index=\"2\">\n\
+          				<Data ss:Type=\"String\">Stueckzahl</Data>\n\
+        				</Cell>\n\
+        				<Cell ss:Index=\"3\">\n\
+          				<Data ss:Type=\"String\">Benennung</Data>\n\
+        				</Cell>\n\
+        				<Cell ss:Index=\"4\">\n\
+          				<Data ss:Type=\"String\">Referenzkennzeichen</Data>\n\
+        				</Cell>\n\
+        				<Cell ss:Index=\"5\">\n\
+          				<Data ss:Type=\"String\">Lieferant</Data>\n\
+        				</Cell>\n\
+        				<Cell ss:Index=\"6\">\n\
+          				<Data ss:Type=\"String\">Bestellnummer</Data>\n\
+        				</Cell>\n\
+        				<Cell>\n\
+     					<Data ss:Type=\"String\">Hersteller</Data>\n\
+        				</Cell>\n\
+        				<Cell>\n\
+     					<Data ss:Type=\"String\">Teilnummer</Data>\n\
+        				</Cell>\n\
+        				<Cell>\n\
+     					<Data ss:Type=\"String\">Referenznummer</Data>\n\
+        				</Cell>\n\
+        				<Cell>\n\
+     					<Data ss:Type=\"String\">Frei 1</Data>\n\
+        				</Cell>\n\
+        				<Cell>\n\
+     					<Data ss:Type=\"String\">Frei 2</Data>\n\
+        				</Cell>\n\
+        				<Cell>\n\
+          				<Data ss:Type=\"String\">RoHS</Data>\n\
+        				</Cell>\n\
+        				<Cell>\n\
+          				<Data ss:Type=\"String\">Preis / VE</Data>\n\
+        				</Cell>\n\
+        				<Cell>\n\
+          				<Data ss:Type=\"String\">VE</Data>\n\
+        				</Cell>\n\
+        				<Cell >\n\
+     					<Data ss:Type=\"String\">Bemerkung</Data>\n\
+        				</Cell>\n\
+        				<Cell>\n\
+     					<Data ss:Type=\"String\">GP1</Data>\n\
+        				</Cell>\n\
+        				<Cell>\n\
+     					<Data ss:Type=\"String\">GP2</Data>\n\
+        				</Cell>\n\
+        				<Cell>\n\
+     					<Data ss:Type=\"String\">GP3</Data>\n\
+        				</Cell>\n\
+        				<Cell>\n\
+     					<Data ss:Type=\"String\">GP4</Data>\n\
+        				</Cell>\n\
+        				<Cell>\n\
+     					<Data ss:Type=\"String\">Part ID</Data>\n\
+        				</Cell>\n\
+        				<Cell>\n\
+     					<Data ss:Type=\"String\">Parsed Value</Data>\n\
+        				</Cell>\n\
+        				<Cell>\n\
+     					<Data ss:Type=\"String\">Package</Data>\n\
+        				</Cell>\n\
+        				<Cell>\n\
+     					<Data ss:Type=\"String\">Device</Data>\n\
+        				</Cell>\n\
+        				<Cell>\n\
+     					<Data ss:Type=\"String\">Description</Data>\n\
+        				</Cell>\n\
+      			</Row>\n\
+		");
+		
+		for(i = 0; i < bomInfoCount; i++)
+		{
+			printf("\
+			<Row> \n\
+        				<Cell ss:Index=\"1\">\n\
+          				<Data ss:Type=\"Number\">%d</Data>\n\
+        				</Cell>\n\
+        				<Cell ss:Index=\"2\">\n\
+          				<Data ss:Type=\"Number\">%d</Data>\n\
+        				</Cell>\n\
+        				<Cell ss:Index=\"3\">\n\
+          				<Data ss:Type=\"String\">%s</Data>\n\
+        				</Cell>\n\
+        				<Cell ss:Index=\"4\">\n\
+          				<Data ss:Type=\"String\">%s</Data>\n\
+        				</Cell>\n\
+        				<Cell ss:Index=\"5\">\n\
+          				<Data ss:Type=\"String\">%s</Data>\n\
+        				</Cell>\n\
+        				<Cell ss:Index=\"6\">\n\
+          				<Data ss:Type=\"String\">%s</Data>\n\
+        				</Cell>\n\
+        				<Cell>\n\
+     					<Data ss:Type=\"String\">%s</Data>\n\
+        				</Cell>\n\
+        				<Cell>\n\
+     					<Data ss:Type=\"String\">%s</Data>\n\
+        				</Cell>\n\
+        				<Cell>\n\
+     					<Data ss:Type=\"String\">%s</Data>\n\
+        				</Cell>\n\
+        				<Cell>\n\
+     					<Data ss:Type=\"String\">%s</Data>\n\
+        				</Cell>\n\
+        				<Cell>\n\
+     					<Data ss:Type=\"String\">%s</Data>\n\
+        				</Cell>\n\
+        				<Cell>\n\
+          				<Data ss:Type=\"String\">J</Data>\n\
+        				</Cell>\n\
+        				<Cell>\n\
+          				<Data ss:Type=\"Number\">%s</Data>\n\
+        				</Cell>\n\
+        				<Cell>\n\
+          				<Data ss:Type=\"Number\">%s</Data>\n\
+        				</Cell>\n\
+        				<Cell>\n\
+     					<Data ss:Type=\"String\">%s</Data>\n\
+        				</Cell>\n\
+				<Cell>\n\
+     					<Data ss:Type=\"String\">%s</Data>\n\
+        				</Cell>\n\
+        				<Cell>\n\
+     					<Data ss:Type=\"String\">%s</Data>\n\
+        				</Cell>\n\
+        				<Cell>\n\
+     					<Data ss:Type=\"String\">%s</Data>\n\
+        				</Cell>\n\
+        				<Cell>\n\
+     					<Data ss:Type=\"String\">%s</Data>\n\
+        				</Cell>\n\
+        				<Cell>\n\
+     					<Data ss:Type=\"Number\">%d</Data>\n\
+        				</Cell>\n\
+        				<Cell>\n\
+     					<Data ss:Type=\"Number\">%s</Data>\n\
+        				</Cell>\n\
+        				<Cell>\n\
+     					<Data ss:Type=\"String\">%s</Data>\n\
+        				</Cell>\n\
+        				<Cell>\n\
+     					<Data ss:Type=\"String\">%s</Data>\n\
+        				</Cell>\n\
+        				<Cell>\n\
+     					<Data ss:Type=\"String\">%s</Data>\n\
+        				</Cell>\n\
+      			</Row>\n\
+			",i+1, bomInfoPartCount[i], bomXMLSafe(bomOutputName[i]), bomXMLSafe(bomOutputParts[i]),
+			bomXMLSafe(bomAttributeDistributor[i]), bomXMLSafe(bomAttributeOrderNo[i]),
+			 bomXMLSafe(bomAttributeManufacturer[i]), 
+			bomXMLSafe(bomAttributePartNo[i]), bomXMLSafe(bomAttributeReferenceNo[i]), bomXMLSafe(bomAttributeReserved1[i]),  
+			bomXMLSafe(bomAttributeReserved2[i]), 
+			bomXMLSafe(bomStringConvertDotToComma(bomAttributePrice[i])), bomXMLSafe(bomAttributePartsPerPackage[i]),
+			 bomXMLSafe(bomOutputNote[i]), 
+			bomXMLSafe(bomOutputGP1[i]), bomXMLSafe(bomOutputGP2[i]), bomXMLSafe(bomOutputGP3[i]), bomXMLSafe(bomOutputGP4[i]),
+			bomInfoPartId[i], bomXMLSafe(bomStringFromReal(bomInfoParsedValue[i])), bomXMLSafe(bomInfoPackage[i]), 
+			bomXMLSafe(bomInfoDevice[i]),bomXMLSafe(bomInfoDescription[i])			
+			);			
+		}		
+
+		printf("\
+				</Table>\n\
+  			</Worksheet>\n\
+			</Workbook>\n\
+		");
+
+	}	
+
+}
+
+
+string bomCsvSafe(string str)
+{
+	str = bomStringReplace(str, "\"", "\\\"");
+
+	return str;
+}
+
+
+void bomOutputCsvFile(string ofilename)
+{
+	output(ofilename)
+	{
+		printf("\"Lfd. Nr.\";\"Stueckzahl\";\"Benennung\";\"Referenzkennzeichen\";\"Lieferant\";\"Bestellnummer\";\"RoHS\";\"Preis / VE\";\"VE\";\"Bemerkung\";\r");
+		for(int i = 0; i < bomInfoCount; i++)
+		{
+			printf("\"%d\";\"%d\";\"%s\";\"%s\";\"%s\";\"%s\";\"J\";\"%s\";\"%s\";\"%s\";\r"
+			,i+1, bomInfoPartCount[i], bomCsvSafe(bomOutputName[i]), bomCsvSafe(bomOutputParts[i]), bomXMLSafe(bomAttributeDistributor[i]), bomXMLSafe(bomAttributeOrderNo[i]),bomXMLSafe(bomStringConvertDotToComma(bomAttributePrice[i])), bomXMLSafe(bomAttributePartsPerPackage[i]),  bomCsvSafe(bomOutputNote[i]));
+		}		
+	}	
+}
+
+string BOM_DBASE_COLUMNS[] = {"Stueckzahl", "Kurzb.", "Wert", "Bauform", "Refkennz.", "Lieferant", "Best. Nr.", "Hersteller", "Hs. Kennz.", "Barcode", "Preis/Stk.", "Reserv. 1", "Reserv. 2"};
+int BOM_DBASE_COLUMN_WIDTH = 255;
+string dbaseLine[];
+
+
+string bomDatabaseSafe(string str)
+{
+	str = bomStringReplace(str, "µ", "u");
+	return str;	
+}
+
+void bomDatabaseGetLine(int i)
+{
+	int k = 0;
+	sprintf(dbaseLine[0], "%d", bomInfoPartCount[i]);
+	for(int l = 0; l < BOM_DATA_COUNT; l++)
+	{
+		if(BOM_DATA_PART_ID[l] == bomInfoPartId[i])
+		dbaseLine[1] = BOM_DATA_NAME[l];
+	}
+	
+	dbaseLine[2] = bomDatabaseSafe(bomInfoValue[i]);
+	dbaseLine[3] = bomDatabaseSafe(bomOutputNote[i]);
+	dbaseLine[4] = bomDatabaseSafe(bomOutputParts[i]); 
+	dbaseLine[5] = bomAttributeDistributor[i]; 
+	dbaseLine[6] = bomAttributeOrderNo[i];
+	dbaseLine[7] = bomAttributeManufacturer[i]; 
+	dbaseLine[8] = bomAttributePartNo[i];
+	dbaseLine[9] = bomAttributeReferenceNo[i]; 
+	dbaseLine[10] = "";
+	dbaseLine[11] = bomOutputGP1[i]; 
+	dbaseLine[12] = bomOutputGP2[i];
+}
+
+void bomOutputDatabaseFile(string ofilename)
+{
+	output(ofilename, "wb")
+	{
+       		printf("%c%c%c%c", 0x03, 0x56, 0x0B, 0x1B);
+
+
+    		int l, m, i, j, recs;
+
+
+		l = bomInfoCount;
+    		printf("%c%c%c%c", l & 0xFF, (l & 0xFF00) >> 8, (l & 0xFF0000) >> 16, (l & 0xFF000000) >> 24);
+
+		//Länge des Header: 32 + (32*Datenfelder) + 1  
+    		for (l = 0; BOM_DBASE_COLUMNS[l]; l++);
+    		recs = l;
+    		m = (l*32)+33;
+    		printf("%c%c", m & 0xFF, (m & 0xFF00) >> 8);
+
+    		m = (l*BOM_DBASE_COLUMN_WIDTH)+1;
+    		printf("%c%c", m & 0xFF, (m & 0xFF00) >> 8);
+
+    		printf("%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c", 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00);
+
+    		for (l = 0; BOM_DBASE_COLUMNS[l]; l++)
+		{
+			int ended = 0;
+			for(int i = 0; i < 11; i++)
+			{
+				if(!ended && BOM_DBASE_COLUMNS[l][i] != 0)
+				{
+					if(BOM_DBASE_COLUMNS[l][i] == ' ')
+					{
+						printf("%c", '_');	
+					}
+					else
+					{
+						printf("%c", toupper(BOM_DBASE_COLUMNS[l][i]));	
+					}					
+				}
+				else
+				{
+					ended = 1;
+					printf("%c", 0x00);
+				}
+			}
+
+			/*
+    			if(strlen(BOM_DBASE_COLUMNS[l]) == 11){printf("Descriptio%c", 0x00);}
+    			else
+			{
+				if(strlen(BOM_DBASE_COLUMNS[l]) < 11)
+    		          	{
+					printf("%s", BOM_DBASE_COLUMNS[l]);
+				}
+			}
+			for(i = 0; i < (11 - strlen(BOM_DBASE_COLUMNS[l])); i++)
+			{
+				printf("%c", 0x00);
+			}
+			*/
+			printf("%c%c%c%c%c%c", 0x43, 0x00, 0x00, 0x00, 0x00, BOM_DBASE_COLUMN_WIDTH);
+			printf("%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c", 0x05, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00);
+    		}
+		printf("%c", 0x0D);
+
+		int n;
+		int numHeaders;
+		string List;
+  
+  		for (l = 0;l < bomInfoCount; l++) 
+		{
+			printf("%c", 0x20);
+
+			bomDatabaseGetLine(l);
+
+    			for (i = 0; BOM_DBASE_COLUMNS[i]; i++) 
+			{
+          			printf("%-*s", BOM_DBASE_COLUMN_WIDTH, dbaseLine[i]);
+      			}
+		}
+
+		printf("%c", 0x1a);
+	}	
+}
+
+
+string bname;
+
+project.schematic(S)
+{
+	bname = S.name;
+}
+
+
+string bomGetFilename(string ends_with)
+{
+	return filesetext(bname,ends_with);
+}
+
+
+void bomProcess()
+{
+	string ofilename = bomGetFilename("");
+
+	if(argc > 1)
+	{
+		ofilename = argv[1];	
+	}
+	for(int i = 2; i < argc; i++)
+	{
+		if(argv[i] == "-xls")
+		{
+			bomExportXls = 1;
+		}
+		else if(argv[i] == "-xlsx")
+		{
+			bomExportXlsx = 1;
+		}
+		else if(argv[i] == "-csv")
+		{
+			bomExportCsv = 1;
+		}
+		else if(argv[i] == "-dbase3")
+		{
+			bomExportDbase3 = 1;
+		}
+		else if(argv[i] == "-short_names")
+		{
+			bomShortPartNames = 1;
+			
+		}
+		else if(argv[i] == "-display_package_type")
+		{
+			bomDisplayPackageType = 1;
+		}
+	}	
+
+	bomPartsLoad();
+	bomPartsCategorize();
+	bomPartsSort();
+	
+	if(bomShortPartNames)
+	{
+		bomShortenNames();
+	}
+	if(bomExportXls)
+	{
+		bomOutputXslFile(ofilename + ".xlsx"); //Office 2007 - written XML style - openable with Office 2003 and up and OO 3.0 and up
+	}
+	if(bomExportXlsx)
+	{
+		bomOutputXslFile(ofilename + ".xls");  //Office 2003 - for all that say - "Woah I don't have Office 2007" - like me =) - but it's the same file as the xlsx
+	}
+	if(bomExportCsv)
+	{
+		bomOutputCsvFile(ofilename + ".csv");  //Good old CSV may be opened with almost everything out there =)
+	}
+	if(bomExportDbase3)
+	{
+		bomOutputDatabaseFile(ofilename + ".dbf"); //DBASE File
+	}
+}
+
+
+bomProcess();
+

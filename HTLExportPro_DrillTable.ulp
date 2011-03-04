@@ -1,0 +1,643 @@
+#usage 	"<b>Drill Legend for Eagle 4.04</b><p><p>\n"
+	"This ULP add a drill legend in a board.<p>Dont forget to update the >Options>Setting>Drill<p>and sort both drill tools and drill diameters in the same ascending order as the drill legend.<p>\n"
+        	"You could also generate the drill configuration for the CamProcessor.<p><p>\n"
+      	"<author>Author: c.bohrer@m6net.fr</author>"
+
+
+ 
+/****************************************************
+ * DRILEGEND 2.01    for Eagle 4.04    (12/04/2002) *
+ * By Christian BOHRER   (PCB Designer)             *
+ * c.bohrer@m6net.fr                                *
+ * Optimized for EAGLE 4.15 (31/01/2006)            *
+ * by BWA (Bernhard Woerndl-Aichriedler) Student    *
+ * bwa@berniwa.com                                  *
+ ****************************************************
+ * THIS PROGRAM IS PROVIDED "AS IS" WITHOUT WARRANTY FOR POSSIBLE DAMAGE */
+
+/****************************************************
+ * Bearbeitet von BWA (Bernhard Woerndl-Aichriedler)*
+ * Schueler der 2HNc 2005/06                        *
+ * der HTBL Salzburg Itzling (Abteilung Elektronik) *
+ * Verwendet nun die richtigen Drill Symbole        *
+ ****************************************************/
+
+/****************************************************
+ * Bearbeitet von BWA (Bernhard Woerndl-Aichriedler)*
+ * Schueler der 3HNc 2006/07                        *
+ * der HTBL Salzburg Itzling (Abteilung Elektronik) *
+ * Dialog wurde entfernt, um schneller arbeiten zu  *
+ * können.                                          *
+ ****************************************************/
+
+/************************************************************/
+/* (c) Copyright 2009, Bernhard Wörndl-Aichriedler          */
+/* xDevelop OG - Hardware Developer			*/
+/* E-Mail: bwa@berniwa.com (bwa@xdevelop.at)                */
+/* Homepage: www.berniwa.com (www.xdevelop.at)              */
+/************************************************************/
+
+ /************** DEFAULT SETTINGS ***********************/
+
+int SymbolLayer 	= 44;
+int SymbolSize 		= 70; /*Symbol diameter*/
+int SymbolWidth		= 4; /*Symbol wire width*/
+
+string TextFont[]	= {"Vector", "Proportional", "fixed"};
+int TextSize 		= 70;
+int TextRatio 		= 5;
+int IdxFnt		= 0; //Vector
+
+int decMM 		= 1; /*number of decimal for milimeters*/
+int decMIL 		= 0; /*number of decimal fol mils*/
+int SortHoles 		= 1; /* 0= alternate, 1= mixed, 2= non-plated last*/
+string TolPlated	= "0.02";
+string TolNonPlated	= "0.03";
+int VerticalChart	= 1; /* if 0 : Horizontal chart*/
+real HighCellFactor	= 1.1; /* 1.0 minimum*/
+real WideCellFactor	= 1.1; /* 1.0 minimum*/
+int CellOutline		= 4;
+int TitleOutline	= 4;
+int TableOutline	= 8;
+
+string LField[] = {"Symbols","Tools N°","MM","Mils","Microns","Quantity","Plated","Tolerance"};
+string LTitle[]	= {"Sym.","Nr.","Durchm.","Mils","Mic","Anzahl","Durchk.","Tol"};
+int LRank[]	= {1,2,3,0,0,4,5,0}; //Rank = from 1 to 8. ( 0 = unselect)
+string Rank[]		= {"0","1","2","3","4","5","6","7","8"};
+string PlatedStatus[] 	= {"Nein", "Beide", "Ja"};
+
+int OutputDrillRack	= 0; 
+string DrillRackFile	= "DRILLRACK.DRL"; /* drill rack file name */
+enum { unitMM, unitINCH };
+int Unit 		= unitMM; /* set this to the desired unit! */
+
+int OutputUserCfg	= 1;
+int InputUserCfg 	= 1;
+string UserCfgFile	= "DRILEGEND.CFG"; /* drill legend user config */
+int AbsoluteLibPath	= 1;
+int  i, j, k, Dcnt = 0, Lcnt = 1, nlines, LayerSel;
+int index[], idx[], Drills[], Pcnt[], Hcnt[], Ptype[], Htype[];
+string ScrName, ProjectPath, UserSettings[], LList[], LayerName[];
+int Lpos[], Cell[], LCell[], Hcell[], Bcell[], LayerNbr[];
+
+int EV = EAGLE_VERSION;
+int ER = EAGLE_RELEASE;
+
+int drillSymbolNo[];
+
+/****************Coordinates*************************/
+
+int offset = 500; 
+int table_width = 2075;
+
+int max_x = 0;
+int min_x = 0;
+
+int max_y = 0;
+int min_y = 0;
+
+int initialized = 0;
+
+void setCoordinates(int x, int y)
+{
+	if(!initialized)
+	{
+		max_x = x;
+		min_x = x;
+		max_y = y;
+		min_y = y;
+		initialized = 1;
+	}
+
+	if(x < min_x)
+	{
+		min_x = x;
+	}
+	if(y < min_y)
+	{
+		min_y = y;
+	}
+
+	if(y > max_y)
+	{
+		max_y = y;	
+	}
+	if(x > max_x)
+	{
+		max_x = x;	
+	}
+}
+
+void loadMaxMinCoordinates()
+{
+    board(B) 
+    {
+ 	B.wires(W) 
+	{
+		if(W.layer == 20)
+		{
+			if(W.arc)
+			{
+				setCoordinates(W.arc.x1, W.arc.y1);
+				setCoordinates(W.arc.x2, W.arc.y2);
+				
+				int angle = W.arc.angle2 - W.arc.angle1;
+				
+				int set_elements = round(angle/90);
+				int start_element = round(W.arc.angle1/90);
+				start_element = start_element % 4;
+				
+				for(int i = start_element; i < (start_element + set_elements); i++)
+				{
+					if(i == 0)
+					{
+						setCoordinates(W.arc.xc - W.arc.radius, W.arc.y1);
+					}
+					else if(i == 1)
+					{
+						setCoordinates(W.arc.x2, W.arc.yc + W.arc.radius);
+					}
+					else if(i == 2)
+					{
+						setCoordinates(W.arc.xc + W.arc.radius, W.arc.y1);
+					}
+					else if(i == 3)
+					{
+						setCoordinates(W.arc.x2, W.arc.yc - W.arc.radius);
+					}
+				}
+			}
+			else
+			{
+				setCoordinates(W.x1, W.y1);
+				setCoordinates(W.x2, W.y2);
+			}
+		}
+	}
+	B.circles(C)
+	{
+		if(C.layer == 20)
+		{
+			setCoordinates(C.x + C.radius, C.y + C.radius);
+			setCoordinates(C.x - C.radius, C.y - C.radius);
+		}
+	}
+
+   }
+}
+
+/**************ADD OR UPDATE DRILL LEGEND***********************/
+
+int replace = 0;
+int rename  = 0;
+string lay;
+int laycnt = 0;
+
+board(B) {
+     B.elements(E) {
+  if(E.name == "DRILEGEND"){
+   replace = 1;
+  }
+ }
+ ScrName = filesetext(B.name, "_DL.SCR");
+ ProjectPath = filedir(B.name);
+
+
+
+ B.layers(L) {
+  if(L.used == 1 && (L.number <= 1 || L.number >= 16)) {
+   sprintf(lay,"%d  %s", L.number, L.name);
+   LayerName[laycnt] = lay;
+   LayerNbr[laycnt] = L.number;
+   laycnt++;
+  }
+ }
+}  
+
+string LbrPath;
+string UlpLbrPath;
+if(AbsoluteLibPath == 1) {
+ sprintf(LbrPath,"'%sdrilegend.lbr'",ProjectPath); //With '' for path in script command
+ //Script command dont work without '' if the path contain a space like 'program Files'
+ sprintf(UlpLbrPath,"%sdrilegend.lbr",ProjectPath); //Without '' for path in fileglob
+}
+else {
+ LbrPath = "./drilegend.lbr";
+ UlpLbrPath = "./drilegend.lbr";
+}
+string ok[]; 
+rename = fileglob(ok, UlpLbrPath); //Rename package if lbr exist
+
+int CreateCfgFile = 0;
+string CfgPath;
+sprintf(CfgPath,"%s\%s",ProjectPath,UserCfgFile);
+string cfg[]; 
+CreateCfgFile = fileglob(cfg, CfgPath);
+
+/******** ARRAY OF 18 EAGLE DRILL SYMBOLS ********/
+
+//4 + + + + +
+//3 + + + + +
+//2 + + + + +
+//1 + + + + +
+//0 + + + + +
+//  0 1 2 3 4
+
+string Symbol[] = {
+"W 24 20,W 02 42",
+"W 04 40,W 44 00",
+"W 22 24 44 40 00 04 24",	
+"W 22 24 42 20 02 24",
+"W 04 44 00 40 04",
+"W 04 40 44 00 04",
+"W 02 42 24 20 02",
+"W 24 20 42 02 24",
+"W 04 40,W 44 00,W 24 20",
+"W 04 40,W 44 00,W 02 42",
+"W 04 44 22 04,W 22 20",
+"W 24 22 40 00 22",
+"W 02 22 44 40 22",
+"W 42 22 04 00 22",
+"W 24 20,W 02 42,C 22 42",
+"C 22 42,C 22 32,W 24 20,W 02 42",
+"W 04 24 44 42 40 20 00 02 04,W 24 20,W 02 42",
+"W 04 02 00 20 40 42 44 24 04,W 13 11 31 33 13,W 24 20,W 02 42",
+"C 22 42,W 00 44"}; 
+
+string DrawSymbol(int No, int Xs, int Ys) {
+Xs = Xs - (SymbolSize/2);
+Ys = Ys - (SymbolSize/2);
+string a[], c[], tmps, cmd, hs;
+int b = 0, d = 0, U = SymbolSize/4, sx, sy, m, p;
+ b = strsplit(a, Symbol[No], ',');
+ for(m=0;m<b;m++) {
+  d = strsplit(c, a[m], ' ');
+  if(c[0] == "W") {cmd = "Wire";}
+  if(c[0] == "C") {cmd = "Circle";}
+  hs=""; sprintf(hs,"%s %d",cmd,SymbolWidth); tmps += hs;
+  for(p=1;p<d;p++) {
+   sx = strtol(strsub(c[p],0,1)); sx = (sx*U) + Xs;
+   sy = strtol(strsub(c[p],1,1)); sy = (sy*U) + Ys;
+   hs=""; sprintf(hs," (%d %d)",sx,sy); tmps += hs;
+  }
+  hs=""; sprintf(hs,";\n"); tmps += hs;
+ }
+ return tmps;
+}
+
+/*****************************************************/
+
+int CenterText(string txt, int cell, int pos) {
+	return pos + (round((cell-((TextSize* 0.85)*strlen(txt)))/2));
+}
+
+void printCell(int left, int right, int top, int bottom, int width) {
+ printf("Wire %d (%d %d) (%d %d) (%d %d);\n", width,
+ left, bottom, right, bottom, right, top);
+}
+
+void DrillChartVertical(int bas) {
+ int haut;
+ if(TextSize > SymbolSize*0.7) { haut = TextSize * 1.5 * HighCellFactor;}
+ else { haut = SymbolSize * HighCellFactor;}
+ int org =  (haut - TextSize)/2, WideMax = 0;
+ 
+ for(int i = 0; i < Lcnt; ++i) {
+
+  for(k = 0; k < 8; k++){
+   if(LRank[k] > 0) {
+    if((k == 0) && (i > 0)) {
+     printf(DrawSymbol(strtol(LList[800+i]),Lpos[LRank[k]]+(LCell[k]/2), bas +(haut/2)));
+    }
+    else {
+     printf("Text '%s' R0 (%d %d);\n", LList[(k*100)+i],
+     CenterText(LList[(k*100)+i], LCell[k], Lpos[LRank[k]]), bas + org);
+    }
+    printCell(Lpos[LRank[k]], Lpos[LRank[k]] + LCell[k], haut, bas, CellOutline);
+    if(i == 0) { WideMax = WideMax + LCell[k];}
+
+   }
+  }
+
+  bas = bas - haut;
+ }
+   printCell(0, WideMax, haut, 0, TitleOutline);
+   printCell(WideMax, 0, 0, haut, TitleOutline);
+   printCell(0, WideMax, haut, bas + haut, TableOutline);
+   printCell(WideMax, 0, bas + haut, haut, TableOutline);
+}
+
+void DrillChartHorizontal(int gauche) {
+ int bas, org, WideMax = 0;
+
+ for(int i = 0; i < Lcnt; ++i) {
+
+  for(k = 0; k < 8; k++){ //k = 8 Fields
+   if(LRank[k] > 0) {
+
+    bas = Bcell[LRank[k]];
+    if(Cell[i] < Hcell[0]) { Cell[i] = SymbolSize * 1.3 * WideCellFactor;}
+    org =  (Hcell[k] - TextSize)/2;
+    if(bas < WideMax) { WideMax = bas;}
+    if((k == 0) && (i > 0)) { // if symbol field but not title field
+     printf(DrawSymbol(strtol(LList[i+800]),gauche+(Cell[i]/2), bas +(Hcell[k]/2)));
+     printCell(gauche, gauche + Cell[i], bas + Hcell[k], bas, CellOutline);
+    }
+  
+    else {     
+     printf("Text '%s' R0 (%d %d);\n", LList[(k*100)+i],
+     CenterText(LList[(k*100)+i], Cell[i], gauche), bas + org);
+     printCell(gauche, gauche + Cell[i], bas + Hcell[k], bas, CellOutline);
+    }
+   }
+  }
+
+  gauche = gauche + Cell[i];
+ 
+   printCell(0, Cell[0], 0, WideMax, TitleOutline);
+   printCell( Cell[0], 0, WideMax, 0, TitleOutline);
+ 
+ }
+ printCell(0, gauche, 0, WideMax, TableOutline);
+ printCell(gauche, 0, WideMax, 0, TableOutline);
+}
+
+void defHigh() { // for horizontal table
+ if(TextSize > SymbolSize) { Hcell[0] = TextSize * 1.5 * HighCellFactor;}
+ else { Hcell[0] = SymbolSize * 1.5 * HighCellFactor;}
+ for(i = 1; i < 8; i++) {
+ Hcell[i] = TextSize * 1.5 * HighCellFactor;
+ }
+
+ int tmp[];
+ for(i = 0; i < 8; i++) {
+ tmp[LRank[i]] = Hcell[i];
+ }
+
+ for(i = 1; i < 9; i++) {
+  Bcell[i] = Bcell[i-1] - tmp[i];
+ }
+}
+
+void defPos() { //for vertical table
+ if(LCell[0] < SymbolSize*1.2) { LCell[0] = SymbolSize * 1.2 * WideCellFactor;}
+ int tmp[];
+ for(i = 0; i < 8; i++) {
+ tmp[LRank[i]] = LCell[i];
+ }
+
+ for(i = 1; i < 8; i++) {
+  Lpos[i+1] = Lpos[i] + tmp[i];
+ }
+}
+
+
+int CellLarge(string txt, int old) {
+ int new = (round((TextSize * 0.1 * WideCellFactor)*strlen(txt)))*10;
+ if( new > old) {return new;}
+ else { return old;}
+}
+
+void TitleList() {
+ for(i=0;i<8;i++){
+  LList[i*100]  = LTitle[i];
+  LCell[i]    	= CellLarge(LList[i*100], LCell[i]);
+  Cell[0]	= CellLarge(LList[i*100], Cell[0]);
+ }
+}
+
+void List(int No, int Diam, int Qty, int Type, int cnt, string Tol, int drillSymbNo) {
+ 
+ sprintf(LList[cnt], "%d", No);
+ sprintf(LList[100+cnt], "%d",No + 1);
+ if(decMM  == 0) {sprintf( LList[200+cnt], "%-.0f", round(Diam/1000)/10  );}
+ if(decMM  == 1) {sprintf( LList[200+cnt], "%-.1f", round(Diam/100)/100  );}
+ if(decMM  == 2) {sprintf( LList[200+cnt], "%-.2f", round(Diam/10)/1000  );}
+ if(decMM  == 3) {sprintf( LList[200+cnt], "%-.3f", round(Diam)/10000    );}
+ if(decMIL == 0) {sprintf(LList[300+cnt], "%-.0f", round((Diam/25.4)/10));}
+ if(decMIL == 1) {sprintf(LList[300+cnt], "%-.1f", round(Diam/25.4)/10  );}
+ if(decMIL == 2) {sprintf(LList[300+cnt], "%-.2f", round(Diam/2.54)/100 );}
+ if(decMIL == 3) {sprintf(LList[300+cnt], "%-.3f", round(Diam/0.254)/1000 );}
+ sprintf( LList[400+cnt], "%-.0f", round(Diam/10) );
+ sprintf( LList[500+cnt], "%d", Qty);
+ sprintf( LList[600+cnt], "%s", PlatedStatus[Type]);
+ sprintf( LList[700+cnt], "%s", Tol); 
+ sprintf( LList[800+cnt], "%d", drillSymbNo);
+
+ for(k=1;k<8;k++){
+ LCell[k]  = CellLarge(LList[(k*100)+cnt], LCell[k]); //Vertical table
+ if(LRank[k] > 0) {Cell[cnt] = CellLarge(LList[(k*100)+cnt], Cell[cnt]);}//Horizontal table
+ }
+}
+
+void DrillsCapture(int Size, int Plated, int No) {
+
+ for(i = Dcnt; --i >= 0; ) {
+  if(Drills[i] == Size) {
+   if(Plated == 1) {
+    Ptype[i] = 1;
+    Pcnt[i]++;
+    return;
+   }
+   if(Plated == 0) {
+    Htype[i] = 0;
+    Hcnt[i]++;
+    return;
+   }
+  }
+ }
+ 
+  Drills[Dcnt] = Size;
+  Htype[Dcnt] = 1;
+  if(No <= 0)
+  {
+	if(dlgMessageBox("Ein Bohrsymbol wurde nicht eindeutig festgelegt.\nWählen Sie bitte Optionen->Einstellungen->Bohrsymbole\nund entfernen Sie erst alle festgelegten Zuordnungen,\nfügen die Sie anschließend mit \"Erzeugen\" die Bohrsymbolzuordnungen vollständig hinzu. Trotzdem fortsetzen?", "Ja", "Nein") == 0)
+	{
+		No = 19;
+	}
+	else
+	{
+		exit(EXIT_FAILURE);  
+	}
+	
+  } 
+  drillSymbolNo[Dcnt] = No;
+
+  if(Plated == 1) {
+   Ptype[Dcnt] = 1;
+   Pcnt[Dcnt]++;
+  }
+  if(Plated == 0) {
+   Htype[Dcnt] = 0;
+   Hcnt[Dcnt]++;
+  }
+  Dcnt++;
+ 
+}
+
+board(B) {
+  B.holes(H) DrillsCapture(H.drill, 0, H.drillsymbol);
+  B.signals(S) S.vias(V) DrillsCapture(V.drill, 1, V.drillsymbol);
+  B.elements(E)  {
+    E.package.contacts(C) {
+      if (C.pad) DrillsCapture(C.pad.drill, 1, C.pad.drillsymbol);								//Mark
+    }
+    E.package.holes(H) DrillsCapture(H.drill, 0, H.drillsymbol);
+  }
+}
+
+sort(Dcnt, index, Drills);
+
+void SortHolesMode(int Mode) {
+
+ 
+ if(Mode == 0) {//ALTERNATE
+  for( i = 0; i < Dcnt; i++) {
+   if(Ptype[index[i]] == 1) {															//Marke2
+    List(i, Drills[index[i]], Pcnt[index[i]], Ptype[index[i]] + 1, Lcnt, TolPlated, drillSymbolNo[index[i]]);
+    Lcnt++;
+   }
+   if(Htype[index[i]] == 0) {
+    List(i, Drills[index[i]], Hcnt[index[i]], Htype[index[i]] + 0, Lcnt, TolNonPlated, drillSymbolNo[index[i]]);
+    Lcnt++;
+   }
+  }
+ }
+
+ if(Mode == 1) { //MIXED
+  string tol;
+  for( i = 0; i < Dcnt; i++) {
+   if(Ptype[index[i]] + Htype[index[i]] == 0) {tol = TolNonPlated;}
+   else {tol = TolPlated;}
+   List(i, Drills[index[i]], Pcnt[index[i]] + Hcnt[index[i]], Ptype[index[i]] + Htype[index[i]], Lcnt, tol, drillSymbolNo[index[i]]-1);
+   Lcnt++;
+  }
+ }
+
+
+ if(Mode == 2) {//AT END
+  for( i = 0; i < Dcnt; i++) {
+   if(Ptype[index[i]] == 1) {
+    List(i, Drills[index[i]], Pcnt[index[i]], Ptype[index[i]] + 1, Lcnt, TolPlated, drillSymbolNo[index[i]]);
+    Lcnt++;
+   }
+  }
+  for( i = 0; i < Dcnt; i++) {
+   if(Htype[index[i]] == 0) {
+    List(i, Drills[index[i]], Hcnt[index[i]], Htype[index[i]] + 0, Lcnt, TolNonPlated, drillSymbolNo[index[i]]);
+    Lcnt++;
+   }
+  }
+ }
+}
+
+
+/******* DRILL RACK FOR THE CAM PROCESSOR (DRILLCFG.ULP) *******/
+
+ string unitName[] = { "mm", "in" };
+ int unitPrec[] = { 2, 3 };
+ int RoundFactor = pow(10, unitPrec[Unit]);
+ real Drilling[];
+ int imax = 0;
+
+ void AddDrilling(int Size)
+ {
+  real x;
+
+  switch (Unit) {
+    case unitMM:   x = round(u2mm(Size) * RoundFactor) / RoundFactor;
+                   break;
+    case unitINCH: x = round(u2inch(Size) * RoundFactor) / RoundFactor;
+                   break;
+  }
+
+  for (int i = imax; --i >= 0; )
+      if (Drilling[i] == x)
+         return;
+  Drilling[imax++] = x;
+ }
+
+/*******OUTPUT DRILL LEGEND FILE****************/
+
+for(j = 0; j < laycnt; j++) {
+ if(LayerNbr[j] == SymbolLayer) { 
+  LayerSel = j;}
+}
+
+void OutDriLegend() {
+ output(ScrName) {
+  printf("OPEN %s;\n",LbrPath);
+  int ttime = time();
+  string ftime;
+  sprintf(ftime,"%d",ttime);
+  string tfile = strsub(ftime, 2, 9);
+
+  if(rename == 1) {
+   printf("Rename drilegend.pac dl%s.pac\n",tfile);
+  }
+  printf("Edit drilegend.pac\n");
+  printf("Display none;\n");
+  printf("Display %d;\n", SymbolLayer);
+  printf("Set Wire_Bend 2;\n");
+  printf("Grid mil 25 1 mil;\n");
+
+  for(j = 0; j < laycnt; j++) {
+   printf("Layer %s;\n",LayerName[j]);
+  }
+  printf("Change layer %d;\n", SymbolLayer);
+  printf("Change Size %d;\n", TextSize);
+  printf("Change Ratio %d;\n", TextRatio);
+  printf("Change Font %s;\n", TextFont[IdxFnt]);
+
+  if(VerticalChart == 1) {
+   defPos();
+   DrillChartVertical(0);
+  }
+  if(VerticalChart == 0) {
+   defHigh();
+   DrillChartHorizontal(0);
+  }
+
+  printf("WRITE %s;\n",LbrPath);
+  printf("CLOSE %s;\n",LbrPath);
+  if(SymbolLayer != 44 && SymbolLayer != 45) {
+   printf("DISPLAY 23 44 45 %d;\n",SymbolLayer);
+  }
+  else {printf("DISPLAY 23 44 45;\n");}
+  printf("Grid mil 25 1 mil;\n");
+  printf("USE %s\n",LbrPath);
+
+  if(replace == 0)
+  {
+  	printf("ADD 'DRILEGEND' DRILEGEND R0 (%f %f);\n", u2mil(max_x - min_x)/2 - (table_width / 2), u2mil(min_y) - offset);
+  }
+  if (replace == 1) 
+  {
+	printf("MOVE 'DRILEGEND' (%f %f);\n", u2mil(min_x) + u2mil(max_x - min_x)/2 - (table_width / 2), u2mil(min_y) - offset);
+	printf("UPDATE %s;\n",LbrPath);
+  }
+  printf("GRID last;\n");
+ }
+}
+
+
+/********************DIALOG***************************/
+
+if((EAGLE_VERSION > 4) || ((EAGLE_VERSION == 4) && (EAGLE_RELEASE >= 15))) {
+
+  /* Close window and start generation */
+   loadMaxMinCoordinates();
+   TitleList();
+   SortHolesMode(SortHoles);
+   OutDriLegend();
+
+   exit("; SCR '" + ScrName + "';\n");
+   /* End */
+
+}
+else {
+ string OlderVersion;
+ sprintf(OlderVersion,"Sorry! Your Eagle version is %d.0%d\nBut this ULP require at least 4.15\nPlease, Download the last version\nfrom: http://www.cadsoft.de",EAGLE_VERSION ,EAGLE_RELEASE);
+ if (dlgMessageBox(OlderVersion, "&See you soon!") == 0) {}
+}
+
