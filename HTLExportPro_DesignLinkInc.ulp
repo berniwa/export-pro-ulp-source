@@ -1,4 +1,4 @@
-#usage "en: <b>DesignLink </b>"
+﻿#usage "en: <b>DesignLink </b>"
            "<p>"
            "This is an include ULP needed from other DesignLink ULPs.<br>"
            "<author>Author: librarian@cadsoft.de</author>"
@@ -357,9 +357,9 @@ int Search(string distributor, string key, int search_type)
 {
 	string localKey = key, offset = "0";
 
-	dlgMessageBox(distributor);
-	distributor = getDistributor(distributor);
-	dlgMessageBox(distributor);
+	//dlgMessageBox(distributor);
+	//distributor = getDistributor(distributor);
+	//dlgMessageBox(distributor);
 	
 	
 	// If search is done by keyword:
