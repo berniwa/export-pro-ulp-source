@@ -1,4 +1,4 @@
-﻿#usage "en: <b>DesignLink </b>"
+#usage "en: <b>DesignLink </b>"
            "<p>"
            "This is an include ULP needed from other DesignLink ULPs.<br>"
            "<author>Author: librarian@cadsoft.de</author>"
@@ -79,6 +79,10 @@ int DISearchOptPac    = 0;             // Add package name to search string
 int DISearchType;
 
 enum { DISearchByKeyword, DISearchByOC };
+
+string DIDistributors[] 	= {"farnell" ,"digikey", "sparkfun"};
+int DIDefaultDistributor 	= 0;
+
 
 // The central search routine SingleSearch is used in 3 different ways
 // with slightly different dialog and behaviour:
@@ -279,7 +283,7 @@ void InitCountryData(void)
    };
 
   string URLs[] = {
-    "localhost/EaglePriceRequester", //"uk.farnell.com"
+    "uk.farnell.com", //""
     "cn.element14.com",
     "au.element14.com",
     "www.newark.com"
@@ -312,7 +316,12 @@ void InitCountryData(void)
 
 string GetDesignLinkURL(void)
 {
-  return "http://" + DISearchURL + "/pffind/services/SearchService";
+  return "https://" + DISearchURL + "/pffind/services/SearchService";
+}
+
+string GetPriceRequesterUrl(void)
+{
+  return "http://localhost/EaglePriceRequester/index.php";
 }
 
 string GetImageURL(string Image, int Large, string vrnt)
@@ -340,7 +349,7 @@ void Clear(void)
   DIProductSel = -1;
 }
 
-string getDistributor(string distributor)
+string GetDistributor(string distributor)
 {
 	string distri = "";
 	int i = 0;
@@ -352,13 +361,24 @@ string getDistributor(string distributor)
 	}
 	return distri;
 }
+int GetDistributorId(string distributor)
+{
+	distributor = GetDistributor(distributor);
+
+	for(int i = 0; DIDistributors[i]; i++)
+	{
+		if(DIDistributors[i] == distributor){return i;}
+	}
+	return 0;
+}
+
 
 int Search(string distributor, string key, int search_type)
 {
 	string localKey = key, offset = "0";
 
 	//dlgMessageBox(distributor);
-	//distributor = getDistributor(distributor);
+	distributor = GetDistributor(distributor);
 	//dlgMessageBox(distributor);
 	
 	
@@ -427,26 +447,43 @@ int Search(string distributor, string key, int search_type)
 	// Differences in the query for both cases. Rest remains the same.
 	if (search_type == DISearchByKeyword)
 	{
-		Query +="   <v1:keywordParameter>\n"
-					  "     <v1:keyword>" + localKey + "</v1:keyword>\n"
-					  "     <v1:offset>" + offset + "</v1:offset>\n"
-					  "     <v1:numberOfResults>" + DIResultsPerPageValues[DIResultsPerPageIndex] + "</v1:numberOfResults>\n"
-					  "      <v1:RefinementParameters>\n"
-					  "        <v1:inStock>" + BoolString(DIInStock) + "</v1:inStock>\n"
-					  "        <v1:rohsComplaint>" + BoolString(DIRoHS) + "</v1:rohsComplaint>\n"
-					  "      </v1:RefinementParameters>\n"
-					  "    </v1:keywordParameter>\n";
+		if(distributor != "farnell")
+		{
+			Query +=	  "   <v1:keywordParameter>\n"
+				  "     <v1:Distributor>" + distributor + "</v1:Distributor>\n"
+				  "     <v1:keyword>" + localKey + "</v1:keyword>\n"
+				  "     <v1:offset>" + offset + "</v1:offset>\n"
+				  "     <v1:numberOfResults>" + DIResultsPerPageValues[DIResultsPerPageIndex] + "</v1:numberOfResults>\n"
+				  "      <v1:RefinementParameters>\n"
+				  "        <v1:inStock>" + BoolString(DIInStock) + "</v1:inStock>\n"
+				  "        <v1:rohsComplaint>" + BoolString(DIRoHS) + "</v1:rohsComplaint>\n"
+				  "      </v1:RefinementParameters>\n"
+				  "    </v1:keywordParameter>\n";
+		}
+		else
+		{
+			Query +="   <v1:keywordParameter>\n"
+				  "     <v1:keyword>" + localKey + "</v1:keyword>\n"
+				  "     <v1:offset>" + offset + "</v1:offset>\n"
+				  "     <v1:numberOfResults>" + DIResultsPerPageValues[DIResultsPerPageIndex] + "</v1:numberOfResults>\n"
+				  "      <v1:RefinementParameters>\n"
+				  "        <v1:inStock>" + BoolString(DIInStock) + "</v1:inStock>\n"
+				  "        <v1:rohsComplaint>" + BoolString(DIRoHS) + "</v1:rohsComplaint>\n"
+				  "      </v1:RefinementParameters>\n"
+				  "    </v1:keywordParameter>\n";
+		}
 	}
 	else
 	{
 
-		if(distributor == "digikey")
+		if(distributor != "farnell")
 		{
-			Query +="   <v1:digikeyPartNumbers>\n"    // search by digikeyPartNumbers
-					"     <v1:Sku>" + localKey + "</v1:Sku>\n"
-					"    </v1:digikeyPartNumbers>\n";				
+			Query +="   <v1:partNumbers>\n"    // search by any other partNo
+				"     <v1:Sku>" + localKey + "</v1:Sku>\n"
+				"     <v1:Distributor>" + distributor + "</v1:Distributor>\n"
+				"    </v1:partNumbers>\n";				
 		}
-		else //if(distributor == "" || distributor == "farnell")
+		else
 		{
 			Query +="   <v1:premierFarnellPartNumbers>\n"    // search by premierFarnellPartNumbers
 					"     <v1:Sku>" + localKey + "</v1:Sku>\n"
@@ -466,7 +503,8 @@ int Search(string distributor, string key, int search_type)
 			output("fdlQuery.html", "wb") printf("%s", Query);
 
 	// Here we go !
-	int rv = netpost(DISearchResult, GetDesignLinkURL(), Query);
+	string url = (distributor == "farnell")?GetDesignLinkURL():GetPriceRequesterUrl();
+	int rv = netpost(DISearchResult, url, Query);
 
 	if (DIDebugXfer)
 			output("fdlResponse.html", "wb") printf("%s", DISearchResult);
@@ -501,8 +539,20 @@ void Result2List(void)
    	DInProducts = xmlelements(DIProducts, DISearchResult, "soapenv:Envelope/soapenv:Body/ns1:" +
 			(DISearchType == DISearchByKeyword ? "keywordSearchReturn" : "premierFarnellPartNumberReturn") +
 			"/ns1:products");
+	if(DInProducts == 0)
+	{
+		DInProducts = xmlelements(DIProducts, DISearchResult, "SOAP-ENV:Envelope/SOAP-ENV:Body/ns1:" +
+			(DISearchType == DISearchByKeyword ? "keywordSearchReturn" : "partNumberReturn") +
+			"/ns1:products");
+		//string tmp;
+		//sprintf(tmp, "%d:%s", DInProducts, DISearchResult);
+		//dlgMessageBox(tmp);	
+	}	
+
    	if(DInProducts != 0) //We have XML Results
    	{
+		
+
    		DIProductList[DInProducts] = "";
    		for (int i = DInProducts; --i >= 0; ) 
 		{
@@ -754,10 +804,14 @@ string SingleSearch(int dlg_mode, string dlg_head, string description, string im
   string key = displaykey;
   int ok = 1;                    // Wether search worked or not
 
+  DIDefaultDistributor = GetDistributorId(distributor);
+
   if (!((start_search_mode == DISearchByOC) && (singlekey == DIUnknown))) { // Avoid search with an unknown OC !
     ok = Search(distributor,singlekey, start_search_mode);
     Result2List();
   }
+
+
 
   if (DInProducts > 0)
     DIProductSel = 0;
@@ -790,12 +844,13 @@ string SingleSearch(int dlg_mode, string dlg_head, string description, string im
           }
         }
         dlgHBoxLayout {
+	dlgComboBox(DIDistributors, DIDefaultDistributor);
           dlgStringEdit(key);
           dlgPushButton(tr("+Manuelle Suche")) {
             DIChangedOrValue = key;         // zum Überprüfen, ob der Anwender den Suchwert geändert hat,
                                             // um evtl. die Package-Variante zu ändern.
             Clear();
-            DoSearch(key, distributor);
+            DoSearch(key, DIDistributors[DIDefaultDistributor]);
           }
         }
         dlgHBoxLayout {

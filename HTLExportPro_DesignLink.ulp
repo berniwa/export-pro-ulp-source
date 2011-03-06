@@ -179,8 +179,8 @@ int NewSearch(int point) {
   Clear();
 
   string farnell_part = SingleSearch(DIModeNewSearch, tr("Bauteilsuche für ") + SchFilename,
-                                     GetDescription(point), "", DISearchByOC, s[3],
-                                     (s[3] == DIUnknown) ? SchPartValue[point] : s[3], ""); // Initially suggest part value for search if OC is unknown
+                                     GetDescription(point), "", DISearchByOC, s[4],
+                                     (s[3] == DIUnknown) ? SchPartValue[point] : s[4], s[3]); // Initially suggest part value for search if OC is unknown
   // Cancel: Nothing to do. Reset Flag.
   if (DICancelSearch) {
     DICancelSearch = 0;
