@@ -646,6 +646,8 @@ int 	bomExportXls = 0;
 int 	bomExportXlsx = 0;
 int 	bomExportCsv = 0;
 int 	bomExportDbase3 = 0;
+int 	bomExportFarnellBom = 0;
+real	bomExportFarnellMultiplier = 1.0;
 
 int	bomInfoCount = 0;
 
@@ -1890,6 +1892,23 @@ void bomOutputDatabaseFile(string ofilename)
 }
 
 
+void bomOutputFarnellBom(string ofilename, real multi)
+{
+	output(ofilename, "w")
+	{
+  
+  		for (int i = 0;i < bomInfoCount; i++) 
+		{
+			if(strstr(bomAttributeDistributor[i], "farnell") >= 0)
+			{
+				printf("%s,%d\n", bomXMLSafe(bomAttributeOrderNo[i]), int(ceil(bomInfoPartCount[i] * multi)));
+			}
+		}
+
+		
+	}	
+}
+
 string bname;
 
 project.schematic(S)
@@ -1930,15 +1949,30 @@ void bomProcess()
 		{
 			bomExportDbase3 = 1;
 		}
+		else if(argv[i] == "-farnell")
+		{
+			bomExportFarnellBom = 1;
+		}
+		else if(argv[i] == "-multiplier")
+		{
+			if(i + 1 < argc)
+			{
+				i++;
+				bomExportFarnellMultiplier = strtod(argv[i]);
+			}
+		}
+
 		else if(argv[i] == "-short_names")
 		{
 			bomShortPartNames = 1;
-			
 		}
 		else if(argv[i] == "-display_package_type")
 		{
 			bomDisplayPackageType = 1;
 		}
+
+
+
 	}	
 
 	bomPartsLoad();
@@ -1949,13 +1983,13 @@ void bomProcess()
 	{
 		bomShortenNames();
 	}
-	if(bomExportXls)
+	if(bomExportXlsx)
 	{
 		bomOutputXslFile(ofilename + ".xlsx"); //Office 2007 - written XML style - openable with Office 2003 and up and OO 3.0 and up
 	}
-	if(bomExportXlsx)
+	if(bomExportXls)
 	{
-		bomOutputXslFile(ofilename + ".xls");  //Office 2003 - for all that say - "Woah I don't have Office 2007" - like me =) - but it's the same file as the xlsx
+		bomOutputXslFile(ofilename + ".xls");  //Office 2003 and 2010 - for all that say - "Woah I don't have Office 2007" - like me =) - but it's the same file as the xlsx
 	}
 	if(bomExportCsv)
 	{
@@ -1964,6 +1998,10 @@ void bomProcess()
 	if(bomExportDbase3)
 	{
 		bomOutputDatabaseFile(ofilename + ".dbf"); //DBASE File
+	}
+	if(bomExportFarnellBom)
+	{
+		bomOutputFarnellBom(ofilename + "-farnell.txt", bomExportFarnellMultiplier); //Farnell BOM
 	}
 }
 

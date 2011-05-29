@@ -41,13 +41,15 @@ string cmd = "", bname = "", layers = "", palette_name = "BLACK", config_file = 
 int 
 layout_bot = 1, layout_top = 1, layout_l3 = 0, layout_l2 = 0, parts_top = 1, parts_bot = 1, drills = 1, measure = 1, drilltable = 1, 
 construction = 1, enable_export = 1, bom = 1, mirror_bot = 1, crop_all = 1, no_measures = 0, auto_project = 1,
-bom_xls = 1, bom_xlsx = 0, bom_csv = 0, bom_dbase3 = 1, bom_shorten_names = 1, bom_display_package_type = 1, 
+bom_xls = 1, bom_xlsx = 1, bom_csv = 0, bom_dbase3 = 1, bom_farnell = 1, bom_shorten_names = 1, bom_display_package_type = 1, 
 parts_display_names = 1, parts_display_values = 1, pricing = 1, sat_export = 1, pcbimage_top = 1, 
 pcbimage_bottom = 1, pcbimage_resolution = 2, pcbimage_crop = 1, pcbimage_mirror = 1, pcbimage_color = 0,
 pcbimage_silkscreen_color = 0, pcbimage_plating = 0,
 silkscreen_top = 1, silkscreen_tnames = 1, silkscreen_tvalues = 1, silkscreen_tdocu = 1,
 silkscreen_bottom = 1, silkscreen_bnames = 1, silkscreen_bvalues = 1, silkscreen_bdocu = 1,
 silkscreen_width = 8, silkscreen_enable = 1;
+
+real bom_quantity;
 
 string output_folder = "./";
 
@@ -171,6 +173,8 @@ void loadUsersettings()
 		silkscreen_bdocu = strtol(data[42]);
 		silkscreen_width = strtol(data[43]);
 		silkscreen_enable = strtol(data[44]);
+		bom_farnell = strtol(data[45]);
+		bom_quantity = strtod(data[46]);
 
 	}	
 }
@@ -226,6 +230,9 @@ void saveUsersettings()
 		printf("%d\n", silkscreen_bdocu);
 		printf("%d\n", silkscreen_width);
 		printf("%d\n", silkscreen_enable);
+
+		printf("%d\n", bom_farnell);
+		printf("%f\n", bom_quantity);
 	}
 }
 
@@ -421,7 +428,7 @@ void export()
 	if(bom)
 	{
 		string tmp = "";
-		sprintf(tmp, "RUN HTLExportPro_BOM.ulp '%s' %s %s %s %s %s %s;", getFilename(output_file, "-bom"), bom_xls?"-xls":"", bom_xlsx?"-xlsx":"", bom_csv?"-csv":"", bom_dbase3?"-dbase3":"", bom_shorten_names?"-short_names":"", (!bom_display_package_type)?"-display_package_type":"");
+		sprintf(tmp, "RUN HTLExportPro_BOM.ulp '%s' -multiplier %f %s %s %s %s %s %s %s;", getFilename(output_file, "-bom"), bom_quantity,  bom_xls?"-xls":"", bom_xlsx?"-xlsx":"", bom_csv?"-csv":"", bom_dbase3?"-dbase3":"", bom_farnell?"-farnell":"", bom_shorten_names?"-short_names":"", (!bom_display_package_type)?"-display_package_type":"");
 		cmd += tmp;
 		
 	}
@@ -607,6 +614,10 @@ void dialogBomSettings()
 					dlgCheckBox("CSV", bom_csv);
 					dlgCheckBox("DBF(DBASE III)", bom_dbase3);
 				}
+				dlgHBoxLayout
+				{
+					dlgCheckBox("Farnell Bom", bom_farnell);
+				}
 			}
 			dlgGroup("Optionen:") 
 			{
@@ -615,6 +626,14 @@ void dialogBomSettings()
 					dlgCheckBox("R1,R2,R3,R4 -> R1-4", bom_shorten_names);
 					dlgCheckBox("SMD 0805 -> 0805", bom_display_package_type);
 				}
+				dlgHBoxLayout
+				{
+					dlgLabel("Order Quantity");
+					dlgRealEdit(bom_quantity);
+				}
+
+				
+					
 			}		
 		};
 		dlgPushButton("OK") {
