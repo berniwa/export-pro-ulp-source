@@ -1,0 +1,258 @@
+string execute = "";
+
+int rerun = 1, save = 1;
+
+string 	list[], names[], values[], packages[], 
+	distributor[], order_no[], manufacturer[], part_no[],
+	price[], prices[], datasheet[],min_qty[], qty_mul[];
+int 	count,  pages[];
+
+void updateAttributes()
+{
+	count = 0;
+	schematic(SCH)
+	{
+		SCH.sheets(S)
+		{	
+			S.parts(P)
+			{
+				if(P.device.package)
+				{
+					names[count] 		= P.name;
+					values[count]		= P.value;
+					packages[count]		= P.device.package.name;
+					pages[count]		= S.number;
+					distributor[count]		= P.attribute["DISTRIBUTOR"];
+					order_no[count]		= P.attribute["ORDER_NO"];
+					manufacturer[count]		= P.attribute["MANUFACTURER"];
+					part_no[count]		= P.attribute["PART_NO"];
+					price[count]		= P.attribute["PRICE"];
+					prices[count]		= P.attribute["PRICES"];
+					datasheet[count]		= P.attribute["DATASHEET"];
+					min_qty[count]		= P.attribute["MINIMUM_QUANTITY"];
+					qty_mul[count]		= P.attribute["QUANTITY_MULTIPLIER"];	
+					count++;
+				}						
+			}			
+		}
+	}	
+}
+
+void updateAttributeList()
+{
+	for(int i = 0; i < count; i++)
+	{
+		sprintf(list[i], "%s\t%s\t%s\t%d\t%s\t%s\t%s\t%s\t%s\t%s\t%s", 
+			names[i], values[i], packages[i] , pages[i], 
+			distributor[i], order_no[i], 
+			manufacturer[i], part_no[i],
+			price[i], min_qty[i], qty_mul[i]
+		);	
+	}
+}
+
+
+void findAndChange(int selected, int mode)
+{
+	int found = 0;
+
+	sprintf(execute, "%s CHANGE DISPLAY OFF;\n",  execute);
+
+	for(int i = 0; i < count; i++)
+	{
+		if(	(mode == 0 && names[i] == names[selected]) || 
+			(mode == 1 && values[i] == values[selected] && packages[i] == packages[selected]) || 
+			(mode == 2 && values[i] == values[selected]) 
+		)
+		{
+			sprintf(execute, "%s EDIT .s%d;\n",  execute, pages[i]);
+			sprintf(execute, "%s ATTRIBUTE %s MANUFACTURER\'%s\';\n", 		execute, names[i], manufacturer[selected]);
+			sprintf(execute, "%s ATTRIBUTE %s PART_NO \'%s\';\n", 		execute, names[i], part_no[selected]);
+			sprintf(execute, "%s ATTRIBUTE %s DISTRIBUTOR \'%s\';\n", 		execute, names[i], distributor[selected]);
+			sprintf(execute, "%s ATTRIBUTE %s ORDER_NO \'%s\';\n", 		execute, names[i], order_no[selected]);
+			sprintf(execute, "%s ATTRIBUTE %s PRICE \'%s\';\n", 		execute, names[i], price[selected]);
+			sprintf(execute, "%s ATTRIBUTE %s PRICES \'%s\';\n", 		execute, names[i], prices[selected]);
+			sprintf(execute, "%s ATTRIBUTE %s MINIMUM_QUANTITY \'%s\';\n", 	execute, names[i], min_qty[selected]);
+			sprintf(execute, "%s ATTRIBUTE %s QUANTITY_MULTIPLIER \'%s\';\n", 	execute, names[i], qty_mul[selected]);
+			sprintf(execute, "%s ATTRIBUTE %s DATASHEET \'%s\';\n", 	execute, names[i], datasheet[selected]);
+			
+
+			manufacturer[i] 	= manufacturer[selected];
+			part_no[i]	= part_no[selected];
+			distributor[i] 	= distributor[selected];
+			order_no[i] 	= order_no[selected];
+			price[i] 		= price[selected];
+			prices[i]		= prices[selected];
+			min_qty[i] 	= min_qty[selected];
+			qty_mul[i] 	= qty_mul[selected];
+			datasheet[i]	= datasheet[selected];
+
+			found = 1;
+		}	
+
+	}
+	if(!found){dlgMessageBox("Device with value " + values[selected] + " not found!");}
+}
+
+
+real calculatePrice()
+{
+	real mprice = 0;
+
+	for(int i = 0; i < count; i++)
+	{
+		mprice += strtod(price[i]);
+	}
+	return mprice;
+}
+
+int calculatePartsWithOrderNo()
+{
+	int mcount = 0;
+
+	for(int i = 0; i < count; i++)
+	{
+		if(distributor[i] != "" && order_no[i] != ""){mcount++;}
+	}
+	return mcount;	
+}
+
+int calculatePartsWithPrice()
+{
+	int mcount = 0;
+
+	for(int i = 0; i < count; i++)
+	{
+		if(price[i] != ""){mcount++;}
+	}
+	return mcount;	
+}
+
+void editDevice(int selected)
+{
+	int saveDevice = 1;
+	int mode = 1;
+
+	dlgDialog("Set Attributes for Device")
+	{
+		dlgGroup("Update Mode")
+		{
+			dlgHBoxLayout
+			{
+ 				dlgRadioButton("Part Name", mode);
+  				dlgRadioButton("Device Value && Package", mode);
+  				dlgRadioButton("Device Value", mode);
+			}			
+		}
+
+		dlgGroup("Device Information")
+		{
+			dlgHBoxLayout
+			{
+				dlgLabel("Part");
+				dlgLabel(names[selected]);	
+				dlgLabel("Value");
+				dlgLabel(values[selected]);
+				dlgLabel("Package");	
+				dlgLabel(packages[selected]);
+			}
+		}
+		dlgGroup("New Values")
+		{		
+			dlgGridLayout
+			{
+				dlgCell(0, 0) dlgLabel("DISTRIBUTOR");
+				dlgCell(0, 1) dlgStringEdit(distributor[selected]);
+				dlgCell(0, 2) dlgLabel("ORDER_NO");
+				dlgCell(0, 3) dlgStringEdit(order_no[selected]);	
+				dlgCell(1, 0) dlgLabel("MANUFACTURER");
+				dlgCell(1, 1) dlgStringEdit(manufacturer[selected]);	
+				dlgCell(1, 2) dlgLabel("PART_NO");
+				dlgCell(1, 3) dlgStringEdit(part_no[selected]);	
+				dlgCell(2, 0) dlgLabel("PRICE*");
+				dlgCell(2, 1) dlgStringEdit(price[selected]);	
+				dlgCell(2, 2) dlgLabel("PRICES*");
+				dlgCell(2, 3) dlgStringEdit(prices[selected]);
+				dlgCell(3, 0) dlgLabel("MINIMUM_QUANTITIY*");
+				dlgCell(3, 1) dlgStringEdit(min_qty[selected]);	
+				dlgCell(3, 2) dlgLabel("QUANTITIY_MULTIPLIER*");
+				dlgCell(3, 3) dlgStringEdit(qty_mul[selected]);
+				dlgCell(4, 0) dlgLabel("DATASHEET*");
+				dlgCell(4, 1) dlgStringEdit(datasheet[selected]);
+				dlgCell(5, 1, 5 , 4) dlgLabel("* might be overwriten when requesting the price over the internet");		
+			}
+		}
+		dlgHBoxLayout
+		{
+			dlgPushButton("Abbrechen"){saveDevice = 0; dlgReject(); }
+			dlgPushButton("Speichern"){dlgAccept(); }
+		}
+	};
+	if(saveDevice)
+	{
+		findAndChange(selected, mode);
+	}	
+}
+
+
+int showListOfDevices()
+{
+	int selected = 0;
+
+	updateAttributes();
+
+	while(1)
+	{
+		updateAttributeList();
+	
+		int dstatus = dlgDialog("Set Attributes for Device with value")
+		{
+			dlgListView("Part\tValue\tPackage\tSheet\tDistributor\tOrder No.\tManufacturer\tPart No.\tPrice\tMin. Qty.\tQty. Mul.", list, selected)
+			{
+				editDevice(selected);
+				dlgAccept();
+			}
+			dlgHBoxLayout
+			{
+			dlgGroup("Information")
+			{
+				dlgGridLayout
+				{
+					string tmp = "", tmp2 = "", tmp3 = "";
+					sprintf(tmp, "%d of %d", calculatePartsWithOrderNo(), count);
+					sprintf(tmp2, "%d of %d", calculatePartsWithPrice(), count);
+					sprintf(tmp3, "%f Euro", calculatePrice());
+
+					dlgCell(0, 1) dlgLabel("Ordering information present:");
+					dlgCell(0, 2) dlgLabel(tmp);
+					dlgCell(1, 1) dlgLabel("Request prices: ");
+					dlgCell(1, 2) dlgPushButton("Request"){};
+					dlgCell(2, 1) dlgLabel("Pricing information present:");
+					dlgCell(2, 2) dlgLabel(tmp2);
+					dlgCell(3, 1) dlgLabel("Overall price:");
+					dlgCell(3, 2) dlgLabel(tmp3);
+
+				}
+			}
+			dlgVBoxLayout
+			{
+				dlgPushButton("Abbrechen"){dlgReject(); return 0;}
+				dlgPushButton("Speichern"){dlgAccept(); return 1;}
+			}
+			}
+		};
+
+		if(dstatus == -1){break;}
+	}
+
+	return 1;
+}
+
+if(showListOfDevices())
+{
+	exit(execute);	
+}
+
+
+
+

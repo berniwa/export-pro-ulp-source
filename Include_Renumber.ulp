@@ -1,7 +1,20 @@
+/************************************************************/
+/* HTLExportPro_Renumber.ulp                                */
+/* - Numberiert die Bauteile anhand der Schaltplan position */
+/*	 neu													*/
+/************************************************************/
+/* (c) Copyright 2011, Bernhard Wörndl-Aichriedler          */
+/* E-Mail: bwa@berniwa.com                                  */
+/* Homepage: www.berniwa.com                                */
+/************************************************************/
+/* Letzte Änderung am 29.05.2011                            */
+/* Version 1                                                */
+/************************************************************/
+
 #usage "<b>Renumber the parts of a schematic, optionally specifying start number, skipping digits and/or only those parts within a user specified rectangular area</b>\n"
        "<p>"
        "Based on renumber-sch.ulp written by: support@cadsoft.de"
-       "<author>Author: Neil Allison, avon.tech.solutions@clear.net.nz</author>\n"
+       "<author>Author: Neil Allison, avon.tech.solutions@clear.net.nz , modified by Bernhard Wörndl-Aichriedler, bwa@berniwa.com</author>\n"
 
 /*
 Rev History
@@ -314,7 +327,7 @@ void visible(UL_SCHEMATIC S) {
   cmd += ";\n";
   return;
 }
-
+/*
 void menue(void) {	//modified from original
    int Result = dlgDialog("Renumber Schematic") {
       dlgLabel(Info);
@@ -369,7 +382,7 @@ void menue(void) {	//modified from original
    if (!Result) exit (0);
    return ;
    }
-
+*/
 void getRectangleXY(void) //New subroutine
 {
    int rectCount = 0;
@@ -409,7 +422,7 @@ void getRectangleXY(void) //New subroutine
 //Main	modified from original
 if (schematic) {
  schematic(S) {
-  menue();
+  //menue();
 
   if (useRectangle == 1) {
      getRectangleXY();    // NJA Get Rectangle x & y limits
