@@ -312,7 +312,7 @@ void export()
 	}
 	if(drilltable)
 	{
-		cmd += "RUN Include_DrillTable.ulp;";
+		cmd += "RUN " + include_path + "DrillTable.ulp;";
 	}
 	if(silkscreen_enable)
 	{
@@ -377,38 +377,38 @@ void export()
 		}
 		if(layout_l2)
 		{
-			cmd += "RUN "  + include_path + "Include_Crop.ulp '" + output_file_l2 + "';";
+			cmd += "RUN "  + include_path + "Crop.ulp '" + output_file_l2 + "';";
 		}
 		if(layout_l3)
 		{
-			cmd += "RUN "  + include_path + "Include_Crop.ulp '" + output_file_l3 + "';";
+			cmd += "RUN "  + include_path + "Crop.ulp '" + output_file_l3 + "';";
 		}
 		if(parts_top)
 		{
-			cmd += "RUN "  + include_path + "Include_Crop.ulp '" + output_file_pt + "';";
+			cmd += "RUN "  + include_path + "Crop.ulp '" + output_file_pt + "';";
 		}
 		if(parts_bot)
 		{
-			cmd += "RUN "  + include_path + "Include_Crop.ulp '" + output_file_pb + "';";
+			cmd += "RUN "  + include_path + "Crop.ulp '" + output_file_pb + "';";
 		}
 		if(drills)
 		{
-			cmd += "RUN "  + include_path + "Include_Crop.ulp '" + output_file_drl + "';";
+			cmd += "RUN "  + include_path + "Crop.ulp '" + output_file_drl + "';";
 		}
 		if(construction)
 		{
-			cmd += "RUN "  + include_path + "Include_Crop.ulp '" + output_file_cs + "';";
+			cmd += "RUN "  + include_path + "Crop.ulp '" + output_file_cs + "';";
 		}	
 	}	
 	if(enable_export && mirror_bot)
 	{
 		if(layout_bot)
 		{
-			cmd += "RUN "  + include_path + "Include_Mirror.ulp '" + output_file_lb + "';";
+			cmd += "RUN "  + include_path + "Mirror.ulp '" + output_file_lb + "';";
 		}
 		if(parts_bot)
 		{
-			cmd += "RUN "  + include_path + "Include_Mirror.ulp '" + output_file_pb + "';";
+			cmd += "RUN "  + include_path + "Mirror.ulp '" + output_file_pb + "';";
 		}
 	}
 	if(enable_export)
@@ -420,25 +420,25 @@ void export()
 
 	if(enable_export && (pcbimage_top || pcbimage_bottom))
 	{
-		sprintf(cmd, "%s RUN "  + include_path + "Include_ImageExport.ulp '%s' %d '%s' %d %d %d %d %s %s %s %s;", cmd, output_file_pcbt, pcbimage_top, output_file_pcbb, pcbimage_bottom, pcbImageResolutions[pcbimage_resolution], pcbimage_crop, pcbimage_mirror, pcbImagePcbColors[pcbimage_color],pcbImageCopperColors[pcbimage_color], pcbImageSilkscreenColors[pcbimage_silkscreen_color], pcbImagePlating[pcbimage_plating]);
+		sprintf(cmd, "%s RUN "  + include_path + "ImageExport.ulp '%s' %d '%s' %d %d %d %d %s %s %s %s;", cmd, output_file_pcbt, pcbimage_top, output_file_pcbb, pcbimage_bottom, pcbImageResolutions[pcbimage_resolution], pcbimage_crop, pcbimage_mirror, pcbImagePcbColors[pcbimage_color],pcbImageCopperColors[pcbimage_color], pcbImageSilkscreenColors[pcbimage_silkscreen_color], pcbImagePlating[pcbimage_plating]);
 	}
 
 	if(sat_export)
 	{
-		cmd += "RUN "  + include_path + "Include_Sat.ulp '" + output_file_sat + "';";
+		cmd += "RUN "  + include_path + "Sat.ulp '" + output_file_sat + "';";
 	}	
 
 	if(pricing)
 	{
 		cmd += "EDIT .sch;";
 		string tmp = "";
-		sprintf(tmp, "RUN "  + include_path + "Include_PriceRequest.ulp;");
+		sprintf(tmp, "RUN "  + include_path + "PriceRequest.ulp;");
 		cmd += tmp;		
 	}
 	if(bom)
 	{
 		string tmp = "";
-		sprintf(tmp, "RUN "  + include_path + "Include_BOM.ulp '%s' -multiplier %f %s %s %s %s %s %s %s;", getFilename(output_file, "-bom"), bom_quantity,  bom_xls?"-xls":"", bom_xlsx?"-xlsx":"", bom_csv?"-csv":"", bom_dbase3?"-dbase3":"", bom_farnell?"-farnell":"", bom_shorten_names?"-short_names":"", (!bom_display_package_type)?"-display_package_type":"");
+		sprintf(tmp, "RUN "  + include_path + "BOM.ulp '%s' -multiplier %f %s %s %s %s %s %s %s;", getFilename(output_file, "-bom"), bom_quantity,  bom_xls?"-xls":"", bom_xlsx?"-xlsx":"", bom_csv?"-csv":"", bom_dbase3?"-dbase3":"", bom_farnell?"-farnell":"", bom_shorten_names?"-short_names":"", (!bom_display_package_type)?"-display_package_type":"");
 		cmd += tmp;
 		
 	}

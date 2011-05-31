@@ -1,4 +1,4 @@
-#include "HTLExportPro_Download.ulp";
+#include "Include_Download.ulp";
 
 int QUERIES_PER_REQUEST = 5;
 string DOWNLOAD_URL = "http://eagle.berniwa.com/price.php";
@@ -27,6 +27,8 @@ void requestPrices(int from_id, int to_id)
 
 	string lines[];
 	int nlines = netpost(lines, DOWNLOAD_URL, "tsv=" + downloadEscapeString(tsv));
+
+	lines[0] = "ID	DISTRIBUTOR	ORDER_NO	QUANTITY	PRICES	PRICE	AVAILABLE_QUANTITY	PARTS_PER_PACKAGE	MINIMUM_QUANTITY	QUANTITY_MULTIPLIER	DATASHEET";
 
 	if(nlines >= 0)
 	{

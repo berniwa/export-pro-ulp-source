@@ -199,13 +199,6 @@ void requestPrice(int part)
 
 	lines[0] = "ID	DISTRIBUTOR	ORDER_NO	QUANTITY	PRICES	PRICE	AVAILABLE_QUANTITY	PARTS_PER_PACKAGE	MINIMUM_QUANTITY	QUANTITY_MULTIPLIER	DATASHEET";
 
-	output("W:/Hardware/ulptest/AVRGeminiV3.3/text.txt"){
-		for(int i = 0; i < nlines; i++){printf(lines[i] + "\n");}
-	}
-
-
-	//dlgMessageBox(lines[0] + lines[1]);
-
 	if(nlines >= 0)
 	{
 		prices[part] 	= lookup(lines, distributor[part] + "-" + part_no[part], "PRICES");
