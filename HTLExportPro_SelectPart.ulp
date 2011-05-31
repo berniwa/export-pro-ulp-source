@@ -1,10 +1,14 @@
+#include "Include_Download.ulp";
+string DOWNLOAD_URL = "http://eagle.berniwa.com/price.php";
+
 string execute = "";
 
 int rerun = 1, save = 1;
 
 string 	list[], names[], values[], packages[], 
 	distributor[], order_no[], manufacturer[], part_no[],
-	price[], prices[], datasheet[],min_qty[], qty_mul[];
+	price[], prices[], datasheet[],min_qty[], qty_mul[],
+	per_pkg[], available[];
 int 	count,  pages[];
 
 void updateAttributes()
@@ -30,7 +34,9 @@ void updateAttributes()
 					prices[count]		= P.attribute["PRICES"];
 					datasheet[count]		= P.attribute["DATASHEET"];
 					min_qty[count]		= P.attribute["MINIMUM_QUANTITY"];
-					qty_mul[count]		= P.attribute["QUANTITY_MULTIPLIER"];	
+					qty_mul[count]		= P.attribute["QUANTITY_MULTIPLIER"];
+					per_pkg[count]		= P.attribute["PARTS_PER_PACKAGE"];
+					available[count]		= P.attribute["AVAILABLE_QUANTITY"];	
 					count++;
 				}						
 			}			
@@ -42,11 +48,11 @@ void updateAttributeList()
 {
 	for(int i = 0; i < count; i++)
 	{
-		sprintf(list[i], "%s\t%s\t%s\t%d\t%s\t%s\t%s\t%s\t%s\t%s\t%s", 
+		sprintf(list[i], "%s\t%s\t%s\t%d\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s", 
 			names[i], values[i], packages[i] , pages[i], 
 			distributor[i], order_no[i], 
 			manufacturer[i], part_no[i],
-			price[i], min_qty[i], qty_mul[i]
+			price[i], available[i], per_pkg[i], min_qty[i], qty_mul[i]
 		);	
 	}
 }
@@ -66,7 +72,7 @@ void findAndChange(int selected, int mode)
 		)
 		{
 			sprintf(execute, "%s EDIT .s%d;\n",  execute, pages[i]);
-			sprintf(execute, "%s ATTRIBUTE %s MANUFACTURER\'%s\';\n", 		execute, names[i], manufacturer[selected]);
+			sprintf(execute, "%s ATTRIBUTE %s MANUFACTURER \'%s\';\n", 		execute, names[i], manufacturer[selected]);
 			sprintf(execute, "%s ATTRIBUTE %s PART_NO \'%s\';\n", 		execute, names[i], part_no[selected]);
 			sprintf(execute, "%s ATTRIBUTE %s DISTRIBUTOR \'%s\';\n", 		execute, names[i], distributor[selected]);
 			sprintf(execute, "%s ATTRIBUTE %s ORDER_NO \'%s\';\n", 		execute, names[i], order_no[selected]);
@@ -74,9 +80,10 @@ void findAndChange(int selected, int mode)
 			sprintf(execute, "%s ATTRIBUTE %s PRICES \'%s\';\n", 		execute, names[i], prices[selected]);
 			sprintf(execute, "%s ATTRIBUTE %s MINIMUM_QUANTITY \'%s\';\n", 	execute, names[i], min_qty[selected]);
 			sprintf(execute, "%s ATTRIBUTE %s QUANTITY_MULTIPLIER \'%s\';\n", 	execute, names[i], qty_mul[selected]);
-			sprintf(execute, "%s ATTRIBUTE %s DATASHEET \'%s\';\n", 	execute, names[i], datasheet[selected]);
+			sprintf(execute, "%s ATTRIBUTE %s DATASHEET \'%s\';\n", 		execute, names[i], datasheet[selected]);
+			sprintf(execute, "%s ATTRIBUTE %s PARTS_PER_PACKAGE \'%s\';\n", 	execute, names[i], per_pkg[selected]);
+			sprintf(execute, "%s ATTRIBUTE %s AVAILABLE_QUANTITY \'%s\';\n", 	execute, names[i], available[selected]);
 			
-
 			manufacturer[i] 	= manufacturer[selected];
 			part_no[i]	= part_no[selected];
 			distributor[i] 	= distributor[selected];
@@ -86,14 +93,48 @@ void findAndChange(int selected, int mode)
 			min_qty[i] 	= min_qty[selected];
 			qty_mul[i] 	= qty_mul[selected];
 			datasheet[i]	= datasheet[selected];
+			per_pkg[i] 	= per_pkg[selected];
+			available[i]	= available[selected];
 
 			found = 1;
 		}	
+		if(mode == 3 && distributor[i] == distributor[selected] && order_no[i] == order_no[selected])
+		{
+			sprintf(execute, "%s EDIT .s%d;\n",  execute, pages[i]);
+			sprintf(execute, "%s ATTRIBUTE %s PRICE \'%s\';\n", 		execute, names[i], price[selected]);
+			sprintf(execute, "%s ATTRIBUTE %s PRICES \'%s\';\n", 		execute, names[i], prices[selected]);
+			sprintf(execute, "%s ATTRIBUTE %s MINIMUM_QUANTITY \'%s\';\n", 	execute, names[i], min_qty[selected]);
+			sprintf(execute, "%s ATTRIBUTE %s QUANTITY_MULTIPLIER \'%s\';\n", 	execute, names[i], qty_mul[selected]);
+			sprintf(execute, "%s ATTRIBUTE %s DATASHEET \'%s\';\n", 		execute, names[i], datasheet[selected]);
+			sprintf(execute, "%s ATTRIBUTE %s PARTS_PER_PACKAGE \'%s\';\n", 	execute, names[i], per_pkg[selected]);
+			sprintf(execute, "%s ATTRIBUTE %s AVAILABLE_QUANTITY \'%s\';\n", 	execute, names[i], available[selected]);
+
+			price[i] 		= price[selected];
+			prices[i]		= prices[selected];
+			min_qty[i] 	= min_qty[selected];
+			qty_mul[i] 	= qty_mul[selected];
+			datasheet[i]	= datasheet[selected];
+			per_pkg[i] 	= per_pkg[selected];
+			available[i]	= available[selected];
+
+			found = 1;
+		}
 
 	}
 	if(!found){dlgMessageBox("Device with value " + values[selected] + " not found!");}
 }
 
+
+int countPartsWithSameOrderNo(string pdistributor, string porder_no)
+{
+	int mcount = 0;
+
+	for(int i = 0; i < count; i++)
+	{
+		if(distributor[i] == pdistributor && order_no[i] == porder_no){mcount++;}
+	}
+	return mcount;	
+}
 
 real calculatePrice()
 {
@@ -105,6 +146,19 @@ real calculatePrice()
 	}
 	return mprice;
 }
+
+int calculateAvailableParts()
+{
+	int mcount = 0;
+
+	for(int i = 0; i < count; i++)
+	{
+		int av = strtod(available[i]);
+		if(av > countPartsWithSameOrderNo(distributor[i], order_no[i])){mcount++;}
+	}
+	return mcount;	
+}
+
 
 int calculatePartsWithOrderNo()
 {
@@ -126,6 +180,55 @@ int calculatePartsWithPrice()
 		if(price[i] != ""){mcount++;}
 	}
 	return mcount;	
+}
+
+
+void requestPrice(int part)
+{
+	string tsv = "";
+
+	string headline[] = {"ID", "DISTRIBUTOR", "ORDER_NO", "QUANTITY"};
+	sprintf(tsv, "%s%s\n", tsv,  strjoin(headline,'\t'));
+
+	string data[] = {distributor[part] + "-" + part_no[part], distributor[part], order_no[part], ""};
+	sprintf(data[3], "%d", countPartsWithSameOrderNo(distributor[part], part_no[part]));
+	sprintf(tsv, "%s%s\n", tsv, strjoin(data,'\t'));
+
+	string lines[];
+	int nlines = netpost(lines, DOWNLOAD_URL, "tsv=" + downloadEscapeString(tsv));
+
+	lines[0] = "ID	DISTRIBUTOR	ORDER_NO	QUANTITY	PRICES	PRICE	AVAILABLE_QUANTITY	PARTS_PER_PACKAGE	MINIMUM_QUANTITY	QUANTITY_MULTIPLIER	DATASHEET";
+
+	output("W:/Hardware/ulptest/AVRGeminiV3.3/text.txt"){
+		for(int i = 0; i < nlines; i++){printf(lines[i] + "\n");}
+	}
+
+
+	//dlgMessageBox(lines[0] + lines[1]);
+
+	if(nlines >= 0)
+	{
+		prices[part] 	= lookup(lines, distributor[part] + "-" + part_no[part], "PRICES");
+		datasheet[part] 	= lookup(lines, distributor[part] + "-" + part_no[part], "DATASHEET");
+		available[part] 	= lookup(lines, distributor[part] + "-" + part_no[part], "AVAILABLE_QUANTITY");
+		per_pkg[part] 	= lookup(lines, distributor[part] + "-" + part_no[part], "PARTS_PER_PACKAGE");
+		min_qty[part] 	= lookup(lines, distributor[part] + "-" + part_no[part], "MINIMUM_QUANTITY");
+		price[part] 	= lookup(lines, distributor[part] + "-" + part_no[part], "PRICE");
+		qty_mul[part] 	= lookup(lines, distributor[part] + "-" + part_no[part], "QUANTITY_MULTIPLIER");	
+
+		findAndChange(part, 3);
+	}
+}
+
+void requestAllPrices()
+{
+	for(int i = 0; i < count; i++)
+	{
+		if(distributor[i] != "" && order_no[i] != "" && price[i] == "")
+		{
+			requestPrice(i);
+		}
+	}
 }
 
 void editDevice(int selected)
@@ -177,14 +280,19 @@ void editDevice(int selected)
 				dlgCell(3, 1) dlgStringEdit(min_qty[selected]);	
 				dlgCell(3, 2) dlgLabel("QUANTITIY_MULTIPLIER*");
 				dlgCell(3, 3) dlgStringEdit(qty_mul[selected]);
-				dlgCell(4, 0) dlgLabel("DATASHEET*");
-				dlgCell(4, 1) dlgStringEdit(datasheet[selected]);
-				dlgCell(5, 1, 5 , 4) dlgLabel("* might be overwriten when requesting the price over the internet");		
+				dlgCell(4, 0) dlgLabel("AVAILABLE_QUANTITY*");
+				dlgCell(4, 1) dlgStringEdit(available[selected]);	
+				dlgCell(4, 2) dlgLabel("PARTS_PER_PACKAGE*");
+				dlgCell(4, 3) dlgStringEdit(per_pkg[selected]);
+				dlgCell(5, 0) dlgLabel("DATASHEET*");
+				dlgCell(5, 1) dlgStringEdit(datasheet[selected]);
+				dlgCell(6, 0, 6 , 2) dlgLabel("* might be overwriten when requesting the price over the internet");	
+				dlgCell(6, 3, 6, 3) dlgPushButton("Request prices") { requestPrice(selected); } 	
 			}
 		}
 		dlgHBoxLayout
-		{
-			dlgPushButton("Abbrechen"){saveDevice = 0; dlgReject(); }
+		{	
+			dlgStretch(1);
 			dlgPushButton("Speichern"){dlgAccept(); }
 		}
 	};
@@ -207,38 +315,42 @@ int showListOfDevices()
 	
 		int dstatus = dlgDialog("Set Attributes for Device with value")
 		{
-			dlgListView("Part\tValue\tPackage\tSheet\tDistributor\tOrder No.\tManufacturer\tPart No.\tPrice\tMin. Qty.\tQty. Mul.", list, selected)
+			dlgListView("Part\tValue\tPackage\tSheet\tDistributor\tOrder No.\tManufacturer\tPart No.\tPrice\tAvail. Qty.\tPer Pkg.\tMin. Qty.\tQty. Mul.", list, selected)
 			{
 				editDevice(selected);
 				dlgAccept();
 			}
 			dlgHBoxLayout
 			{
-			dlgGroup("Information")
-			{
-				dlgGridLayout
+				dlgGroup("Information")
 				{
-					string tmp = "", tmp2 = "", tmp3 = "";
-					sprintf(tmp, "%d of %d", calculatePartsWithOrderNo(), count);
-					sprintf(tmp2, "%d of %d", calculatePartsWithPrice(), count);
-					sprintf(tmp3, "%f Euro", calculatePrice());
+					dlgGridLayout
+					{
+						string tmp = "", tmp2 = "", tmp3 = "", tmp4 = "";
+						sprintf(tmp, "%d of %d", calculatePartsWithOrderNo(), count);
+						sprintf(tmp2, "%d of %d", calculatePartsWithPrice(), count);
+						sprintf(tmp3, "%f Euro", calculatePrice());
+						sprintf(tmp4, "%d of %d", calculateAvailableParts(), count);
 
-					dlgCell(0, 1) dlgLabel("Ordering information present:");
-					dlgCell(0, 2) dlgLabel(tmp);
-					dlgCell(1, 1) dlgLabel("Request prices: ");
-					dlgCell(1, 2) dlgPushButton("Request"){};
-					dlgCell(2, 1) dlgLabel("Pricing information present:");
-					dlgCell(2, 2) dlgLabel(tmp2);
-					dlgCell(3, 1) dlgLabel("Overall price:");
-					dlgCell(3, 2) dlgLabel(tmp3);
-
+						dlgCell(0, 1) dlgLabel("Ordering information present:");
+						dlgCell(0, 2) dlgLabel(tmp);
+						dlgCell(0, 3) dlgLabel("Request prices: ");
+						dlgCell(0, 4) dlgPushButton("Request"){requestAllPrices();dlgAccept();};
+						dlgCell(1, 1) dlgLabel("Pricing information present:");
+						dlgCell(1, 2) dlgLabel(tmp2);
+						dlgCell(1, 3) dlgLabel("Overall price*:");
+						dlgCell(1, 4) dlgLabel(tmp3);
+						dlgCell(2, 1) dlgLabel("Availability:");
+						dlgCell(2, 2) dlgLabel(tmp4);
+						dlgCell(2, 3, 2, 4) dlgLabel("*Only an estimation using default pricing.");
+					}
 				}
-			}
-			dlgVBoxLayout
-			{
-				dlgPushButton("Abbrechen"){dlgReject(); return 0;}
-				dlgPushButton("Speichern"){dlgAccept(); return 1;}
-			}
+				dlgVBoxLayout
+				{
+					dlgStretch(1); dlgStretch(1);
+					dlgPushButton("Abbrechen"){dlgReject(); return 0;}
+					dlgPushButton("Speichern"){dlgAccept(); return 1;}
+				}
 			}
 		};
 
