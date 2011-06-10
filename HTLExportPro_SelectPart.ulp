@@ -72,24 +72,24 @@ void findAndChange(int selected, int mode)
 		)
 		{
 			sprintf(execute, "%s EDIT .s%d;\n",  execute, pages[i]);
-			sprintf(execute, "%s ATTRIBUTE %s MANUFACTURER \'%s\';\n", 		execute, names[i], manufacturer[selected]);
-			sprintf(execute, "%s ATTRIBUTE %s PART_NO \'%s\';\n", 		execute, names[i], part_no[selected]);
-			sprintf(execute, "%s ATTRIBUTE %s DISTRIBUTOR \'%s\';\n", 		execute, names[i], distributor[selected]);
-			sprintf(execute, "%s ATTRIBUTE %s ORDER_NO \'%s\';\n", 		execute, names[i], order_no[selected]);
-			sprintf(execute, "%s ATTRIBUTE %s PRICE \'%s\';\n", 		execute, names[i], price[selected]);
-			sprintf(execute, "%s ATTRIBUTE %s PRICES \'%s\';\n", 		execute, names[i], prices[selected]);
-			sprintf(execute, "%s ATTRIBUTE %s MINIMUM_QUANTITY \'%s\';\n", 	execute, names[i], min_qty[selected]);
-			sprintf(execute, "%s ATTRIBUTE %s QUANTITY_MULTIPLIER \'%s\';\n", 	execute, names[i], qty_mul[selected]);
-			sprintf(execute, "%s ATTRIBUTE %s DATASHEET \'%s\';\n", 		execute, names[i], datasheet[selected]);
-			sprintf(execute, "%s ATTRIBUTE %s PARTS_PER_PACKAGE \'%s\';\n", 	execute, names[i], per_pkg[selected]);
-			sprintf(execute, "%s ATTRIBUTE %s AVAILABLE_QUANTITY \'%s\';\n", 	execute, names[i], available[selected]);
+			if(manufacturer[i] != manufacturer[selected]) 	{sprintf(execute, "%s ATTRIBUTE %s MANUFACTURER \'%s\';\n", 		execute, names[i], manufacturer[selected]);}
+			if(part_no[i] 	!= part_no[selected]) 		{sprintf(execute, "%s ATTRIBUTE %s PART_NO \'%s\';\n", 		execute, names[i], part_no[selected]);}
+			if(distributor[i] != distributor[selected]) 		{sprintf(execute, "%s ATTRIBUTE %s DISTRIBUTOR \'%s\';\n", 		execute, names[i], distributor[selected]);}
+			if(order_no[i] 	!= order_no[selected]) 		{sprintf(execute, "%s ATTRIBUTE %s ORDER_NO \'%s\';\n", 		execute, names[i], order_no[selected]);}
+			if(price[i] 	!= price[selected]) 		{sprintf(execute, "%s ATTRIBUTE %s PRICE \'%s\';\n", 			execute, names[i], price[selected]);}
+			if(prices[i]	!= prices[selected]) 		{sprintf(execute, "%s ATTRIBUTE %s PRICES \'%s\';\n", 		execute, names[i], prices[selected]);}
+			if(min_qty[i] 	!= min_qty[selected]) 		{sprintf(execute, "%s ATTRIBUTE %s MINIMUM_QUANTITY \'%s\';\n", 	execute, names[i], min_qty[selected]);}
+			if(qty_mul[i] 	!= qty_mul[selected]) 		{sprintf(execute, "%s ATTRIBUTE %s QUANTITY_MULTIPLIER \'%s\';\n", 	execute, names[i], qty_mul[selected]);}
+			if(datasheet[i]	!= datasheet[selected]) 		{sprintf(execute, "%s ATTRIBUTE %s DATASHEET \'%s\';\n", 		execute, names[i], datasheet[selected]);}
+			if(per_pkg[i] 	!= per_pkg[selected]) 		{sprintf(execute, "%s ATTRIBUTE %s PARTS_PER_PACKAGE \'%s\';\n", 	execute, names[i], per_pkg[selected]);}
+			if(available[i]	!= available[selected]) 		{sprintf(execute, "%s ATTRIBUTE %s AVAILABLE_QUANTITY \'%s\';\n", 	execute, names[i], available[selected]);}
 			
 			manufacturer[i] 	= manufacturer[selected];
 			part_no[i]	= part_no[selected];
 			distributor[i] 	= distributor[selected];
 			order_no[i] 	= order_no[selected];
-			price[i] 		= price[selected];
-			prices[i]		= prices[selected];
+			price[i] 	= price[selected];
+			prices[i]	= prices[selected];
 			min_qty[i] 	= min_qty[selected];
 			qty_mul[i] 	= qty_mul[selected];
 			datasheet[i]	= datasheet[selected];
@@ -101,16 +101,16 @@ void findAndChange(int selected, int mode)
 		if(mode == 3 && distributor[i] == distributor[selected] && order_no[i] == order_no[selected])
 		{
 			sprintf(execute, "%s EDIT .s%d;\n",  execute, pages[i]);
-			sprintf(execute, "%s ATTRIBUTE %s PRICE \'%s\';\n", 		execute, names[i], price[selected]);
-			sprintf(execute, "%s ATTRIBUTE %s PRICES \'%s\';\n", 		execute, names[i], prices[selected]);
-			sprintf(execute, "%s ATTRIBUTE %s MINIMUM_QUANTITY \'%s\';\n", 	execute, names[i], min_qty[selected]);
-			sprintf(execute, "%s ATTRIBUTE %s QUANTITY_MULTIPLIER \'%s\';\n", 	execute, names[i], qty_mul[selected]);
-			sprintf(execute, "%s ATTRIBUTE %s DATASHEET \'%s\';\n", 		execute, names[i], datasheet[selected]);
-			sprintf(execute, "%s ATTRIBUTE %s PARTS_PER_PACKAGE \'%s\';\n", 	execute, names[i], per_pkg[selected]);
-			sprintf(execute, "%s ATTRIBUTE %s AVAILABLE_QUANTITY \'%s\';\n", 	execute, names[i], available[selected]);
+			if(price[i] 	!= price[selected]) 		{sprintf(execute, "%s ATTRIBUTE %s PRICE \'%s\';\n", 			execute, names[i], price[selected]);}
+			if(prices[i]	!= prices[selected]) 		{sprintf(execute, "%s ATTRIBUTE %s PRICES \'%s\';\n", 		execute, names[i], prices[selected]);}
+			if(min_qty[i] 	!= min_qty[selected]) 		{sprintf(execute, "%s ATTRIBUTE %s MINIMUM_QUANTITY \'%s\';\n", 	execute, names[i], min_qty[selected]);}
+			if(qty_mul[i] 	!= qty_mul[selected]) 		{sprintf(execute, "%s ATTRIBUTE %s QUANTITY_MULTIPLIER \'%s\';\n", 	execute, names[i], qty_mul[selected]);}
+			if(datasheet[i]	!= datasheet[selected]) 		{sprintf(execute, "%s ATTRIBUTE %s DATASHEET \'%s\';\n", 		execute, names[i], datasheet[selected]);}
+			if(per_pkg[i] 	!= per_pkg[selected]) 		{sprintf(execute, "%s ATTRIBUTE %s PARTS_PER_PACKAGE \'%s\';\n", 	execute, names[i], per_pkg[selected]);}
+			if(available[i]	!= available[selected]) 		{sprintf(execute, "%s ATTRIBUTE %s AVAILABLE_QUANTITY \'%s\';\n", 	execute, names[i], available[selected]);}
 
-			price[i] 		= price[selected];
-			prices[i]		= prices[selected];
+			price[i] 	= price[selected];
+			prices[i]	= prices[selected];
 			min_qty[i] 	= min_qty[selected];
 			qty_mul[i] 	= qty_mul[selected];
 			datasheet[i]	= datasheet[selected];
@@ -196,6 +196,15 @@ void requestPrice(int part)
 
 	string lines[];
 	int nlines = netpost(lines, DOWNLOAD_URL, "tsv=" + downloadEscapeString(tsv));
+
+	
+	output("W:\\Hardware\\ulptest\\Hardware\\test.txt", "wt")
+	{
+		for(int i = 0; i < nlines; i++)
+		{
+			printf("%s", lines[i]);		
+		}
+	}
 
 	lines[0] = "ID	DISTRIBUTOR	ORDER_NO	QUANTITY	PRICES	PRICE	AVAILABLE_QUANTITY	PARTS_PER_PACKAGE	MINIMUM_QUANTITY	QUANTITY_MULTIPLIER	DATASHEET";
 
