@@ -1772,7 +1772,7 @@ void bomOutputCsvFile(string ofilename)
 }
 
 string BOM_DBASE_COLUMNS[] = {"Stueckzahl", "Kurzb.", "Wert", "Bauform", "Refkennz.", "Lieferant", "Best. Nr.", "Hersteller", "Hs. Kennz.", "Barcode", "Preis/Stk.", "Reserv. 1", "Reserv. 2"};
-int BOM_DBASE_COLUMN_WIDTH = 255;
+int BOM_DBASE_COLUMN_WIDTH = 250;
 string dbaseLine[];
 
 
