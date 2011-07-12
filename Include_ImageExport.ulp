@@ -1,4 +1,4 @@
-/************************************************************/
+﻿/************************************************************/
 /* HTLExportPro_ImageExport.ulp                             */
 /* Exports images of what the PCB will look like            */
 /************************************************************/
@@ -108,16 +108,16 @@ void exportImages(int exportBot, string botImage, int exportTop, string topImage
 	
 	if(exportBot && crop)
 	{
-		sprintf(cmd, "%s RUN HTLExportPro_CropColor.ulp '%s' %d;", cmd, botImage, resolution);
+		sprintf(cmd, "%s RUN Include_CropColor.ulp '%s' %d;", cmd, botImage, resolution);
 	}
 	if(exportTop && crop)
 	{
-		sprintf(cmd, "%s RUN HTLExportPro_CropColor.ulp '%s' %d;", cmd, topImage, resolution);
+		sprintf(cmd, "%s RUN Include_CropColor.ulp '%s' %d;", cmd, topImage, resolution);
 	}
 
 	if(exportBot && mirror)
 	{
-		sprintf(cmd, "%s RUN HTLExportPro_MirrorColor.ulp '%s';", cmd, botImage);
+		sprintf(cmd, "%s RUN Include_MirrorColor.ulp '%s';", cmd, botImage);
 	}	
 	
 	exit(cmd);
