@@ -420,7 +420,7 @@ void export()
 
 	if(enable_export && (pcbimage_top || pcbimage_bottom))
 	{
-		sprintf(cmd, "%s RUN "  + include_path + "ImageExport.ulp '%s' %d '%s' %d %d %d %d %s %s %s %s;", cmd, output_file_pcbt, pcbimage_top, output_file_pcbb, pcbimage_bottom, pcbImageResolutions[pcbimage_resolution], pcbimage_crop, pcbimage_mirror, pcbImagePcbColors[pcbimage_color],pcbImageCopperColors[pcbimage_color], pcbImageSilkscreenColors[pcbimage_silkscreen_color], pcbImagePlating[pcbimage_plating]);
+		sprintf(cmd, "%s RUN "  + include_path + "ImageExport.ulp '%s' %d '%s' %d %d %d %d %s %s %s %s;", cmd, output_file_pcbb, pcbimage_bottom, output_file_pcbt, pcbimage_top, pcbImageResolutions[pcbimage_resolution], pcbimage_crop, pcbimage_mirror, pcbImagePcbColors[pcbimage_color],pcbImageCopperColors[pcbimage_color], pcbImageSilkscreenColors[pcbimage_silkscreen_color], pcbImagePlating[pcbimage_plating]);
 	}
 
 	if(sat_export)
