@@ -37,6 +37,14 @@
 /* Homepage: www.berniwa.com (www.xdevelop.at)              */
 /************************************************************/
 
+/****************************************************
+ * Bearbeitet von PRJ (Ing. Poetinger Robert BEd)   *
+ * Lehrer der HTBLUVA-Salzburg 2013                 *
+ * der HTBL Salzburg Itzling (Abteilung Elektronik) *
+ * Dialog wurde entfernt, um schneller arbeiten zu  *
+ * können.                                          *
+ ****************************************************/
+
  /************** DEFAULT SETTINGS ***********************/
 
 int SymbolLayer 	= 44;
@@ -410,14 +418,14 @@ void List(int No, int Diam, int Qty, int Type, int cnt, string Tol, int drillSym
  
  sprintf(LList[cnt], "%d", No);
  sprintf(LList[100+cnt], "%d",No + 1);
- if(decMM  == 0) {sprintf( LList[200+cnt], "%-.0f", round(Diam/1000)/10  );}
- if(decMM  == 1) {sprintf( LList[200+cnt], "%-.1f", round(Diam/100)/100  );}
- if(decMM  == 2) {sprintf( LList[200+cnt], "%-.2f", round(Diam/10)/1000  );}
- if(decMM  == 3) {sprintf( LList[200+cnt], "%-.3f", round(Diam)/10000    );}
- if(decMIL == 0) {sprintf(LList[300+cnt], "%-.0f", round((Diam/25.4)/10));}
- if(decMIL == 1) {sprintf(LList[300+cnt], "%-.1f", round(Diam/25.4)/10  );}
- if(decMIL == 2) {sprintf(LList[300+cnt], "%-.2f", round(Diam/2.54)/100 );}
- if(decMIL == 3) {sprintf(LList[300+cnt], "%-.3f", round(Diam/0.254)/1000 );}
+ if(decMM  == 0) {sprintf(LList[200+cnt], "%-.0f", u2mm(Diam));}
+ if(decMM  == 1) {sprintf(LList[200+cnt], "%-.1f", u2mm(Diam));}
+ if(decMM  == 2) {sprintf(LList[200+cnt], "%-.2f", u2mm(Diam));}
+ if(decMM  == 3) {sprintf(LList[200+cnt], "%-.3f", u2mm(Diam));}
+ if(decMIL == 0) {sprintf(LList[300+cnt], "%-.0f", u2mil(Diam));}
+ if(decMIL == 1) {sprintf(LList[300+cnt], "%-.1f", u2mil(Diam));}
+ if(decMIL == 2) {sprintf(LList[300+cnt], "%-.2f", u2mil(Diam));}
+ if(decMIL == 3) {sprintf(LList[300+cnt], "%-.3f", u2mil(Diam));}
  sprintf( LList[400+cnt], "%-.0f", round(Diam/10) );
  sprintf( LList[500+cnt], "%d", Qty);
  sprintf( LList[600+cnt], "%s", PlatedStatus[Type]);
