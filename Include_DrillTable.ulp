@@ -30,20 +30,25 @@
  * können.                                          *
  ****************************************************/
 
-/************************************************************/
-/* (c) Copyright 2009, Bernhard Wörndl-Aichriedler          */
-/* xDevelop OG - Hardware Developer			*/
-/* E-Mail: bwa@berniwa.com (bwa@xdevelop.at)                */
-/* Homepage: www.berniwa.com (www.xdevelop.at)              */
-/************************************************************/
+/****************************************************/
+/* (c) Copyright 2009, Bernhard Wörndl-Aichriedler  */
+/* xDevelop OG - Hardware Developer	                */
+/* E-Mail: bwa@berniwa.com (bwa@xdevelop.at)        */
+/* Homepage: www.berniwa.com (www.xdevelop.at)      */
+/****************************************************/
 
 /****************************************************
  * Bearbeitet von PRJ (Ing. Poetinger Robert BEd)   *
  * Lehrer der HTBLUVA-Salzburg 2013                 *
  * der HTBL Salzburg Itzling (Abteilung Elektronik) *
- * Dialog wurde entfernt, um schneller arbeiten zu  *
- * können.                                          *
  ****************************************************/
+
+/****************************************************
+ * Bearbeitet von BWA (Bernhard Woerndl-Aichriedler)*
+ * bwa@berniwa.com                                  *
+ * Richtige Maßeinheit für Drills - Eagle 6.x       *
+ ****************************************************/    
+
 
  /************** DEFAULT SETTINGS ***********************/
 
