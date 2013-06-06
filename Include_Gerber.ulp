@@ -1,0 +1,170 @@
+/************************************************************/
+/* Include_Gerber.ulp                                       */
+/* - Generiert Gerber Dateien automatisch                   */
+/************************************************************/
+/* (c) Copyright 2013, Bernhard Wörndl-Aichriedler          */
+/* E-Mail: bwa@berniwa.com                                  */
+/* Homepage: www.berniwa.com                                */
+/************************************************************/
+/* Letzte Änderung am 06.06.2013                            */
+/* Version 1                                                */
+/************************************************************/
+
+
+#usage ""
+
+string working_directory = "", temporary_file = "", eagle_binary = "";
+
+/*
+ We cannot script the CAM processor using the user language, 
+ so we need to start the eagle executable externally and pass options
+ to start the CAM processor and output all files 
+ */
+
+//Get the current directory
+if(board)
+{
+	project.board(B)
+	{
+		working_directory = filedir(B.name);
+	}
+}
+else if(schematic)
+{
+	project.schematic(S)
+	{
+		working_directory = filedir(S.name);
+	}
+}
+else
+{
+	dlgMessageBox("Please start in schematic or board editor only!");
+}
+
+temporary_file = working_directory + "/path.tmp";
+
+
+int 	type 		= strtol(argv[1]);
+//type = -1 => Retrieve Eagle executable directory
+//type = 0 => Export copper layers
+//type = 1 => Export stop mask
+//type = 2 => Export cream
+//type = 3 => Export silkscreen
+//type = 4 => Export drill
+
+
+if(type == -1)
+{
+	//As we don't know where the eagle exacutable is
+	//we need to a way to get the path
+	//This is done, by using the ULP "system" command
+	//Normally this command is started in the
+	//eagle executable directory
+	system("cmd.exe /c pwd > " + temporary_file);
+	
+}
+else
+{
+	string	inputfile	= argv[2];
+	string	outputfile	= argv[3];
+	//argv[3] -  argv[x] => additional parameters
+
+	string lines[];
+	int nLines = fileread(lines, temporary_file);
+
+	//Get correct eagle binary
+	eagle_binary = lines[0] + "/bin/eagle";
+
+if(type == 0)
+{
+	int layer = strtol(argv[4]);
+
+	string tmp = "";
+	sprintf(tmp, "Processing copper layer %d", layer);
+	status(tmp);
+
+	//Export a single copper layer
+	string cmd = "";
+	sprintf(cmd, "%s -X -dGERBER_RS274X -o \"%s\" \"%s\" %d 17 18", eagle_binary, outputfile, inputfile, layer);
+	system(cmd);
+}
+else if(type == 1)
+{
+	int top_bottom = strtol(argv[4]);
+	int layer = 30; 			//bStop	
+	if(top_bottom){layer = 29;}	//tStop
+
+	string tmp = "";
+	sprintf(tmp, "Processing stop mask layer %d", top_bottom);
+	status(tmp);
+
+	string cmd = "";
+	sprintf(cmd, "%s -X -dGERBER_RS274X -o \"%s\" \"%s\" %d ", eagle_binary, outputfile, inputfile, layer);
+	system(cmd);	
+}
+else if(type == 2)
+{
+	int top_bottom = strtol(argv[4]);
+	int layer = 32; 			//bCream
+	if(top_bottom){layer = 31;}	//tCream
+
+	string tmp = "";
+	sprintf(tmp, "Processing cream layer %d", top_bottom);
+	status(tmp);
+
+	string cmd = "";
+	sprintf(cmd, "%s -X -dGERBER_RS274X -o \"%s\" \"%s\" %d ", eagle_binary, outputfile, inputfile, layer);
+	system(cmd);		
+}
+else if(type == 3)
+{
+	int top_bottom	= strtol(argv[4]);
+	int use_place 	= strtol(argv[5]);
+	int use_names 	= strtol(argv[6]);
+	int use_values = strtol(argv[7]);
+	int use_docu 	= strtol(argv[8]);
+
+	string tmp = "";
+	sprintf(tmp, "Processing silkscreen layer %d", top_bottom);
+	status(tmp);
+
+	string cmd = "";
+	sprintf(cmd, "%s -X -dGERBER_RS274X -o \"%s\" \"%s\" 20", eagle_binary, outputfile, inputfile);
+
+	if(top_bottom)
+	{
+		//If top layer is selected
+		if(use_place){	cmd += " 21";}
+		if(use_names){	cmd += " 25";}
+		if(use_values){	cmd += " 27";}
+		if(use_docu){	cmd += " 51";}
+	}
+	else
+	{
+		//If top layer is selected
+		if(use_place){	cmd += " 22";}
+		if(use_names){	cmd += " 26";}
+		if(use_values){	cmd += " 28";}
+		if(use_docu){	cmd += " 52";}		
+	}	
+
+	system(cmd);		
+}
+else if(type == 4)
+{
+	string tmp = "";
+	sprintf(tmp, "Processing drills");
+	status(tmp);	
+
+	string cmd = "";
+	sprintf(cmd, "%s -X -dEXCELLON -o \"%s\" \"%s\" 44 45", eagle_binary, outputfile, inputfile);	
+	system(cmd);
+}
+
+}
+
+
+
+
+
+
