@@ -294,7 +294,6 @@ void do_text(UL_TEXT T)
   int newratio;
   real origwidth;
   string textorientation;
-
   if(destlayer == tsilknum) textorientation = "R";
   else textorientation = "MR";
 
@@ -313,6 +312,8 @@ void do_text(UL_TEXT T)
     //if(dlgMessageBox(h, "OK", "Cancel") == 1) exit(1);
     newratio = 31;
   }
+
+  if(T.spin > 0) {textorientation = "S"+textorientation;}
 
   set_layer();
   set_ratio(newratio);

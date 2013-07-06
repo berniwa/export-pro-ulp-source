@@ -506,12 +506,12 @@ void export()
 	}
 
 
+	cmd += "EDIT .sch;";
+
 	if(EAGLE_VERSION > 5 || (EAGLE_VERSION == 5 && EAGLE_RELEASE >= 11) ) //Support for SET CONFIRM form Eagle 5.11 on
 	{
 		cmd += "SET CONFIRM YES;";
 	}
-
-	cmd += "EDIT .sch;";
 
 	if(renumber)
 	{
@@ -520,10 +520,10 @@ void export()
 
 	if(schematic_export)
 	{
-		string format = "A4";
+		string format = "A4 portrait ";
 		if(schematic_format == 1)
 		{
-			format = "A3";
+			format = "A3 landscape";
 		}
 		
 		if(schematic_bw)
@@ -552,6 +552,11 @@ void export()
 	{
 		sprintf(cmd, "%s RUN "  + include_path + "SilkGen.ulp %d %d %d %d %d %d %d %d %d;", cmd, silkscreen_width, silkscreen_top, silkscreen_tnames, silkscreen_tvalues, silkscreen_tdocu, silkscreen_bottom, silkscreen_bnames, silkscreen_bvalues, silkscreen_bdocu);
 		cmd += "DISPLAY -121 -122 -123;";
+	}
+
+	if(EAGLE_VERSION > 5 || (EAGLE_VERSION == 5 && EAGLE_RELEASE >= 11) ) //Support for SET CONFIRM form Eagle 5.11 on
+	{
+		cmd += "SET CONFIRM YES;";
 	}
 
 	if(enable_export && layout_bot)
