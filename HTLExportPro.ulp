@@ -528,11 +528,11 @@ void export()
 		
 		if(schematic_bw)
 		{
-			cmd += "PRINT SHEETS 1-99 PAPER " + format + " BLACK FILE " + output_file_schematic_bw + ";";
+			cmd += "PRINT SHEETS 1-99 PAPER " + format + " BLACK FILE '" + output_file_schematic_bw + "';";
 		}
 		if(schematic_color)
 		{
-			cmd += "PRINT SHEETS 1-99 PAPER " + format + " -BLACK FILE " + output_file_schematic_color + ";";
+			cmd += "PRINT SHEETS 1-99 PAPER " + format + " -BLACK FILE '" + output_file_schematic_color + "';";
 		}
 	}
 
