@@ -304,6 +304,26 @@ void do_text(UL_TEXT T)
     newratio = calctextratio(T.size, maxwidth);
   else newratio = T.ratio;
 
+  if(T.align == ALIGN_BOTTOM_LEFT)
+  	cmd += "CHANGE ALIGN BOTTOM LEFT;\n";
+  else if(T.align == ALIGN_BOTTOM_CENTER)
+  	cmd += "CHANGE ALIGN BOTTOM CENTER;\n";
+  else if(T.align == ALIGN_BOTTOM_RIGHT)
+  	cmd += "CHANGE ALIGN BOTTOM RIGHT;\n";
+  else if(T.align == ALIGN_CENTER_LEFT)
+  	cmd += "CHANGE ALIGN CENTER LEFT;\n";
+  else if(T.align == ALIGN_CENTER)
+  	cmd += "CHANGE ALIGN CENTER CENTER;\n";
+  else if(T.align == ALIGN_CENTER_RIGHT)
+  	cmd += "CHANGE ALIGN CENTER RIGHT;\n";
+  else if(T.align == ALIGN_TOP_LEFT)
+  	cmd += "CHANGE ALIGN TOP LEFT;\n";
+  else if(T.align == ALIGN_TOP_CENTER)
+  	cmd += "CHANGE ALIGN TOP CENTER;\n";
+  else if(T.align == ALIGN_TOP_RIGHT)
+  	cmd += "CHANGE ALIGN TOP RIGHT;\n";
+
+
   if(newratio > 31) {
     ///sprintf(h, "!Text \"%s\" is too small to support the requested minimum "
     //          "line width.\nText size is %5.3f mils; a ratio of %d is needed,"
