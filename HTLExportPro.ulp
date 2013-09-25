@@ -1,4 +1,4 @@
-/************************************************************/
+﻿/************************************************************/
 /* HTLExportPro.ulp                                         */
 /* - Generiert die Bemaßung des Boards                      */
 /* - Generiert den Drill Table                              */
@@ -129,7 +129,7 @@ string pcbSpecPlating[] = {
 	"gold-plating"
 };
 
-string PcbThickness[]		= {"1.4mm", "1mm", "0.8mm"};	
+string PcbThickness[]		= {"1.6mm", "1mm", "0.8mm"};	
 string PcbType[]			= {"FR4", "Roggers", "Aluminium"};	
 string PcbCopperThickness[] 	= {"35.0um", "70.0um"};
 
