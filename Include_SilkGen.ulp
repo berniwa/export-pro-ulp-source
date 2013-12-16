@@ -399,7 +399,7 @@ void create_via(int x, int y, int drill, int diameter, int shape, real angle)
 
 }
 
-void create_smd(int layer, int x, int y, int dx, int dy, real angle)
+void create_smd(int layer, int x, int y, int dx, int dy, real angle, int roundness)
 {
 	string h = "";
 	int rx, ry, rdx, rdy;
@@ -412,9 +412,17 @@ void create_smd(int layer, int x, int y, int dx, int dy, real angle)
 	//ry = y;
 	//rdx = dx;
 	//rdy = dy;
-
+	
 	sprintf(h, "CHANGE LAYER %d;", layer); cmd += h;
-	sprintf(h, "RECT R%f (%f %f) (%f %f);", angle, u2mil(rx), u2mil(ry), u2mil(rdx), u2mil(rdy)); cmd += h;
+
+	if(roundness != 100)
+	{
+		sprintf(h, "RECT R%f (%f %f) (%f %f);", angle, u2mil(rx), u2mil(ry), u2mil(rdx), u2mil(rdy)); cmd += h;
+	}
+	else	//Simple fix for round fiducials
+	{
+		sprintf(h, "CIRCLE 0 (%f %f) (%f %f);", u2mil( x ), u2mil( y ), u2mil(x+(dx/2)), u2mil(y)); cmd += h;	
+	}
 }
 
 void do_hole(UL_HOLE hole)
@@ -441,13 +449,18 @@ void do_smd(UL_SMD s)
 {
 	if(s)
 	{
+		/*if(s.roundness != 0){
+			string h;
+			sprintf(h, "Roundness == %d", s.roundness);
+			dlgMessageBox(h);
+		}*/
 		if(s.layer == 1)
 		{
-			create_smd(tsmdnum, s.x, s.y, s.dx, s.dy, s.angle);
+			create_smd(tsmdnum, s.x, s.y, s.dx, s.dy, s.angle, s.roundness);
 		}
 		if(s.layer == 16)
 		{
-			create_smd(bsmdnum, s.x, s.y, s.dx, s.dy, s.angle);
+			create_smd(bsmdnum, s.x, s.y, s.dx, s.dy, s.angle, s.roundness);
 		}
 	}
 }

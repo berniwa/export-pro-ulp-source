@@ -31,10 +31,16 @@ int  niViaSpacing		= 0;
 int  niViaDiameter	= 0;
 int  niViaIsolate		= 0;
 
+int maxX = 0;
+int minX = 0;
+int maxY = 0; 
+int minY = 0;
+
 string sWidth;
 string sHeight;
 string sPCBdim;
 string sSCHdim;
+
 
 int pcb_grid_type;
 
@@ -54,7 +60,7 @@ int nViaOrDrillDiameter[];
 int nViaOrDrillLength = 0;
 
 real xpos, ypos;
-int xsize,ysize;
+int xCount,yCount;
 real nXOrigin, nYOrigin;
 numeric string sPolygonNets[];
 numeric string sSelectedNets[];
@@ -136,11 +142,8 @@ void AddViaToList(int x, int y, int diameter)
 void GetDesignInfo()
 {
 	int i;
-	int maxX = 0;
-	int minX = 0;
-	int maxY = 0; 
-	int minY = 0;
 	int initialized = 0;
+	string t = "";
 
 	//get some units
 	project.board(B)
@@ -231,11 +234,6 @@ void GetDesignInfo()
 				if(W.y1 < minY) { minY = W.y1;}
 			}
 		}
-
-		nXOrigin = int(minX/niViaSpacing) * niViaSpacing;
-		nYOrigin = int(minY/ niViaSpacing) * niViaSpacing;
-		xsize = (maxX - minX) / niViaSpacing;
-		ysize = (maxY - minY) / niViaSpacing;
 	}
 	
 
@@ -247,7 +245,7 @@ void GetDesignInfo()
  * it will make sure, that no stitching via will come close to anything else
  * @param	xp	X Position of the stitching via to be checked
  * @param	yp	Y Position of the stitching via to be checked
- * @return 		0 if a via collision has been detected, 1 if there is no collision
+ * @return 	0 if a via collision has been detected, 1 if there is no collision
  ***********************************************************************************/
 int CheckViaCollision(int x, int y)
 {
@@ -623,16 +621,26 @@ string placeVias(void)
 	string scriptValue;
 	string temp;
 
-	//script_name=path_scr[0]+'/'+"viapos.scr";
-	//output(script_name,"w")
-	//{
+
+	//dlgMessageBox(path_scr[0]);
+
+	//Update design info and recalc with new spacing
+	nXOrigin = int(minX/niViaSpacing) * niViaSpacing;
+	nYOrigin = int(minY/ niViaSpacing) * niViaSpacing;
+	xCount = (maxX - minX) / niViaSpacing;
+	yCount = (maxY - minY) / niViaSpacing;
+
+	//sprintf(t, "Min X: %d Max X: %d Min Y: %d Max Y: %d Xcount: %d xCount: %d ", minX, maxX, minY, maxY, xCount, yCount);
+	//dlgMessageBox(t);
+
+
 		status("Placing Vias!");
 
 		//setup via grid according to user settings
 		n = 0;
-		for(x=0;x<xsize;x++)
+		for(x=0;x<xCount;x++)
 		{
-			for(y=0;y<ysize;y++)
+			for(y=0;y<yCount;y++)
 			{
 				if((y % 2)==0)
 				{
@@ -649,7 +657,6 @@ string placeVias(void)
 				nYVia[n] = nYOrigin+y*niViaSpacing + 1 + niViaSpacing*0.5;
 
 				//sprintf(t,"//%d %d\r\n", nXVia[n], nYVia[n]);
-				//printf(t);
 
 				n++;
 			}
@@ -674,12 +681,17 @@ string placeVias(void)
 				//write a via of that signal to that position
 				sprintf(t,"VIA '%s' Round (%f %f);\r\n", sSignal, pcbPosition(nXVia[n]), pcbPosition(nYVia[n]));
 				scriptValue += t; 
-				//printf(t);
 				nAddedVias++;
 			}
 		}
 		
-	//}
+
+
+	script_name=path_scr[0]+'/'+"viapos.scr";
+	output(script_name,"w")
+	{
+		printf(scriptValue);	
+	}
 	
 	script_name = path_scr[0]+'/'+"viaposundo.scr";
 	output(script_name,"w")
@@ -689,6 +701,8 @@ string placeVias(void)
 			printf("undo\r\n");
 		}
 	}
+
+	//scriptValue = "";
 	return scriptValue;
 }
 
@@ -698,6 +712,8 @@ string removeVias(void)
 
 	string scriptValue;
 	string t;
+	int x = 0;
+	int y = 0;
 
 	project.board(B)
 	{
@@ -707,10 +723,16 @@ string removeVias(void)
 			{
 				//sprintf(t, "%d %d", (V.x) % (niViaSpacing/2), (V.y) % (niViaSpacing/2));
 				//dlgMessageBox(t);
+				x = abs(V.x);
+				y = abs(V.y);
+				
+
+				//sprintf(t, "X: %d Y: %d  Spacing %d %d %d", x, y, niViaSpacing/2, x%(niViaSpacing/2), y%(niViaSpacing/2) );
+				//dlgMessageBox(t);
 
 				//Identify automatically placed vias
-				if( (V.x % (niViaSpacing/2)) == 0 && 
-				    (V.y % (niViaSpacing/2)) == 1)
+				if( ( x % (niViaSpacing/2)) == 0 && 
+				    (( y % (niViaSpacing/2)) == 1 || ( y % (niViaSpacing/2)) == (niViaSpacing/2 - 1)) )
 				{
 					sprintf(t,"RIPUP (%f %f);\r\n", pcbPosition(V.x), pcbPosition(V.y));
 					scriptValue += t; 
