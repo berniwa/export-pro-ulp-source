@@ -676,6 +676,7 @@ string	bomAttributePartsPerPackage[];
 string	bomAttributeMinimumQuantity[];
 string	bomAttributeQuantityMultiplier[];
 string	bomAttributeDatasheet[];
+string	bomAttributePopulate[];
 
 
 int	bomOutputCount[];
@@ -1048,6 +1049,7 @@ void bomPartsLoad()
 				string minimumQuantity	= "";
 				string quantityMultiplier	= "";
 				string datasheet 		= "";
+				string populate 		= "";
 
 				
 				P.attributes(A) {
@@ -1107,6 +1109,10 @@ void bomPartsLoad()
 					{
 						datasheet = A.value;
 					}
+					else if(A.name == "POPULATE")
+					{
+						populate = A.value;
+					}
       				}
 				
 
@@ -1138,6 +1144,8 @@ void bomPartsLoad()
 					bomAttributeMinimumQuantity[bomInfoCount] = minimumQuantity;
 					bomAttributeQuantityMultiplier[bomInfoCount] = quantityMultiplier;
 					bomAttributeDatasheet[bomInfoCount] = datasheet;
+					bomAttributePopulate[bomInfoCount] = populate;
+
 
 					bomInfoPartCount[bomInfoCount] = 1;
 					bomInfoCount++;
@@ -1219,6 +1227,8 @@ void bomPartSwitch(int pid1, int pid2)
 	string 	tmpAttributeMinimumQuantity	= bomAttributeMinimumQuantity[pid1];
 	string 	tmpAttributeQuantityMultiplier= bomAttributeQuantityMultiplier[pid1];
 	string 	tmpAttributeDatasheet	= bomAttributeDatasheet[pid1];
+	string 	tmpAttributePopulate	= bomAttributePopulate[pid1];
+
 
 	
 	bomOutputName[pid1]		= bomOutputName[pid2];
@@ -1252,6 +1262,7 @@ void bomPartSwitch(int pid1, int pid2)
 	bomAttributeMinimumQuantity[pid1]	= bomAttributeMinimumQuantity[pid2];
 	bomAttributeQuantityMultiplier[pid1]	= bomAttributeQuantityMultiplier[pid2];
 	bomAttributeDatasheet[pid1]	= bomAttributeDatasheet[pid2];
+	bomAttributePopulate[pid1]	= bomAttributePopulate[pid2];
 
 
 	bomOutputName[pid2]		= tmpOutputName;
@@ -1285,6 +1296,7 @@ void bomPartSwitch(int pid1, int pid2)
 	bomAttributeMinimumQuantity[pid2]	= tmpAttributeMinimumQuantity;
 	bomAttributeQuantityMultiplier[pid2]	= tmpAttributeQuantityMultiplier;
 	bomAttributeDatasheet[pid2]	= tmpAttributeDatasheet;	
+	bomAttributePopulate[pid2]	= tmpAttributePopulate;	
 }
 
 int bomStringCompare(string s1, string s2)
@@ -1488,6 +1500,106 @@ void bomOutputXslFile(string ofilename)
 		");
 
 		
+
+		printf("\
+			<Row> \n\
+        				<Cell ss:Index=\"1\">\n\
+          				<Data ss:Type=\"String\">No.</Data>\n\
+        				</Cell>\n\
+        				<Cell ss:Index=\"2\">\n\
+          				<Data ss:Type=\"String\">Count</Data>\n\
+        				</Cell>\n\
+        				<Cell ss:Index=\"3\">\n\
+          				<Data ss:Type=\"String\">Type</Data>\n\
+        				</Cell>\n\
+        				<Cell ss:Index=\"4\">\n\
+          				<Data ss:Type=\"String\">Name</Data>\n\
+        				</Cell>\n\
+        				<Cell ss:Index=\"5\">\n\
+          				<Data ss:Type=\"String\">Distributor</Data>\n\
+        				</Cell>\n\
+        				<Cell ss:Index=\"6\">\n\
+          				<Data ss:Type=\"String\">Order No.</Data>\n\
+        				</Cell>\n\
+        				<Cell>\n\
+     					<Data ss:Type=\"String\">Manufacturer</Data>\n\
+        				</Cell>\n\
+        				<Cell>\n\
+     					<Data ss:Type=\"String\">Part No.</Data>\n\
+        				</Cell>\n\
+        				<Cell>\n\
+          				<Data ss:Type=\"String\">Price / Package</Data>\n\
+        				</Cell>\n\
+        				<Cell>\n\
+          				<Data ss:Type=\"String\">Package</Data>\n\
+        				</Cell>\n\
+        				<Cell >\n\
+     					<Data ss:Type=\"String\">Case</Data>\n\
+        				</Cell>\n\
+        				<Cell >\n\
+     					<Data ss:Type=\"String\">Populate</Data>\n\
+        				</Cell>\n\
+      			</Row>\n\
+		");
+		
+		for(int i = 0; i < bomInfoCount; i++)
+		{
+			printf("\
+			<Row> \n\
+        				<Cell ss:Index=\"1\">\n\
+          				<Data ss:Type=\"Number\">%d</Data>\n\
+        				</Cell>\n\
+        				<Cell ss:Index=\"2\">\n\
+          				<Data ss:Type=\"Number\">%d</Data>\n\
+        				</Cell>\n\
+        				<Cell ss:Index=\"3\">\n\
+          				<Data ss:Type=\"String\">%s</Data>\n\
+        				</Cell>\n\
+        				<Cell ss:Index=\"4\">\n\
+          				<Data ss:Type=\"String\">%s</Data>\n\
+        				</Cell>\n\
+        				<Cell ss:Index=\"5\">\n\
+          				<Data ss:Type=\"String\">%s</Data>\n\
+        				</Cell>\n\
+        				<Cell ss:Index=\"6\">\n\
+          				<Data ss:Type=\"String\">%s</Data>\n\
+        				</Cell>\n\
+        				<Cell>\n\
+     					<Data ss:Type=\"String\">%s</Data>\n\
+        				</Cell>\n\
+        				<Cell>\n\
+     					<Data ss:Type=\"String\">%s</Data>\n\
+        				</Cell>\n\
+        				<Cell>\n\
+          				<Data ss:Type=\"Number\">%s</Data>\n\
+        				</Cell>\n\
+        				<Cell>\n\
+          				<Data ss:Type=\"Number\">%s</Data>\n\
+        				</Cell>\n\
+        				<Cell>\n\
+     					<Data ss:Type=\"String\">%s</Data>\n\
+        				</Cell>\n\
+        				<Cell>\n\
+     					<Data ss:Type=\"String\">%s</Data>\n\
+        				</Cell>\n\
+      			</Row>\n\
+			",i+1, bomInfoPartCount[i], bomXMLSafe(bomOutputName[i]), bomXMLSafe(bomOutputParts[i]),
+			bomXMLSafe(bomAttributeDistributor[i]), bomXMLSafe(bomAttributeOrderNo[i]),
+			 bomXMLSafe(bomAttributeManufacturer[i]), 
+			bomXMLSafe(bomAttributePartNo[i]), 
+			bomXMLSafe(bomStringConvertDotToComma(bomAttributePrice[i])), bomXMLSafe(bomAttributePartsPerPackage[i]),
+			bomXMLSafe(bomOutputNote[i]),
+			bomXMLSafe(bomAttributePopulate[i])			
+			);			
+		}
+
+		printf("\
+				</Table>\n\
+  			</Worksheet>\n\
+			<Worksheet ss:Name=\"HTL\">\n\
+				<Table>\n\
+		");
+
 		printf("\
 			<Row> \n\
         				<Cell ss:Index=\"1\">\n\
@@ -1525,7 +1637,7 @@ void bomOutputXslFile(string ofilename)
 
 
 
-		for(int i = 0; i < bomInfoCount; i++)
+		for(i = 0; i < bomInfoCount; i++)
 		{
 			printf("\
 			<Row> \n\

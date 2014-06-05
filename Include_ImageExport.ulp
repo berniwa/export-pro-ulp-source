@@ -1,4 +1,4 @@
-﻿/************************************************************/
+/************************************************************/
 /* HTLExportPro_ImageExport.ulp                             */
 /* Exports images of what the PCB will look like            */
 /************************************************************/
@@ -32,6 +32,10 @@ void exportImages(int exportBot, string botImage, int exportTop, string topImage
 	cmd += "SET COLOR_LAYER 16 17;";
 	//cmd += "SET COLOR_LAYER 17 18;";
 	//cmd += "SET COLOR_LAYER 18 18;";
+	cmd += "SET COLOR_LAYER 29 18;";
+	cmd += "SET FILL_LAYER 29 solid;";
+	cmd += "SET COLOR_LAYER 30 18;";
+	cmd += "SET FILL_LAYER 30 solid;";
 	cmd += "SET COLOR_LAYER 124 18;";
 	cmd += "SET COLOR_LAYER 120 20;";
 	cmd += "SET COLOR_LAYER 121 21;";
@@ -54,12 +58,12 @@ void exportImages(int exportBot, string botImage, int exportTop, string topImage
 
 	if(exportTop)
 	{
-		cmd += "DISPLAY NONE;DISPLAY 1 121 123 124 125 127 ;";
+		cmd += "DISPLAY NONE;DISPLAY 1 29 121 123 124 125 127 ;";
 		sprintf(cmd, "%s EXPORT IMAGE '%s' %d;", cmd, topImage, resolution);
 	}
 	if(exportBot)
 	{
-		cmd += "DISPLAY NONE;DISPLAY 16 122 123 124 126 127;";
+		cmd += "DISPLAY NONE;DISPLAY 16 30 122 123 124 126 127;";
 		sprintf(cmd, "%s EXPORT IMAGE '%s' %d;", cmd, botImage, resolution);
 	}
 
@@ -105,6 +109,9 @@ void exportImages(int exportBot, string botImage, int exportTop, string topImage
 	{
 		cmd += "SET PALETTE COLORED;";
 	}
+
+	cmd += "SET FILL_LAYER 29 LtSlash;";
+	cmd += "SET FILL_LAYER 30 BkSlash;";
 	
 	if(exportBot && crop)
 	{
