@@ -1,4 +1,4 @@
-﻿/************************************************************/
+/************************************************************/
 /* HTLExportPro.ulp                                         */
 /* - Generiert die Bemaßung des Boards                      */
 /* - Generiert den Drill Table                              */
@@ -125,7 +125,7 @@ string PcbPlating[] = {
 };
 
 string pcbSpecPlating[] = {
-	"tin-platting",
+	"HAL",
 	"gold-plating"
 };
 
