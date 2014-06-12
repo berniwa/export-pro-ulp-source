@@ -538,7 +538,7 @@ board(B)
 	{
 		S.vias(D)
 		{
-			if(u2mm(D.drill) > 3) //Use Vias > 3.0mm as mounting holes
+			if(u2mm(D.drill) > 2) //Use Vias > 2.0mm as mounting holes
 			{
 				drills_x[drill_count] = D.x;
 				drills_y[drill_count] = D.y;
