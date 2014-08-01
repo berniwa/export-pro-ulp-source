@@ -193,7 +193,7 @@ void run()
 {
 	collectData();
 	requestAllPrices();
-	string scr = working_dir + "prices.scr";
+	string scr = working_dir + "tmp.scr";
 
 	output(scr)
 	{

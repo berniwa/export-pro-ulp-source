@@ -61,7 +61,7 @@ board_layer[] = {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
 format_revision = 0,
 gerber_export = 0, 
 gerber_copper = 1, gerber_stc = 1, gerber_sts = 1, gerber_plc = 1, 
-gerber_pls = 1, gerber_crc = 1, gerber_crs = 1, gerber_drd = 1,
+gerber_pls = 1, gerber_crc = 1, gerber_crs = 1, gerber_drd = 1, gerber_otl = 1,
 board_thickness = 0, board_copper_thickness = 0, board_type = 0,
 eagle_export;
 
@@ -80,7 +80,8 @@ output_file_gerber_copper_top,  output_file_gerber_copper_bottom, output_file_ge
 output_file_gerber_st, output_file_gerber_sb,
 output_file_gerber_pt, output_file_gerber_pb,
 output_file_gerber_ct, output_file_gerber_cb,
-output_file_gerber_drill, output_file_gerber_spec,
+output_file_gerber_drill, output_file_gerber_otl,
+output_file_gerber_spec,
 output_folder_eagle, output_file_eagle_spec
 ;
 
@@ -89,8 +90,8 @@ string layer_fill[];
 string boardname = "output";
 
 
-int pcbImageResolutions[]		= {150, 300, 600};
-string pcbImagePcbColors[] 	= {"0xFF007800", "0xFF660000", "0xFF010101"};
+int pcbImageResolutions[]		= {150, 300, 600, 1200};
+string pcbImagePcbColors[] 		= {"0xFF007800", "0xFF660000", "0xFF010101"};
 string pcbImageCopperColors[] 	= {"0xFF00CA00", "0xFF990000", "0xFF111111"};
 string pcbImageSilkscreenColors[] 	= {"0xFFFFFFFF", "0xFFFFFF00", "0xFFAA0000"};
 string pcbImagePlating[] 		= {"0xFFC0C0C0", "0xFFE4CA42"};
@@ -120,18 +121,20 @@ string pcbSpecSilkscreenColor[] = {
 };
 	
 string PcbPlating[] = {
-	"Verzint",
+	"Verzint (bleifrei)",
+	"Verzint (jedes)",
 	"Vergoldet"
 };
 
 string pcbSpecPlating[] = {
-	"HAL",
+	"HASL lead free",
+	"any HAL",
 	"gold-plating"
 };
 
 string PcbThickness[]		= {"1.6mm", "1mm", "0.8mm"};	
 string PcbType[]			= {"FR4", "Roggers", "Aluminium"};	
-string PcbCopperThickness[] 	= {"35.0um", "70.0um"};
+string PcbCopperThickness[] 		= {"35.0um", "70.0um"};
 
 string getSystemFilename(string ends_with)
 {
@@ -158,19 +161,6 @@ project.board(B)
 			sprintf(layers, layers + " %d", L.number);
 		}
 	}
-}
-
-if(palette(-1) == PALETTE_BLACK)
-{
-	palette_name = "BLACK";
-}
-else if(palette(-1) == PALETTE_WHITE)
-{
-	palette_name = "WHITE";
-}
-else
-{
-	palette_name = "COLORED";
 }
 
 void loadUsersettings()
@@ -267,6 +257,11 @@ void loadUsersettings()
 		board_copper_thickness= strtol(data[83]);
 
 		eagle_export 	= strtol(data[84]);
+
+		
+		gerber_otl 	= strtol(data[85]);
+	
+
 
 		if(format_revision == 0)	
 		//If the format revision was not set, the version is < 7
@@ -381,6 +376,8 @@ void saveUsersettings()
 		printf("%d\n", board_copper_thickness);
 
 		printf("%d\n", eagle_export);
+		
+		printf("%d\n", gerber_otl);
 
 	}
 }
@@ -462,6 +459,7 @@ void export()
 	output_file_gerber_ct		= getFilename(output_file, ".crc");
 	output_file_gerber_cb		= getFilename(output_file, ".crs");
 	output_file_gerber_drill		= getFilename(output_file, ".drd");
+	output_file_gerber_otl		= getFilename(output_file, ".otl");
 	output_file_gerber_spec		= getFilename(output_file, "-specifications.txt");
 	
 	//Output files to CAD directory
@@ -478,8 +476,6 @@ void export()
 	output_file = output_folder + boardname;
 	output_file_schematic_bw = getFilename(output_file, "-schematic-print.pdf");
 	output_file_schematic_color = getFilename(output_file, "-schematic.pdf");		
-
-	cmd += "SET PALETTE WHITE;";
 
 	string measure_layer_top = "48 ";
 	string measure_layer_bottom = "112 ";
@@ -504,8 +500,6 @@ void export()
 		values_layer_top = "-" + values_layer_top;
 		values_layer_bottom = "-" + values_layer_bottom;		
 	}
-
-
 	cmd += "EDIT .sch;";
 
 	if(EAGLE_VERSION > 5 || (EAGLE_VERSION == 5 && EAGLE_RELEASE >= 11) ) //Support for SET CONFIRM form Eagle 5.11 on
@@ -538,6 +532,26 @@ void export()
 
 	cmd += "WRITE;";
 	cmd += "EDIT .brd;";
+	
+	//Save old palette settings
+	if(palette(-1) == PALETTE_BLACK)
+	{
+		palette_name = "BLACK";
+	}
+	else if(palette(-1) == PALETTE_WHITE)
+	{
+		palette_name = "WHITE";
+	}
+	else
+	{
+		palette_name = "COLORED";
+	}
+
+	//Switch palette if export is enabled
+	if(enable_export)
+	{
+		cmd += "SET PALETTE WHITE;";
+	}
 	
 
 	if(measure)
@@ -719,7 +733,8 @@ void export()
 		if(gerber_crs){ sprintf(cmd, "%s RUN "  + include_path + "Gerber.ulp 2 '%s' '%s' 0;", cmd,  getSystemFilename(".brd"), output_file_gerber_cb); }
 		if(gerber_plc){ sprintf(cmd, "%s RUN "  + include_path + "Gerber.ulp 3 '%s' '%s' 1 %d %d %d %d;", cmd,  getSystemFilename(".brd"), output_file_gerber_pt, silkscreen_tplace, silkscreen_tnames, silkscreen_tvalues, silkscreen_tdocu); }
 		if(gerber_pls){ sprintf(cmd, "%s RUN "  + include_path + "Gerber.ulp 3 '%s' '%s' 0 %d %d %d %d;", cmd,  getSystemFilename(".brd"), output_file_gerber_pb, silkscreen_bplace, silkscreen_bnames, silkscreen_bvalues, silkscreen_bdocu); }
-		if(gerber_drd){ sprintf(cmd, "%s RUN "  + include_path + "Gerber.ulp 4 '%s' '%s';", cmd,  getSystemFilename(".brd"), output_file_gerber_drill); }		
+		if(gerber_drd){ sprintf(cmd, "%s RUN "  + include_path + "Gerber.ulp 4 '%s' '%s';",   cmd,  getSystemFilename(".brd"), output_file_gerber_drill); }	
+		if(gerber_otl){ sprintf(cmd, "%s RUN "  + include_path + "Gerber.ulp 5 '%s' '%s';",   cmd,  getSystemFilename(".brd"), output_file_gerber_otl); }	
 				
 
 	
@@ -876,7 +891,8 @@ void dialogImageSettings()
 			string Resolutions[] = {
 				"150dpi - niedrige Auslösung - schnell", 
 				"300dpi - mittlere Auflösung - moderat", 
-				"600dpi - hohe Auflösung - langsam"
+				"600dpi - hohe Auflösung - langsam", 
+				"1200dpi - hohe Auflösung - extrem langsam"
 			};
 			dlgComboBox(Resolutions, pcbimage_resolution);
 
@@ -1044,11 +1060,12 @@ void dialogGerberSettings()
 		{
 			dlgCheckBox("Alle Kupferlagen (.sol, .gXX, .cmp) ", 	gerber_copper);
 			dlgCheckBox("Lötstopmaske Top (.stc)", 			gerber_stc);	
-			dlgCheckBox("Lötstopmaske Bottom (.sts)", 			gerber_sts);
-			dlgCheckBox("Bestückungsdruck Top (.plc)", 			gerber_plc);	
+			dlgCheckBox("Lötstopmaske Bottom (.sts)", 		gerber_sts);
+			dlgCheckBox("Bestückungsdruck Top (.plc)", 		gerber_plc);	
 			dlgCheckBox("Bestückungsdruck Bottom (.pls)", 		gerber_pls);
-			dlgCheckBox("Lötpaste Top (.crc)", 				gerber_crc);	
-			dlgCheckBox("Lötpaste Bottom (.crs)", 			gerber_crs);			
+			dlgCheckBox("Lötpaste Top (.crc)", 			gerber_crc);	
+			dlgCheckBox("Lötpaste Bottom (.crs)", 			gerber_crs);	
+			dlgCheckBox("Dimensionen (.otl)", 			gerber_otl);			
 		}
 		dlgGroup("Excellon:") 
 		{		

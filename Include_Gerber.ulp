@@ -160,6 +160,15 @@ else if(type == 4)
 	sprintf(cmd, "%s -X -dEXCELLON -o \"%s\" \"%s\" 44 45", eagle_binary, outputfile, inputfile);	
 	system(cmd);
 }
+else if(type == 5)
+{
+	status("Processing outline layer");
+	int layer = 20;
+
+	string cmd = "";
+	sprintf(cmd, "%s -X -dGERBER_RS274X -o \"%s\" \"%s\" %d ", eagle_binary, outputfile, inputfile, layer);
+	system(cmd);		
+}
 
 }
 

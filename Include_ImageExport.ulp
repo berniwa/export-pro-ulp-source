@@ -30,8 +30,8 @@ void exportImages(int exportBot, string botImage, int exportTop, string topImage
 
 	cmd += "SET COLOR_LAYER 1 16;";
 	cmd += "SET COLOR_LAYER 16 17;";
-	//cmd += "SET COLOR_LAYER 17 18;";
-	//cmd += "SET COLOR_LAYER 18 18;";
+	cmd += "SET COLOR_LAYER 17 16;";
+	cmd += "SET COLOR_LAYER 18 16;";
 	cmd += "SET COLOR_LAYER 29 18;";
 	cmd += "SET FILL_LAYER 29 solid;";
 	cmd += "SET COLOR_LAYER 30 18;";
@@ -58,12 +58,12 @@ void exportImages(int exportBot, string botImage, int exportTop, string topImage
 
 	if(exportTop)
 	{
-		cmd += "DISPLAY NONE;DISPLAY 1 29 121 123 124 125 127 ;";
+		cmd += "DISPLAY NONE;DISPLAY 1 18 121 123 124 125 127 ;";
 		sprintf(cmd, "%s EXPORT IMAGE '%s' %d;", cmd, topImage, resolution);
 	}
 	if(exportBot)
 	{
-		cmd += "DISPLAY NONE;DISPLAY 16 30 122 123 124 126 127;";
+		cmd += "DISPLAY NONE;DISPLAY 16 18 122 123 124 126 127;";
 		sprintf(cmd, "%s EXPORT IMAGE '%s' %d;", cmd, botImage, resolution);
 	}
 
@@ -77,8 +77,8 @@ void exportImages(int exportBot, string botImage, int exportTop, string topImage
 
 	cmd += "SET COLOR_LAYER 1 4;";
 	cmd += "SET COLOR_LAYER 16 1;";
-	//cmd += "SET COLOR_LAYER 17 2;";
-	//cmd += "SET COLOR_LAYER 18 2;";
+	cmd += "SET COLOR_LAYER 17 2;";
+	cmd += "SET COLOR_LAYER 18 2;";
 	
 
 	string layers = "";
