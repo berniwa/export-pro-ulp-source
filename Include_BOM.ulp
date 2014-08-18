@@ -991,7 +991,7 @@ string bomWildcardReplaceWithValues(int pid, string wildcarded)
 	return wildcarded;
 }
 
-int bomPartPresent(string value, string dev, string pack, string desc, string distributor, string orderNo, string manufacturer, string partNo, string referenceNo, string reserved1, string reserved2)
+int bomPartPresent(string value, string dev, string pack, string desc, string distributor, string orderNo, string manufacturer, string partNo, string referenceNo, string reserved1, string reserved2, string populate)
 {
 	for(int i = 0; i < bomInfoCount; i++)
 	{
@@ -1002,7 +1002,8 @@ int bomPartPresent(string value, string dev, string pack, string desc, string di
 			bomAttributePartNo[i] == partNo && 
 			bomAttributeReferenceNo[i] == referenceNo &&
 			bomAttributeReserved1[i] == reserved1 && 
-			bomAttributeReserved2[i] == reserved2
+			bomAttributeReserved2[i] == reserved2 &&
+			bomAttributePopulate[i] == populate
 		)
 		{
 			if(value != bomInfoValue[i])
@@ -1116,7 +1117,7 @@ void bomPartsLoad()
       				}
 				
 
-				if((pdevice = bomPartPresent(P.value,P.device.name,P.device.package.name,P.device.package.description,distributor, orderNo, manufacturer, partNo, referenceNo, reserved1, reserved2)) != -1)
+				if((pdevice = bomPartPresent(P.value,P.device.name,P.device.package.name,P.device.package.description,distributor, orderNo, manufacturer, partNo, referenceNo, reserved1, reserved2, populate)) != -1)
 				{
 					bomInfoParts[pdevice] += "," + P.name;
 					bomInfoPartCount[pdevice]++;
