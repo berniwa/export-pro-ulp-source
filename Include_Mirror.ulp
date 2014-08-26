@@ -151,10 +151,19 @@ void bmpConvert(string ifilename)
 	}
 }
 
-
 if(OS_SIGNATURE == "Windows_7" || OS_SIGNATURE == "Windows_8")	
 {	
 	string WinProgPath = downloadGetUlpDir("PNGMirrorCrop.exe");
+	string Space = " ";
+	string Param1 = argv[1];
+	string Param2 = " 0 1";		//1st Method: <name> <crop> <mirror>
+	string CallOfWinProg = WinProgPath + Space + Param1 + Param2;
+	system(CallOfWinProg);
+}
+else if(OS_SIGNATURE == "Linux")
+{
+	string WinProgPath = downloadGetUlpDir("LibPNGImage");
+	system("chmod +x " + WinProgPath);	//getting execute-rights
 	string Space = " ";
 	string Param1 = argv[1];
 	string Param2 = " 0 1";		//1st Method: <name> <crop> <mirror>

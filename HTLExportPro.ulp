@@ -444,7 +444,7 @@ void export()
 
 	//Output files to image directory
 	string	output_file = output_folder + image_folder + boardname;
-	if(OS_SIGNATURE == "Windows_7" || OS_SIGNATURE == "Windows_8")		//DONE: OS_SIGNATURE-Abfrage entworfen, Unterscheidung .png & bmp = Windows & Linux
+	if(OS_SIGNATURE == "Windows_7" || OS_SIGNATURE == "Windows_8" || OS_SIGNATURE == "Linux")		//DONE: OS_SIGNATURE-Abfrage entworfen, Unterscheidung .png & bmp = Windows & Linux
 	{
 		output_file_lb = getFilename(output_file, "-layout-bot.png");
 		output_file_lt = getFilename(output_file, "-layout-top.png");	
