@@ -21,7 +21,7 @@
        "modified to fit within the specified minimum and maximum "
        "width limits."
        "<p>"
-       "Texts are also changed. The new ratio is set to the minimum "
+       "#s are also changed. The new ratio is set to the minimum "
        "needed to achieve the required line width. If the original "
        "text ratio is greater than the minimum required, it is not "
        "changed. Silk screen texts are always rendered using the "
@@ -289,11 +289,30 @@ void do_polygon(UL_POLYGON P)
   h = "";sprintf(h, ";\n");cmd += h;
 }
 
+/**
+ * str_replace
+ *
+ * Replaces all occurrences of a substring found within a string.
+ */
+string str_replace(string search, string replace, string subject) {
+    int lastpos = 0;
+    while(strstr(subject, search, lastpos) >= 0) {
+        int pos = strstr(subject, search, lastpos);
+        string before = strsub(subject, 0, pos);
+        string after = strsub(subject, pos + strlen(search));
+        subject = before + replace + after;
+        lastpos = pos + strlen(replace);
+    }
+    return subject;
+}
+
+
 void do_text(UL_TEXT T)
 {
   int newratio;
   real origwidth;
   string textorientation;
+  string tvalue = T.value;
   if(destlayer == tsilknum) textorientation = "R";
   else textorientation = "MR";
 
@@ -334,11 +353,13 @@ void do_text(UL_TEXT T)
   }
 
   if(T.spin > 0) {textorientation = "S"+textorientation;}
+   
+  tvalue = str_replace("\n", "\\n", tvalue);
 
   set_layer();
   set_ratio(newratio);
   set_size(u2mil(T.size));
-  h = "";sprintf(h, "text '%s' %s%1.0f (%5.3f %5.3f);\n", T.value,
+  h = "";sprintf(h, "text '%s' %s%1.0f (%5.3f %5.3f);\n", tvalue,
                     textorientation, T.angle, u2mil(T.x), u2mil(T.y));cmd += h;
 }
 

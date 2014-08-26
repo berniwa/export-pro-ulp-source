@@ -1016,7 +1016,8 @@ int bomPartPresent(string value, string dev, string pack, string desc, string di
 		if(	bomInfoValue[i] == value && 
 			bomInfoDevice[i] == dev && 
 			bomInfoPackage[i] == pack && 
-			bomInfoDescription[i] == desc
+			bomInfoDescription[i] == desc &&
+			bomAttributePopulate[i] == populate
 		)
 		{
 			return i;
