@@ -45,7 +45,7 @@ void downloadInit()
 {
 	for(int k = 0; path_ulp[k] != ""; k++)
 	{
-		string tmp = downloadResverseSearch(path_ulp[k], "HTLExportPro_Download.ulp");
+		string tmp = downloadResverseSearch(path_ulp[k], "Include_Download.ulp");
 		if(tmp != "")
 		{
 			download_ulp_dir = filedir(tmp);

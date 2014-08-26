@@ -15,6 +15,8 @@
 /* Version 1.0 (in ExportPro6)                            	*/
 /************************************************************/
 
+#include "Include_Download.ulp";
+string include_path = "Include_";
 
 int BMP_bfOffBits = 10;
 int BMP_biWidth 	= 18;
@@ -118,4 +120,16 @@ void bmpConvert(string ifilename)
 }
 
 
-bmpConvert(argv[1]);
+if(OS_SIGNATURE == "Windows_7" || OS_SIGNATURE == "Windows_8")	
+{	
+	string WinProgPath = downloadGetUlpDir("PNGMirrorCrop.exe");
+	string Space = " ";
+	string Param1 = argv[1];
+	string Param2 = " 0 1";		//1st Method: <name> <crop> <mirror>
+	string CallOfWinProg = WinProgPath + Space + Param1 + Param2;
+	system(CallOfWinProg);
+}
+else
+{
+	bmpConvert(argv[1]);
+}

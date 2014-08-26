@@ -89,8 +89,13 @@ string layer_fill[];
 
 string boardname = "output";
 
+string Resolutions[] = {
+	"600dpi - normale Auflösung", 
+	"1200dpi - hohe Auflösung",
+	"2400dpi - extrem hohe Auflösung"
+};
 
-int pcbImageResolutions[]		= {150, 300, 600, 1200};
+int pcbImageResolutions[]		= {600, 1200, 2400};
 string pcbImagePcbColors[] 		= {"0xFF007800", "0xFF660000", "0xFF010101"};
 string pcbImageCopperColors[] 	= {"0xFF00CA00", "0xFF990000", "0xFF111111"};
 string pcbImageSilkscreenColors[] 	= {"0xFFFFFFFF", "0xFFFFFF00", "0xFFAA0000"};
@@ -435,17 +440,39 @@ void export()
 		cad_folder 	+= "/";
 	}
 
+	string output_file_extension = "";
+
 	//Output files to image directory
 	string	output_file = output_folder + image_folder + boardname;
-	output_file_lb = getFilename(output_file, "-layout-bot.bmp");
-	output_file_lt = getFilename(output_file, "-layout-top.bmp");	
-	output_file_li = getFilename(output_file, "-layout-layer"); 
-	output_file_pb = getFilename(output_file, "-parts-bot.bmp");
-	output_file_pt = getFilename(output_file, "-parts-top.bmp");
-	output_file_cs = getFilename(output_file, "-construction.bmp");
-	output_file_drl = getFilename(output_file, "-drills.bmp");
-	output_file_pcbt = getFilename(output_file, "-pcb-top.bmp");
-	output_file_pcbb = getFilename(output_file, "-pcb-bot.bmp");
+	if(OS_SIGNATURE == "Windows_7" || OS_SIGNATURE == "Windows_8")		//DONE: OS_SIGNATURE-Abfrage entworfen, Unterscheidung .png & bmp = Windows & Linux
+	{
+		output_file_lb = getFilename(output_file, "-layout-bot.png");
+		output_file_lt = getFilename(output_file, "-layout-top.png");	
+		output_file_li = getFilename(output_file, "-layout-layer"); 
+		output_file_extension = ".png";
+		output_file_pb = getFilename(output_file, "-parts-bot.png");
+		output_file_pt = getFilename(output_file, "-parts-top.png");
+		output_file_cs = getFilename(output_file, "-construction.png");
+		output_file_drl = getFilename(output_file, "-drills.png");
+		output_file_pcbt = getFilename(output_file, "-pcb-top.png");
+		output_file_pcbb = getFilename(output_file, "-pcb-bot.png");
+	}
+	else
+	{
+		output_file_lb = getFilename(output_file, "-layout-bot.bmp");
+		output_file_lt = getFilename(output_file, "-layout-top.bmp");	
+		output_file_li = getFilename(output_file, "-layout-layer"); 
+		output_file_extension = ".bmp";
+		output_file_pb = getFilename(output_file, "-parts-bot.bmp");
+		output_file_pt = getFilename(output_file, "-parts-top.bmp");
+		output_file_cs = getFilename(output_file, "-construction.bmp");
+		output_file_drl = getFilename(output_file, "-drills.bmp");
+		output_file_pcbt = getFilename(output_file, "-pcb-top.bmp");
+		output_file_pcbb = getFilename(output_file, "-pcb-bot.bmp");
+	}
+	
+	
+	
 	
 	//Output files to gerber directory
 	output_file = output_folder + gerber_folder + boardname;
@@ -587,7 +614,7 @@ void export()
 		{
 			if(board_layer[i] == 1)
 			{
-				sprintf(cmd, "%s DISPLAY NONE;DISPLAY %d 17 18 20 " + measure_layer_top + "; SET FILL_LAYER %d SOLID; RATSNEST;EXPORT IMAGE '%s%d.bmp' MONOCHROME 600; SET FILL_LAYER %d %s; RATSNEST;", cmd, i+1, i+1, output_file_li, i+1, i+1, layer_fill[i+1]);
+				sprintf(cmd, "%s DISPLAY NONE;DISPLAY %d 17 18 20 " + measure_layer_top + "; SET FILL_LAYER %d SOLID; RATSNEST;EXPORT IMAGE '%s%d%s' MONOCHROME 600; SET FILL_LAYER %d %s; RATSNEST;", cmd, i+1, i+1, output_file_li, i+1,output_file_extension, i+1, layer_fill[i+1]);
 			}
 		}
 	}
@@ -631,7 +658,7 @@ void export()
 				if(board_layer[i] == 1)
 				{	
 					string tfname = "";
-					sprintf(tfname, "%s%d.bmp", output_file_li, i+1); 		
+					sprintf(tfname, "%s%d%s", output_file_li, i+1, output_file_extension); 		
 					cmd += "RUN "  + include_path + "Crop.ulp '" + tfname + "';";
 				}
 			}
@@ -888,12 +915,6 @@ void dialogImageSettings()
 				dlgCheckBox("Bottom Ansicht", pcbimage_bottom);
 			}
 
-			string Resolutions[] = {
-				"150dpi - niedrige Auslösung - schnell", 
-				"300dpi - mittlere Auflösung - moderat", 
-				"600dpi - hohe Auflösung - langsam", 
-				"1200dpi - hohe Auflösung - extrem langsam"
-			};
 			dlgComboBox(Resolutions, pcbimage_resolution);
 
 			dlgGroup("Nachbearbeitung")
