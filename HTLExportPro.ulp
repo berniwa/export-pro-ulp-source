@@ -727,8 +727,6 @@ void export()
 	if(gerber_export)
 	{
 		//Let the ulp retrieve the eagle executeable path once
-		sprintf(cmd, "%s RUN "  + include_path + "Gerber.ulp -1;", cmd); 
-
 		int count = 0;
 		if(gerber_copper)
 		{

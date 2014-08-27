@@ -45,7 +45,6 @@ temporary_file = working_directory + "/path.tmp";
 
 
 int 	type 		= strtol(argv[1]);
-//type = -1 => Retrieve Eagle executable directory
 //type = 0 => Export copper layers
 //type = 1 => Export stop mask
 //type = 2 => Export cream
@@ -53,27 +52,11 @@ int 	type 		= strtol(argv[1]);
 //type = 4 => Export drill
 
 
-if(type == -1)
-{
-	//As we don't know where the eagle exacutable is
-	//we need to a way to get the path
-	//This is done, by using the ULP "system" command
-	//Normally this command is started in the
-	//eagle executable directory
-	system("cmd.exe /c pwd > " + temporary_file);
-	
-}
-else
-{
-	string	inputfile	= argv[2];
-	string	outputfile	= argv[3];
-	//argv[3] -  argv[x] => additional parameters
+string	inputfile	= argv[2];
+string	outputfile	= argv[3];
 
-	string lines[];
-	int nLines = fileread(lines, temporary_file);
-
-	//Get correct eagle binary
-	eagle_binary = lines[0] + "/bin/eagle";
+//Get correct eagle binary
+eagle_binary = EAGLE_DIR + "/bin/eagle";
 
 if(type == 0)
 {
@@ -170,7 +153,6 @@ else if(type == 5)
 	system(cmd);		
 }
 
-}
 
 
 
