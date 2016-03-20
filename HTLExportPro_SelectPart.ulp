@@ -1,155 +1,45 @@
-#include "Include_Download.ulp";
-string DOWNLOAD_URL = "http://eagle.berniwa.com/price.php";
+/************************************************************/
+/* HTLExportPro.ulp                                         */
+/* Allows proper BOM management directly in Eagle 			*/
+/************************************************************/
+/* (c) Copyright 2016, Bernhard Wörndl-Aichriedler          */
+/* E-Mail: bwa@xdevelop.at  	                            */
+/* Homepage: www.xdevelop.at                                */
+/************************************************************/
+/* Letzte Änderung am 15.02.2016                            */
+/* Version 2.0                                              */
+/************************************************************/
 
-string execute = "";
+#include "Include_Misc.ulp"
+#include "Include_FastExecute.ulp";
+#include "Include_BomConfig.ulp";
+#include "Include_String.ulp"
+#include "Include_BomCategory.ulp"
+#include "Include_BomCommon.ulp"
+#include "Include_BomPricing.ulp"
 
 int rerun = 1, save = 1;
-
-string 	list[], names[], values[], packages[], 
-	distributor[], order_no[], manufacturer[], part_no[],
-	price[], prices[], datasheet[],min_qty[], qty_mul[],
-	per_pkg[], available[], populate[];
-int 	count,  pages[];
-
-void updateAttributes()
-{
-	count = 0;
-	schematic(SCH)
-	{
-		SCH.sheets(S)
-		{	
-			S.parts(P)
-			{
-				if(P.device.package)
-				{
-					names[count] 		= P.name;
-					values[count]		= P.value;
-					packages[count]		= P.device.package.name;
-					pages[count]		= S.number;
-					distributor[count]		= P.attribute["DISTRIBUTOR"];
-					order_no[count]		= P.attribute["ORDER_NO"];
-					manufacturer[count]		= P.attribute["MANUFACTURER"];
-					part_no[count]		= P.attribute["PART_NO"];
-					price[count]		= P.attribute["PRICE"];
-					prices[count]		= P.attribute["PRICES"];
-					datasheet[count]		= P.attribute["DATASHEET"];
-					min_qty[count]		= P.attribute["MINIMUM_QUANTITY"];
-					qty_mul[count]		= P.attribute["QUANTITY_MULTIPLIER"];
-					per_pkg[count]		= P.attribute["PARTS_PER_PACKAGE"];
-					available[count]		= P.attribute["AVAILABLE_QUANTITY"];	
-					populate[count]		= P.attribute["POPULATE"];
-					count++;
-				}						
-			}			
-		}
-	}	
-}
+string 	list[];
 
 void updateAttributeList()
 {
-	for(int i = 0; i < count; i++)
+	for(int i = 0; i < partcount; i++)
 	{
-		sprintf(list[i], "%s\t%s\t%s\t%d\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s", 
+		sprintf(list[i], "%s\t%s\t%s\t%d\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s", 
 			names[i], values[i], packages[i] , pages[i], 
 			distributor[i], order_no[i], 
 			manufacturer[i], part_no[i],
-			price[i], available[i], per_pkg[i], min_qty[i], qty_mul[i], populate[i]
+			price[i], available[i], per_pkg[i], min_qty[i], qty_mul[i], 
+			populate[i], BOM_PART_CATEGORIES[category[i]], note[i]
 		);	
 	}
-}
-
-
-void findAndChange(int selected, int mode)
-{
-	int found = 0;
-
-	sprintf(execute, "%s CHANGE DISPLAY OFF;\n",  execute);
-
-	for(int i = 0; i < count; i++)
-	{
-		if(names[i] == names[selected] )
-		{
-			sprintf(execute, "%s EDIT .s%d;\n",  execute, pages[i]);
-			sprintf(execute, "%s ATTRIBUTE %s POPULATE \'%s\';\n", 	execute, names[i], populate[selected]);
-			
-		}
-
-		if(	(mode == 0 && names[i] == names[selected]) || 
-			(mode == 1 && values[i] == values[selected] && packages[i] == packages[selected]) || 
-			(mode == 2 && values[i] == values[selected]) 
-		)
-		{
-			sprintf(execute, "%s EDIT .s%d;\n",  execute, pages[i]);
-			if(i == selected || manufacturer[i] 	!= manufacturer[selected]) 	{sprintf(execute, "%s ATTRIBUTE %s MANUFACTURER \'%s\';\n", 	execute, names[i], manufacturer[selected]);}
-			if(i == selected || part_no[i] 	!= part_no[selected]) 	{sprintf(execute, "%s ATTRIBUTE %s PART_NO \'%s\';\n", 		execute, names[i], part_no[selected]);}
-			if(i == selected || distributor[i] 	!= distributor[selected]) 	{sprintf(execute, "%s ATTRIBUTE %s DISTRIBUTOR \'%s\';\n", 		execute, names[i], distributor[selected]);}
-			if(i == selected || order_no[i] 	!= order_no[selected]) 	{sprintf(execute, "%s ATTRIBUTE %s ORDER_NO \'%s\';\n", 		execute, names[i], order_no[selected]);}
-			if(i == selected || price[i] 		!= price[selected]) 	{sprintf(execute, "%s ATTRIBUTE %s PRICE \'%s\';\n", 		execute, names[i], price[selected]);}
-			if(i == selected || prices[i]		!= prices[selected]) 	{sprintf(execute, "%s ATTRIBUTE %s PRICES \'%s\';\n", 		execute, names[i], prices[selected]);}
-			if(i == selected || min_qty[i] 	!= min_qty[selected]) 	{sprintf(execute, "%s ATTRIBUTE %s MINIMUM_QUANTITY \'%s\';\n", 	execute, names[i], min_qty[selected]);}
-			if(i == selected || qty_mul[i] 	!= qty_mul[selected]) 	{sprintf(execute, "%s ATTRIBUTE %s QUANTITY_MULTIPLIER \'%s\';\n", 	execute, names[i], qty_mul[selected]);}
-			if(i == selected || datasheet[i]	!= datasheet[selected]) 	{sprintf(execute, "%s ATTRIBUTE %s DATASHEET \'%s\';\n", 		execute, names[i], datasheet[selected]);}
-			if(i == selected || per_pkg[i] 	!= per_pkg[selected]) 	{sprintf(execute, "%s ATTRIBUTE %s PARTS_PER_PACKAGE \'%s\';\n", 	execute, names[i], per_pkg[selected]);}
-			if(i == selected || available[i]	!= available[selected]) 	{sprintf(execute, "%s ATTRIBUTE %s AVAILABLE_QUANTITY \'%s\';\n", 	execute, names[i], available[selected]);}
-			
-			manufacturer[i] = manufacturer[selected];
-			part_no[i]	= part_no[selected];
-			distributor[i] 	= distributor[selected];
-			order_no[i] 	= order_no[selected];
-			price[i] 		= price[selected];
-			prices[i]		= prices[selected];
-			min_qty[i] 	= min_qty[selected];
-			qty_mul[i] 	= qty_mul[selected];
-			datasheet[i]	= datasheet[selected];
-			per_pkg[i] 	= per_pkg[selected];
-			available[i]	= available[selected];
-
-			found = 1;
-		}	
-		if(mode == 3 && distributor[i] == distributor[selected] && order_no[i] == order_no[selected])
-		{
-			sprintf(execute, "%s EDIT .s%d;\n",  execute, pages[i]);
-			if(i == selected || price[i] 		!= price[selected]) 	{sprintf(execute, "%s ATTRIBUTE %s PRICE \'%s\';\n", 			execute, names[i], price[selected]);}
-			if(i == selected || prices[i]		!= prices[selected]) 	{sprintf(execute, "%s ATTRIBUTE %s PRICES \'%s\';\n", 		execute, names[i], prices[selected]);}
-			if(i == selected || min_qty[i] 	!= min_qty[selected]) 	{sprintf(execute, "%s ATTRIBUTE %s MINIMUM_QUANTITY \'%s\';\n", 	execute, names[i], min_qty[selected]);}
-			if(i == selected || qty_mul[i] 	!= qty_mul[selected]) 	{sprintf(execute, "%s ATTRIBUTE %s QUANTITY_MULTIPLIER \'%s\';\n", 	execute, names[i], qty_mul[selected]);}
-			if(i == selected || datasheet[i]	!= datasheet[selected]) 	{sprintf(execute, "%s ATTRIBUTE %s DATASHEET \'%s\';\n", 		execute, names[i], datasheet[selected]);}
-			if(i == selected || per_pkg[i] 	!= per_pkg[selected]) 	{sprintf(execute, "%s ATTRIBUTE %s PARTS_PER_PACKAGE \'%s\';\n", 	execute, names[i], per_pkg[selected]);}
-			if(i == selected || available[i]	!= available[selected]) 	{sprintf(execute, "%s ATTRIBUTE %s AVAILABLE_QUANTITY \'%s\';\n", 	execute, names[i], available[selected]);}
-
-			price[i] 	= price[selected];
-			prices[i]	= prices[selected];
-			min_qty[i] 	= min_qty[selected];
-			qty_mul[i] 	= qty_mul[selected];
-			datasheet[i]	= datasheet[selected];
-			per_pkg[i] 	= per_pkg[selected];
-			available[i]	= available[selected];
-
-			found = 1;
-		}
-
-	}
-
-	if(!found){dlgMessageBox("Device with value " + values[selected] + " not found!");}
-}
-
-
-int countPartsWithSameOrderNo(string pdistributor, string porder_no)
-{
-	int mcount = 0;
-
-	for(int i = 0; i < count; i++)
-	{
-		if(distributor[i] == pdistributor && order_no[i] == porder_no){mcount++;}
-	}
-	return mcount;	
 }
 
 real calculatePrice()
 {
 	real mprice = 0;
 
-	for(int i = 0; i < count; i++)
+	for(int i = 0; i < partcount; i++)
 	{
 		mprice += strtod(price[i]);
 	}
@@ -160,7 +50,7 @@ real calculatePriceWOUnpopulated()
 {
 	real mprice = 0;
 
-	for(int i = 0; i < count; i++)
+	for(int i = 0; i < partcount; i++)
 	{
 		if(populate[i] != "DNP")
 		{
@@ -172,88 +62,42 @@ real calculatePriceWOUnpopulated()
 
 int calculateAvailableParts()
 {
-	int mcount = 0;
+	int mpartcount = 0;
 
-	for(int i = 0; i < count; i++)
+	for(int i = 0; i < partcount; i++)
 	{
 		int av = strtod(available[i]);
-		if(av > countPartsWithSameOrderNo(distributor[i], order_no[i])){mcount++;}
+		if(av > bomCountPartsWithSameOrderNo(distributor[i], order_no[i])){mpartcount++;}
 	}
-	return mcount;	
+	return mpartcount;	
 }
 
 
 int calculatePartsWithOrderNo()
 {
-	int mcount = 0;
+	int mpartcount = 0;
 
-	for(int i = 0; i < count; i++)
+	for(int i = 0; i < partcount; i++)
 	{
-		if(distributor[i] != "" && order_no[i] != ""){mcount++;}
+		if(distributor[i] != "" && order_no[i] != ""){mpartcount++;}
 	}
-	return mcount;	
+	return mpartcount;	
 }
 
 int calculatePartsWithPrice()
 {
-	int mcount = 0;
+	int mpartcount = 0;
 
-	for(int i = 0; i < count; i++)
+	for(int i = 0; i < partcount; i++)
 	{
-		if(price[i] != ""){mcount++;}
+		if(price[i] != ""){mpartcount++;}
 	}
-	return mcount;	
-}
-
-
-void requestPrice(int part)
-{
-	string tsv = "";
-
-	string headline[] = {"ID", "DISTRIBUTOR", "ORDER_NO", "QUANTITY"};
-	sprintf(tsv, "%s%s\n", tsv,  strjoin(headline,'\t'));
-
-	string data[] = {distributor[part] + "-" + part_no[part], distributor[part], order_no[part], ""};
-	sprintf(data[3], "%d", countPartsWithSameOrderNo(distributor[part], part_no[part]));
-	sprintf(tsv, "%s%s\n", tsv, strjoin(data,'\t'));
-
-	string lines[];
-	int nlines = netpost(lines, DOWNLOAD_URL, "tsv=" + downloadEscapeString(tsv));
-
-/*	
-	output("W:\\Hardware\\ulptest\\Hardware\\test.txt", "wt")
-	{
-		for(int i = 0; i < nlines; i++)
-		{
-			printf("%s", lines[i]);		
-		}
-	}
-*/
-	lines[0] = "ID	DISTRIBUTOR	ORDER_NO	QUANTITY	PRICES	PRICE	AVAILABLE_QUANTITY	PARTS_PER_PACKAGE	MINIMUM_QUANTITY	QUANTITY_MULTIPLIER	DATASHEET";
-
-	if(nlines >= 0)
-	{
-		prices[part] 	= lookup(lines, distributor[part] + "-" + part_no[part], "PRICES");
-		datasheet[part] 	= lookup(lines, distributor[part] + "-" + part_no[part], "DATASHEET");
-		available[part] 	= lookup(lines, distributor[part] + "-" + part_no[part], "AVAILABLE_QUANTITY");
-		per_pkg[part] 	= lookup(lines, distributor[part] + "-" + part_no[part], "PARTS_PER_PACKAGE");
-		min_qty[part] 	= lookup(lines, distributor[part] + "-" + part_no[part], "MINIMUM_QUANTITY");
-		price[part] 	= lookup(lines, distributor[part] + "-" + part_no[part], "PRICE");
-		qty_mul[part] 	= lookup(lines, distributor[part] + "-" + part_no[part], "QUANTITY_MULTIPLIER");	
-
-		findAndChange(part, 3);
-	}
+	return mpartcount;	
 }
 
 void requestAllPrices()
 {
-	for(int i = 0; i < count; i++)
-	{
-		if(distributor[i] != "" && order_no[i] != "" && price[i] == "")
-		{
-			requestPrice(i);
-		}
-	}
+	bomPricingRequestAll();
 }
 
 void editDevice(int selected)
@@ -261,13 +105,25 @@ void editDevice(int selected)
 	int saveDevice = 1;
 	int mode = 1;
 	int populateMode = 0;
+	int noteMode = 0;
 
-	if(populate[selected] == "")		{populateMode = 0;} 
+	//Populate
+	if(populate[selected] == "")			{populateMode = 0;} 
 	else if(populate[selected] == "DNP")	{populateMode = 1;} 	
-	else 				{populateMode = 2;}
+	else 									{populateMode = 2;}
+
+	//Note modes
+	noteMode = -1;
+	int i = 0;
+	for(i = 0; BOM_PREDEFINED_NOTES[i]; i++)
+	{
+		if(note[selected] == BOM_PREDEFINED_NOTES[i]) 
+											{noteMode = i;}
+	}
+	if(noteMode == -1)						{noteMode = i;}
 
 	dlgDialog("Set Attributes for Device")
-	{
+	{		
 		dlgGroup("Device Information")
 		{
 			dlgHBoxLayout
@@ -280,13 +136,14 @@ void editDevice(int selected)
 				dlgLabel(packages[selected]);
 			}
 		}
-		dlgGroup("Populate")
+
+		dlgGroup("Populate (only for this device)")
 		{
 			dlgHBoxLayout
 			{
 				dlgLabel("Populate");
-				dlgRadioButton("Yes", 	populateMode);
-				dlgRadioButton("No", 	populateMode);
+				dlgRadioButton("Yes", 		populateMode);
+				dlgRadioButton("No", 		populateMode);
 				dlgRadioButton("Special", 	populateMode);
 				dlgStringEdit(populate[selected]);	
 			}			
@@ -299,6 +156,24 @@ void editDevice(int selected)
  				dlgRadioButton("Part Name", mode);
   				dlgRadioButton("Device Value && Package", mode);
   				dlgRadioButton("Device Value", mode);
+  				dlgRadioButton("Package", mode);
+			}			
+		}
+
+
+		dlgGroup("Note")
+		{
+			dlgVBoxLayout
+			{
+				for(i = 0; BOM_PREDEFINED_NOTES[i]; i++)
+				{
+					dlgRadioButton(BOM_PREDEFINED_NOTES[i], 			noteMode);
+				}
+				dlgHBoxLayout
+				{
+					dlgRadioButton("Custom:", 	noteMode);
+					dlgStringEdit(note[selected]);						
+				}
 			}			
 		}
 
@@ -328,23 +203,32 @@ void editDevice(int selected)
 				dlgCell(4, 3) dlgStringEdit(per_pkg[selected]);
 				dlgCell(5, 0) dlgLabel("DATASHEET*");
 				dlgCell(5, 1) dlgStringEdit(datasheet[selected]);
-				dlgCell(6, 0, 6 , 2) dlgLabel("* might be overwriten when requesting the price over the internet");	
-				dlgCell(6, 3, 6, 3) dlgPushButton("Request prices") { requestPrice(selected); } 	
+				dlgCell(5, 2) dlgLabel("CATEGORY");
+				dlgCell(5, 3) dlgComboBox(BOM_PART_CATEGORIES, category[selected]);
+				dlgCell(6, 0, 6, 2) dlgLabel("* might be overwriten when requesting the price over the internet");	
+				dlgCell(6, 3, 6, 3) dlgPushButton("Request") { bomPricingRequest(selected); } 	
 			}
 		}
+
 		dlgHBoxLayout
 		{	
 			dlgStretch(1);
-			dlgPushButton("Speichern"){dlgAccept(); }
+			dlgPushButton("Save"){dlgAccept(); }
 		}
 	};
 
 	if(saveDevice)
 	{
+
 		if(populateMode == 0){populate[selected] = "";} 
 		else if(populateMode == 1){populate[selected] = "DNP";} 
 
-		findAndChange(selected, mode);
+		if(BOM_PREDEFINED_NOTES[noteMode])
+		{
+			note[selected] = BOM_PREDEFINED_NOTES[noteMode];
+		}
+
+		bomUpdatePart(selected, mode);
 	}	
 }
 
@@ -354,7 +238,7 @@ int showListOfDevices()
 	int selected = 0;
 	int sorted = 0;
 
-	updateAttributes();
+	bomLoadData();
 
 	while(1)
 	{
@@ -365,7 +249,7 @@ int showListOfDevices()
 			dlgHBoxLayout
 			{
 				dlgVBoxLayout dlgSpacing(600);
-				dlgListView("Part\tValue\tPackage\tSheet\tDistributor\tOrder No.\tManufacturer\tPart No.\tPrice\tAvail. Qty.\tPer Pkg.\tMin. Qty.\tQty. Mul.\tPopulate", list, selected, sorted)
+				dlgListView("Part\tValue\tPackage\tSheet\tDistributor\tOrder No.\tManufacturer\tPart No.\tPrice\tAvail. Qty.\tPer Pkg.\tMin. Qty.\tQty. Mul.\tPopulate\tCategory\tNote", list, selected, sorted)
 				{
 					editDevice(selected);
 					//dlgRedisplay();
@@ -379,15 +263,15 @@ int showListOfDevices()
 					dlgGridLayout
 					{
 						string tmp = "", tmp2 = "", tmp3 = "", tmp4 = "";
-						sprintf(tmp, "%d of %d", calculatePartsWithOrderNo(), count);
-						sprintf(tmp2, "%d of %d", calculatePartsWithPrice(), count);
+						sprintf(tmp, "%d of %d", calculatePartsWithOrderNo(), partcount);
+						sprintf(tmp2, "%d of %d", calculatePartsWithPrice(), partcount);
 						sprintf(tmp3, "%f (%f) Euro", calculatePriceWOUnpopulated(), calculatePrice());
-						sprintf(tmp4, "%d of %d", calculateAvailableParts(), count);
+						sprintf(tmp4, "%d of %d", calculateAvailableParts(), partcount);
 
 						dlgCell(0, 1) dlgLabel("Ordering information present:");
 						dlgCell(0, 2) dlgLabel(tmp);
 						dlgCell(0, 3) dlgLabel("Request prices: ");
-						dlgCell(0, 4) dlgPushButton("Request"){requestAllPrices();dlgAccept();};
+						dlgCell(0, 4) dlgPushButton("Update all prices"){requestAllPrices();dlgAccept();};
 						dlgCell(1, 1) dlgLabel("Pricing information present:");
 						dlgCell(1, 2) dlgLabel(tmp2);
 						dlgCell(1, 3) dlgLabel("Overall price*:");
@@ -400,8 +284,8 @@ int showListOfDevices()
 				dlgVBoxLayout
 				{
 					dlgStretch(1); dlgStretch(1);
-					dlgPushButton("Abbrechen"){dlgReject(); return 0;}
-					dlgPushButton("Speichern"){dlgAccept(); return 1;}
+					dlgPushButton("Abort"){dlgReject(); return 0;}
+					dlgPushButton("Save"){dlgAccept(); return 1;}
 				}
 			}
 		};
@@ -414,9 +298,5 @@ int showListOfDevices()
 
 if(showListOfDevices())
 {
-	exit(execute);	
+	executeAndExit(bomUpdateChanges());
 }
-
-
-
-

@@ -1,0 +1,65 @@
+string escapeString(string data)
+{
+	string dout;
+	for(int i = 0; i < strlen(data); i++)
+	{
+		sprintf(dout, "%s%%%02x", dout, data[i]);
+	}
+	return dout;
+}
+
+int stringEndsWith(string haystack, string needle)
+{
+	string last = strsub(haystack, strlen(haystack) - strlen(needle));
+	return (last == needle);
+}
+
+string getUlpDirSearcher(string path, string needle)
+{
+	string a[], dirs[];
+	int dir_count;
+
+	dirs[dir_count++] = path;
+
+	for(int k = 0; k < dir_count; k++)
+	{
+		int n = fileglob(a, dirs[k] + "*");
+		for(int i = 0; i < n; i++)
+		{
+			if(stringEndsWith(a[i], "/"))
+			{
+				dirs[dir_count++] = a[i];		
+			}
+			if(stringEndsWith(a[i], needle))
+			{
+				return a[i];
+			}
+		}
+	}
+	return "";
+}
+
+string getUlpDir(string outp)
+{
+	string ulp_dir = "";
+	for(int k = 0; path_ulp[k] != ""; k++)
+	{
+		string tmp = getUlpDirSearcher(path_ulp[k], "Include_Misc.ulp");
+		if(tmp != "")
+		{
+			ulp_dir = filedir(tmp);
+		}
+	}
+
+	return ulp_dir + outp;	
+}
+
+void download(string url, string outp, string parameter)
+{
+	output(outp)
+	{
+		string result;
+		netpost(result, url, parameter);
+		printf("%s",result);
+	}
+}

@@ -31,8 +31,11 @@
 /* Letzte Änderung am 06.06.2013                            */
 /* Version 7                                                */
 /************************************************************/
+/* Letzte Änderung am 20.03.2016                            */
+/* Version 8                                                */
+/************************************************************/
 
-#include "Include_Download.ulp";
+#include "Include_Misc.ulp";
 
 string include_path = "Include_";
 
@@ -470,10 +473,7 @@ void export()
 		output_file_pcbt = getFilename(output_file, "-pcb-top.bmp");
 		output_file_pcbb = getFilename(output_file, "-pcb-bot.bmp");
 	}
-	
-	
-	
-	
+		
 	//Output files to gerber directory
 	output_file = output_folder + gerber_folder + boardname;
 	output_file_gerber_copper_top 	= getFilename(output_file, ".cmp");
@@ -809,9 +809,6 @@ void export()
 
 void update()
 {
-	//string dlog = downloadGetTempFile("update.log");
-	//download(UPDATE_SERVER + "update.log", dlog, "");
-	
 	string lines[];
 	int nlines = netpost(lines, UPDATE_SERVER + "update.log", "");
 
@@ -821,11 +818,11 @@ void update()
 		{
 			if(dlgMessageBox("A new version of this ULP is available! \nNew version: " + lines[0] + "\nCurrent version: " + ULP_VERSION + "\nDo you want to download the new version?", "Ja", "Nein") == 0)
 			{
-				if(downloadGetUlpDir("") != "")
+				if(getUlpDir("") != "")
 				{
 					for(int i = 1; i < nlines; i++)
 					{
-						download(UPDATE_SERVER + lines[i], downloadGetUlpDir(lines[i]), "");
+						download(UPDATE_SERVER + lines[i], getUlpDir(lines[i]), "");
 					}
 					exit("RUN HTLExportPro.ulp");
 				}
@@ -1099,7 +1096,7 @@ void dialogGerberSettings()
 void dialogHelpView()
 {
 	string text;
-	int nchars = fileread(text, downloadGetUlpDir("help/help.htm"));
+	int nchars = fileread(text, getUlpDir("help/help.htm"));
 	
 	dlgDialog("Funktionen / HowTo")
 	{	

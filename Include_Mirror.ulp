@@ -15,7 +15,7 @@
 /* Version 1.0 (in Export 3.3)                              */
 /************************************************************/
 
-#include "Include_Download.ulp";
+#include "Include_Misc.ulp";
 
 int BMP_bfOffBits = 10;
 int BMP_biWidth 	= 18;
@@ -153,7 +153,7 @@ void bmpConvert(string ifilename)
 
 if(OS_SIGNATURE == "Windows_7" || OS_SIGNATURE == "Windows_8")	
 {	
-	string WinProgPath = downloadGetUlpDir("PNGMirrorCrop.exe");
+	string WinProgPath = getUlpDir("PNGMirrorCrop.exe");
 	string Space = " ";
 	string Param1 = argv[1];
 	string Param2 = " 0 1";		//1st Method: <name> <crop> <mirror>
@@ -162,7 +162,7 @@ if(OS_SIGNATURE == "Windows_7" || OS_SIGNATURE == "Windows_8")
 }
 else if(OS_SIGNATURE == "Linux")
 {
-	string WinProgPath = downloadGetUlpDir("LibPNGImage");
+	string WinProgPath = getUlpDir("LibPNGImage");
 	system("chmod +x " + WinProgPath);	//getting execute-rights
 	string Space = " ";
 	string Param1 = argv[1];

@@ -10,6 +10,8 @@
 /* Version 1                                                */
 /************************************************************/
 
+#include "Include_FastExecute.ulp";
+
 string getFilename(string basename, string ends_with)
 {
 	return filesetext(basename,ends_with);
@@ -127,7 +129,7 @@ void exportImages(int exportBot, string botImage, int exportTop, string topImage
 		sprintf(cmd, "%s RUN Include_MirrorColor.ulp '%s';", cmd, botImage);
 	}	
 	
-	exit(cmd);
+	executeAndExit(cmd);
 }
 
 
