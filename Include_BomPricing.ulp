@@ -14,7 +14,7 @@ void bomPricingRequestStart()
 
 }
 
-void bomPricingRequestPart(int part)
+void bomPricingRequestPartWithMultiplier(int part, int quantity)
 {
 	int found = 0;
 	string id = distributor[part] + "-" + part_no[part];
@@ -33,11 +33,16 @@ void bomPricingRequestPart(int part)
 			per_pkg[part], min_qty[part], qty_mul[part],
 			datasheet[part]
 		};
-		sprintf(data[3], "%d", bomCountPartsWithSameOrderNo(distributor[part], part_no[part]));
+		sprintf(data[3], "%d",  quantity * bomCountPartsWithSameOrderNo(distributor[part], order_no[part]));
 		sprintf(bomPricingTsv, "%s%s\n", bomPricingTsv, strjoin(data,'\t'));	
 		bomPricingIds[bomPricingIdCount] = id;
 		bomPricingIdCount++;	
 	}
+}
+
+void bomPricingRequestPart(int part)
+{
+	bomPricingRequestPartWithMultiplier(part, 1);
 }
 
 void bomPricingRequestDo()
@@ -47,7 +52,7 @@ void bomPricingRequestDo()
 	/*
 	output("W:\\Hardware\\ulptest\\Hardware\\input.txt", "wt")
 	{
-		printf("%s", bomPricingEscapeString(bomPricingTsv));
+		printf("%s", escapeString(bomPricingTsv));
 	}	
 	output("W:\\Hardware\\ulptest\\Hardware\\output.txt", "wt")
 	{
@@ -86,7 +91,9 @@ void bomPricingRequest(int part)
 	bomPricingRequestDo();
 }
 
-void bomPricingRequestAll()
+
+
+void bomPricingRequestAllWithMultiplier(int quantity)
 {
 	bomPricingRequestStart();
 
@@ -95,9 +102,14 @@ void bomPricingRequestAll()
 		if(distributor[i] != "" && order_no[i] != "")
 		{
 			//dlgMessageBox("BomRequest"); 
-			bomPricingRequestPart(i);
+			bomPricingRequestPartWithMultiplier(i, quantity);
 		}
 	}
 
 	bomPricingRequestDo();
+}
+
+void bomPricingRequestAll()
+{
+	bomPricingRequestAllWithMultiplier(1);
 }

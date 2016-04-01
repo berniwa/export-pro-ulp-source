@@ -444,11 +444,12 @@ void export()
 	}
 
 	string output_file_extension = "";
+	
 
 	//Output files to image directory
 	string	output_file = output_folder + image_folder + boardname;
-	if(OS_SIGNATURE == "Windows_7" || OS_SIGNATURE == "Windows_8" || OS_SIGNATURE == "Linux")		//DONE: OS_SIGNATURE-Abfrage entworfen, Unterscheidung .png & bmp = Windows & Linux
-	{
+	/*if(OS_SIGNATURE == "Windows_7" || OS_SIGNATURE == "Windows_8" || OS_SIGNATURE == "Linux")		//DONE: OS_SIGNATURE-Abfrage entworfen, Unterscheidung .png & bmp = Windows & Linux
+	{*/
 		output_file_lb = getFilename(output_file, "-layout-bot.png");
 		output_file_lt = getFilename(output_file, "-layout-top.png");	
 		output_file_li = getFilename(output_file, "-layout-layer"); 
@@ -459,7 +460,7 @@ void export()
 		output_file_drl = getFilename(output_file, "-drills.png");
 		output_file_pcbt = getFilename(output_file, "-pcb-top.png");
 		output_file_pcbb = getFilename(output_file, "-pcb-bot.png");
-	}
+	/*}
 	else
 	{
 		output_file_lb = getFilename(output_file, "-layout-bot.bmp");
@@ -472,7 +473,7 @@ void export()
 		output_file_drl = getFilename(output_file, "-drills.bmp");
 		output_file_pcbt = getFilename(output_file, "-pcb-top.bmp");
 		output_file_pcbb = getFilename(output_file, "-pcb-bot.bmp");
-	}
+	}*/
 		
 	//Output files to gerber directory
 	output_file = output_folder + gerber_folder + boardname;

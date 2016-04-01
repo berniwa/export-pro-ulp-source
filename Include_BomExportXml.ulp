@@ -17,50 +17,80 @@ void bomOutputXslFile(string ofilename)
 			<?xml version=\"1.0\" ?> \n\
 			<?mso-application progid=\"Excel.Sheet\"?> \n\
 			<Workbook xmlns=\"urn:schemas-microsoft-com:office:spreadsheet\" xmlns:ss=\"urn:schemas-microsoft-com:office:spreadsheet\">\n\
+        <ss:Styles>\n\
+            <ss:Style ss:ID=\"HEAD\">\n\
+                <ss:Font ss:Bold=\"1\"/>\n\
+                <Borders>\n\
+                  <Border ss:Position=\"Bottom\" ss:LineStyle=\"Continuous\" ss:Weight=\"1\"/>\n\
+                </Borders>\n\
+            </ss:Style>\n\
+            <ss:Style ss:ID=\"SIDE\">\n\
+                <ss:Font ss:Bold=\"1\"/>\n\
+                <Borders>\n\
+                  <Border ss:Position=\"Right\" ss:LineStyle=\"Continuous\" ss:Weight=\"1\"/>\n\
+                </Borders>\n\
+            </ss:Style>\n\
+        </ss:Styles>\n\
 			 	<Worksheet ss:Name=\"Parts\">\n\
 					<Table>\n\
+            <ss:Column ss:Width=\"30\"/>\n\
+            <ss:Column ss:Width=\"30\"/>\n\
+            <ss:Column ss:Width=\"100\"/>\n\
+            <ss:Column ss:Width=\"100\"/>\n\
+            <ss:Column ss:Width=\"100\"/>\n\
+            <ss:Column ss:Width=\"100\"/>\n\
+            <ss:Column ss:Width=\"100\"/>\n\
+            <ss:Column ss:Width=\"100\"/>\n\
+            <ss:Column ss:Width=\"50\"/>\n\
+            <ss:Column ss:Width=\"50\"/>\n\
+            <ss:Column ss:Width=\"50\"/>\n\
+            <ss:Column ss:Width=\"100\"/>\n\
+            <ss:Column ss:Width=\"300\"/>\n\
 		");
 
 		
 
 		printf("\
-			<Row> \n\
-        				<Cell ss:Index=\"1\">\n\
+			     <Row> \n\
+        				<Cell ss:Index=\"1\" ss:StyleID=\"HEAD\">\n\
           				<Data ss:Type=\"String\">No.</Data>\n\
         				</Cell>\n\
-        				<Cell ss:Index=\"2\">\n\
+        				<Cell ss:Index=\"2\" ss:StyleID=\"HEAD\">\n\
           				<Data ss:Type=\"String\">Count</Data>\n\
         				</Cell>\n\
-        				<Cell ss:Index=\"3\">\n\
+        				<Cell ss:Index=\"3\" ss:StyleID=\"HEAD\">\n\
           				<Data ss:Type=\"String\">Type</Data>\n\
         				</Cell>\n\
-        				<Cell ss:Index=\"4\">\n\
+        				<Cell ss:Index=\"4\" ss:StyleID=\"HEAD\">\n\
           				<Data ss:Type=\"String\">Name</Data>\n\
         				</Cell>\n\
-        				<Cell ss:Index=\"5\">\n\
+        				<Cell ss:Index=\"5\" ss:StyleID=\"HEAD\">\n\
           				<Data ss:Type=\"String\">Distributor</Data>\n\
         				</Cell>\n\
-        				<Cell ss:Index=\"6\">\n\
+        				<Cell ss:Index=\"6\" ss:StyleID=\"HEAD\">\n\
           				<Data ss:Type=\"String\">Order No.</Data>\n\
         				</Cell>\n\
-        				<Cell>\n\
-     					<Data ss:Type=\"String\">Manufacturer</Data>\n\
+        				<Cell ss:StyleID=\"HEAD\">\n\
+     					    <Data ss:Type=\"String\">Manufacturer</Data>\n\
         				</Cell>\n\
-        				<Cell>\n\
-     					<Data ss:Type=\"String\">Part No.</Data>\n\
+        				<Cell ss:StyleID=\"HEAD\">\n\
+     					    <Data ss:Type=\"String\">Part No.</Data>\n\
         				</Cell>\n\
-        				<Cell>\n\
+        				<Cell ss:StyleID=\"HEAD\">\n\
           				<Data ss:Type=\"String\">Price / Package</Data>\n\
         				</Cell>\n\
-        				<Cell>\n\
+        				<Cell ss:StyleID=\"HEAD\">\n\
           				<Data ss:Type=\"String\">Package</Data>\n\
         				</Cell>\n\
-        				<Cell >\n\
-     					<Data ss:Type=\"String\">Case</Data>\n\
+        				<Cell ss:StyleID=\"HEAD\">\n\
+     					    <Data ss:Type=\"String\">Case</Data>\n\
         				</Cell>\n\
-        				<Cell >\n\
-     					<Data ss:Type=\"String\">Populate</Data>\n\
+        				<Cell ss:StyleID=\"HEAD\">\n\
+     					    <Data ss:Type=\"String\">Populate</Data>\n\
         				</Cell>\n\
+                <Cell ss:StyleID=\"HEAD\">\n\
+                  <Data ss:Type=\"String\">Note</Data>\n\
+                </Cell>\n\
       			</Row>\n\
 		");
 		
@@ -68,7 +98,7 @@ void bomOutputXslFile(string ofilename)
 		{
 			printf("\
 			<Row> \n\
-        				<Cell ss:Index=\"1\">\n\
+        				<Cell ss:Index=\"1\" ss:StyleID=\"SIDE\">\n\
           				<Data ss:Type=\"Number\">%d</Data>\n\
         				</Cell>\n\
         				<Cell ss:Index=\"2\">\n\
@@ -87,23 +117,26 @@ void bomOutputXslFile(string ofilename)
           				<Data ss:Type=\"String\">%s</Data>\n\
         				</Cell>\n\
         				<Cell>\n\
-     					<Data ss:Type=\"String\">%s</Data>\n\
+     					    <Data ss:Type=\"String\">%s</Data>\n\
         				</Cell>\n\
         				<Cell>\n\
-     					<Data ss:Type=\"String\">%s</Data>\n\
-        				</Cell>\n\
-        				<Cell>\n\
-          				<Data ss:Type=\"Number\">%s</Data>\n\
+     					    <Data ss:Type=\"String\">%s</Data>\n\
         				</Cell>\n\
         				<Cell>\n\
           				<Data ss:Type=\"Number\">%s</Data>\n\
         				</Cell>\n\
         				<Cell>\n\
-     					<Data ss:Type=\"String\">%s</Data>\n\
+          				<Data ss:Type=\"Number\">%s</Data>\n\
         				</Cell>\n\
         				<Cell>\n\
-     					<Data ss:Type=\"String\">%s</Data>\n\
+     					    <Data ss:Type=\"String\">%s</Data>\n\
         				</Cell>\n\
+        				<Cell>\n\
+     					    <Data ss:Type=\"String\">%s</Data>\n\
+        				</Cell>\n\
+                <Cell>\n\
+                  <Data ss:Type=\"String\">%s</Data>\n\
+                </Cell>\n\
       			</Row>\n\
 			",i+1, bomInfoPartCount[i], bomXMLSafe(bomOutputName[i]), bomXMLSafe(bomOutputParts[i]),
 			bomXMLSafe(bomAttributeDistributor[i]), bomXMLSafe(bomAttributeOrderNo[i]),
@@ -111,7 +144,8 @@ void bomOutputXslFile(string ofilename)
 			bomXMLSafe(bomAttributePartNo[i]), 
 			bomXMLSafe(stringConvertDotToComma(bomAttributePrice[i])), bomXMLSafe(bomAttributePartsPerPackage[i]),
 			bomXMLSafe(bomOutputNote[i]),
-			bomXMLSafe(bomAttributePopulate[i])			
+			bomXMLSafe(bomAttributePopulate[i]),      
+      bomXMLSafe(bomAttributeNote[i]) 	
 			);			
 		}
 

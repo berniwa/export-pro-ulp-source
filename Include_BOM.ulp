@@ -61,6 +61,7 @@ string	bomAttributeMinimumQuantity[];
 string	bomAttributeQuantityMultiplier[];
 string	bomAttributeDatasheet[];
 string	bomAttributePopulate[];
+string	bomAttributeNote[];
 int		bomAttributeCategory[];
 
 int		bomOutputCount[];
@@ -242,7 +243,14 @@ void bomPartsLoad()
 				if(P.attribute["CATEGORY"])
 				{
 					category				= strtol(P.attribute["CATEGORY"]);
-				}    
+				} 
+
+				//Resolve category
+				int 	categoryIndex 		= 0;
+				for(int j = 0; j < BOM_DATA_COUNT; j++)
+				{
+					if(BOM_DATA_PART_ID[j] == category){categoryIndex = j; break;}
+				}
 
 				if((pdevice = bomPartPresent(
 						P.value,P.device.name,P.device.package.name,
@@ -253,6 +261,10 @@ void bomPartsLoad()
 				{
 					bomInfoParts[pdevice] += "," + P.name;
 					bomInfoPartCount[pdevice]++;				
+				}
+				else if(BOM_DATA_HIDE_IN_BOM[categoryIndex])
+				{
+					//Ignore the part totally!
 				}
 				else
 				{
@@ -277,6 +289,7 @@ void bomPartsLoad()
 					bomAttributeDatasheet[bomInfoCount] 			= datasheet;
 					bomAttributePopulate[bomInfoCount] 				= populate;
 					bomAttributeCategory[bomInfoCount] 				= category;
+					bomAttributeNote[bomInfoCount]					= note;
 
 
 					bomInfoPartCount[bomInfoCount] = 1;
@@ -361,6 +374,7 @@ void bomPartSwitch(int pid1, int pid2)
 	string 	tmpAttributeQuantityMultiplier	= bomAttributeQuantityMultiplier[pid1];
 	string 	tmpAttributeDatasheet			= bomAttributeDatasheet[pid1];
 	string 	tmpAttributePopulate			= bomAttributePopulate[pid1];
+	string 	tmpAttributeNote				= bomAttributeNote[pid1];
 
 
 	
@@ -396,6 +410,7 @@ void bomPartSwitch(int pid1, int pid2)
 	bomAttributeQuantityMultiplier[pid1]	= bomAttributeQuantityMultiplier[pid2];
 	bomAttributeDatasheet[pid1]				= bomAttributeDatasheet[pid2];
 	bomAttributePopulate[pid1]				= bomAttributePopulate[pid2];
+	bomAttributeNote[pid1]					= bomAttributeNote[pid2];
 
 
 	bomOutputName[pid2]						= tmpOutputName;
@@ -430,6 +445,7 @@ void bomPartSwitch(int pid1, int pid2)
 	bomAttributeQuantityMultiplier[pid2]	= tmpAttributeQuantityMultiplier;
 	bomAttributeDatasheet[pid2]				= tmpAttributeDatasheet;	
 	bomAttributePopulate[pid2]				= tmpAttributePopulate;	
+	bomAttributeNote[pid2]					= tmpAttributeNote;	
 }
 
 int bomPartSortRoutine(int pid1, int pid2)
