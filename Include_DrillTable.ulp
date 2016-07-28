@@ -73,11 +73,15 @@ int CellOutline		= 4;
 int TitleOutline	= 4;
 int TableOutline	= 8;
 
+//string LField[] = {"Symbols","Tools N°","MM","Mils","Microns","Quantity","Plated","Tolerance"};
+//string LTitle[]	= {"Sym.","Nr.","Durchm.","Mils","Mic","Anzahl","Durchk.","Tol"};
 string LField[] = {"Symbols","Tools N°","MM","Mils","Microns","Quantity","Plated","Tolerance"};
-string LTitle[]	= {"Sym.","Nr.","Durchm.","Mils","Mic","Anzahl","Durchk.","Tol"};
+string LTitle[]	= {"Sym.","No.","Diameter","Mils","Mic","Quantity","Plated","Tol"};
+
 int LRank[]	= {1,2,3,0,0,4,5,0}; //Rank = from 1 to 8. ( 0 = unselect)
 string Rank[]		= {"0","1","2","3","4","5","6","7","8"};
-string PlatedStatus[] 	= {"Nein", "Beide", "Ja"};
+//string PlatedStatus[] 	= {"Nein", "Beide", "Ja"};
+string PlatedStatus[] 	= {"No", "Both", "Yes"};
 
 int OutputDrillRack	= 0; 
 string DrillRackFile	= "DRILLRACK.DRL"; /* drill rack file name */
