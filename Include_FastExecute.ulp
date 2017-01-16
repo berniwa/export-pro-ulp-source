@@ -12,5 +12,5 @@ void executeAndExit(string cmd)
 	{
 		printf("%s", cmd);
 	}
-	exit(";SCRIPT " + scr + ";");	
+	exit(";SCRIPT '" + scr + "';");	
 }

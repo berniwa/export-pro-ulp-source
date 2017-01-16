@@ -691,7 +691,7 @@ void run_script()
 	{
 		printf("%s", cmd);
 	}
-	exit(";SCRIPT " + scr + ";");	
+	exit(";SCRIPT '" + scr + "';");	
 }
 
 void save_grid(UL_BOARD B)

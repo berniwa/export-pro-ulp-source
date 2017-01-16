@@ -1,4 +1,5 @@
 string 	DOWNLOAD_URL 			= "http://eagle.berniwa.com/price.php";
+//string 	DOWNLOAD_URL 			= "http://localhost/EaglePriceRequester/price.php";
 
 string bomPricingTsv = "";
 string bomPricingIds[];
@@ -49,19 +50,19 @@ void bomPricingRequestDo()
 {
 	string lines[];
 	int nlines = netpost(lines, DOWNLOAD_URL, "tsv=" + escapeString(bomPricingTsv));
-	/*
-	output("W:\\Hardware\\ulptest\\Hardware\\input.txt", "wt")
+/*	
+	output("W:\\Hardware\\ulptest\\input.txt", "wt")
 	{
 		printf("%s", escapeString(bomPricingTsv));
 	}	
-	output("W:\\Hardware\\ulptest\\Hardware\\output.txt", "wt")
+	output("W:\\Hardware\\ulptest\\output.txt", "wt")
 	{
 		for(int i = 0; i < nlines; i++)
 		{
 			printf("%s\n", lines[i]);		
 		}
-	}*/
-		
+	}
+*/		
 	lines[0] = "ID	DISTRIBUTOR	ORDER_NO	QUANTITY	PRICES	PRICE	AVAILABLE_QUANTITY	PARTS_PER_PACKAGE	MINIMUM_QUANTITY	QUANTITY_MULTIPLIER	DATASHEET";
 	if(nlines >= 0)
 	{

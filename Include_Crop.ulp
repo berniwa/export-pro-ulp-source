@@ -260,11 +260,11 @@ void bmpConvert(string ifilename)
 
 }
 
-if(OS_SIGNATURE == "Windows_7" || OS_SIGNATURE == "Windows_8")	
+if(OS_SIGNATURE == "Windows_7" || OS_SIGNATURE == "Windows_8" || OS_SIGNATURE == "Windows_10")	
 {	
 	string WinProgPath = getUlpDir("PNGMirrorCrop.exe");
 	string Space = " ";
-	string Param1 = argv[1];
+	string Param1 = "\"" + argv[1] + "\"";
 	string Param2 = " 1 0";		//1st Method: <name> <crop> <mirror>
 	string CallOfWinProg = WinProgPath + Space + Param1 + Param2;
 	system(CallOfWinProg);
@@ -274,7 +274,7 @@ else if(OS_SIGNATURE == "Linux")
 	string WinProgPath = getUlpDir("LibPNGImage");
 	system("chmod +x " + WinProgPath);	//getting execute-rights
 	string Space = " ";
-	string Param1 = argv[1];
+	string Param1 = "\"" + argv[1] + "\"";
 	string Param2 = " 1 0";		//1st Method: <name> <crop> <mirror>
 	string CallOfWinProg = WinProgPath + Space + Param1 + Param2;
 	system(CallOfWinProg);
