@@ -99,10 +99,10 @@ string Resolutions[] = {
 };
 
 int pcbImageResolutions[]		= {600, 1200, 2400};
-string pcbImagePcbColors[] 		= {"0xFF007800", "0xFF660000", "0xFF010101"};
-string pcbImageCopperColors[] 	= {"0xFF00CA00", "0xFF990000", "0xFF111111"};
-string pcbImageSilkscreenColors[] 	= {"0xFFFFFFFF", "0xFFFFFF00", "0xFFAA0000"};
-string pcbImagePlating[] 		= {"0xFFC0C0C0", "0xFFE4CA42"};
+string pcbImagePcbColors[] 		= {"0xFF007800", "0xFF660000", "0xFF010101", "0xFFF5F5F5"};
+string pcbImageCopperColors[] 		= {"0xFF00CA00", "0xFF990000", "0xFF111111", "0xFFFFFFFF"};
+string pcbImageSilkscreenColors[] 	= {"0xFFFFFFFF", "0xFFFFFF00", "0xFFAA0000", "0xFF000000"};
+string pcbImagePlating[] 		= {"0xFFC0C0C0", "0xFFC0C0C0", "0xFFE4CA42"};
 
 string PcbColor[] = {
 	"Grüne PCB",
