@@ -1,4 +1,4 @@
-/************************************************************/
+﻿/************************************************************/
 /* HTLExportPro.ulp                                         */
 /* - Generiert die Bemaßung des Boards                      */
 /* - Generiert den Drill Table                              */
@@ -107,25 +107,29 @@ string pcbImagePlating[] 		= {"0xFFC0C0C0", "0xFFE4CA42"};
 string PcbColor[] = {
 	"Grüne PCB",
 	"Rote PCB", 
-	"Schwarze PCB"
+	"Schwarze PCB", 
+	"Weiße PCB"
 };
 
 string pcbSpecColor[] = {
 	"green",
 	"red", 
-	"black"
+	"black", 
+	"white"
 };
 
 string PcbSilkscreenColor[] = {
 	"Weißer Bestückungsdruck",
 	"Gelber Bestückungsdruck", 
-	"Roter Bestückungsdruck"
+	"Roter Bestückungsdruck", 
+	"Schwarzer Bestückungsdruck"
 };
 
 string pcbSpecSilkscreenColor[] = {
 	"white",
 	"yellow", 
-	"red"
+	"red", 
+	"black"
 };
 	
 string PcbPlating[] = {
@@ -137,7 +141,7 @@ string PcbPlating[] = {
 string pcbSpecPlating[] = {
 	"HASL lead free",
 	"any HAL",
-	"gold-plating"
+	"ENIG"
 };
 
 string PcbThickness[]		= {"1.6mm", "1mm", "0.8mm"};	
