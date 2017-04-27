@@ -23,51 +23,58 @@ int 	category[], pages[];
 
 int partcount;
 
+void bomLoadSchematic(UL_PART P, int s, string prefix){
+	if(P.device.package) {
+		names[partcount] 		= prefix + P.name;
+		values[partcount]		= P.value;
+		device[partcount]		= P.device.name;
+		description[partcount] 	= P.device.package.description;
+		packages[partcount]		= P.device.package.name;
+		pages[partcount]		= s;
+		distributor[partcount]	= P.attribute["DISTRIBUTOR"];
+		order_no[partcount]		= P.attribute["ORDER_NO"];
+		manufacturer[partcount]	= P.attribute["MANUFACTURER"];
+		part_no[partcount]		= P.attribute["PART_NO"];
+		price[partcount]		= P.attribute["PRICE"];
+		prices[partcount]		= P.attribute["PRICES"];
+		datasheet[partcount]	= P.attribute["DATASHEET"];
+		min_qty[partcount]		= P.attribute["MINIMUM_QUANTITY"];
+		qty_mul[partcount]		= P.attribute["QUANTITY_MULTIPLIER"];
+		per_pkg[partcount]		= P.attribute["PARTS_PER_PACKAGE"];
+		available[partcount]	= P.attribute["AVAILABLE_QUANTITY"];	
+		populate[partcount]		= P.attribute["POPULATE"];
+		note[partcount]			= P.attribute["NOTE"];
+		if(P.attribute["CATEGORY"])
+		{
+			category[partcount]	= strtol(P.attribute["CATEGORY"]);
+		}
+		else
+		{
+			category[partcount] = bomCategorize(
+				names[partcount], values[partcount], 
+				device[partcount], packages[partcount],
+				description[partcount]
+			); 
+		}
+		partcount++;
+	}				
+}
+
+
 void bomLoadData()
 {
 	partcount = 0;
 	schematic(SCH)
 	{
-		SCH.sheets(S)
-		{	
-			S.parts(P)
-			{
-				if(P.device.package)
-				{
-					names[partcount] 		= P.name;
-					values[partcount]		= P.value;
-					device[partcount]		= P.device.name;
-					description[partcount] 	= P.device.package.description;
-					packages[partcount]		= P.device.package.name;
-					pages[partcount]		= S.number;
-					distributor[partcount]	= P.attribute["DISTRIBUTOR"];
-					order_no[partcount]		= P.attribute["ORDER_NO"];
-					manufacturer[partcount]	= P.attribute["MANUFACTURER"];
-					part_no[partcount]		= P.attribute["PART_NO"];
-					price[partcount]		= P.attribute["PRICE"];
-					prices[partcount]		= P.attribute["PRICES"];
-					datasheet[partcount]	= P.attribute["DATASHEET"];
-					min_qty[partcount]		= P.attribute["MINIMUM_QUANTITY"];
-					qty_mul[partcount]		= P.attribute["QUANTITY_MULTIPLIER"];
-					per_pkg[partcount]		= P.attribute["PARTS_PER_PACKAGE"];
-					available[partcount]	= P.attribute["AVAILABLE_QUANTITY"];	
-					populate[partcount]		= P.attribute["POPULATE"];
-					note[partcount]			= P.attribute["NOTE"];
-					if(P.attribute["CATEGORY"])
-					{
-						category[partcount]	= strtol(P.attribute["CATEGORY"]);
-					}
-					else
-					{
-						category[partcount] = bomCategorize(
-							names[partcount], values[partcount], 
-							device[partcount], packages[partcount],
-							description[partcount]
-						); 
-					}
-					partcount++;
-				}						
-			}			
+		SCH.sheets(S) {	
+			S.parts(P) {
+				bomLoadSchematic(P, S.number, "");	
+			}
+			S.moduleinsts(M) {
+				M.module.parts(P){
+					bomLoadSchematic(P, S.number, M.name + ":");
+				}
+			}		
 		}
 	}
 }
