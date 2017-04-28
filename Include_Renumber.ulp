@@ -3,18 +3,18 @@
 /* - Numberiert die Bauteile anhand der Schaltplan position */
 /*	 neu													*/
 /************************************************************/
-/* (c) Copyright 2011, Bernhard Wörndl-Aichriedler          */
+/* (c) Copyright 2011, Bernhard WÃ¶rndl-Aichriedler          */
 /* E-Mail: bwa@berniwa.com                                  */
 /* Homepage: www.berniwa.com                                */
 /************************************************************/
-/* Letzte Änderung am 29.05.2011                            */
+/* Letzte Ã„nderung am 29.05.2011                            */
 /* Version 1                                                */
 /************************************************************/
 
 #usage "<b>Renumber the parts of a schematic, optionally specifying start number, skipping digits and/or only those parts within a user specified rectangular area</b>\n"
        "<p>"
        "Based on renumber-sch.ulp written by: support@cadsoft.de"
-       "<author>Author: Neil Allison, avon.tech.solutions@clear.net.nz , modified by Bernhard Wörndl-Aichriedler, bwa@berniwa.com</author>\n"
+       "<author>Author: Neil Allison, avon.tech.solutions@clear.net.nz , modified by Bernhard WÃ¶rndl-Aichriedler, bwa@berniwa.com</author>\n"
 
 /*
 Rev History
@@ -210,7 +210,7 @@ void Rename(int x, int y, string New)
   return;
 }
 
-void GenerateScript(void)
+void GenerateScript(string mod)
 {
   // Generates an EAGLE script file that does the whole renumbering.
   // The tricky part here is that we cannot rename an element to a name
@@ -219,6 +219,11 @@ void GenerateScript(void)
   // use a ScratchName wherever this is necessary.
 
   // If there is nothing to do, the resulting script file will be empty.
+  string prefix = ".s";
+  if(mod != ""){
+    prefix = mod + ".m";
+  }
+
 
   int ScratchIndex = 0;
   string ScratchName;
@@ -226,7 +231,7 @@ void GenerateScript(void)
   for (int n = 0; n < nrNames; ++n) {
      if (sh[i[n]] != sch) {
         sch = sh[i[n]];              // *** change sheet
-        sprintf(c, "Edit .s%d;\n", sch);
+        sprintf(c, "Edit %s%d;\n", prefix, sch);
         cmd += c;
         }
      if (OldNames[i[n]] != NewNames[i[n]]) {
@@ -236,14 +241,14 @@ void GenerateScript(void)
 
               if (sh[i[k]] != sch) {
                  sch = sh[i[k]];              // *** change sheet
-                 sprintf(c, "Edit .s%d;\n", sch);
+                 sprintf(c, "Edit %s%d;\n", prefix, sch);
                  cmd += c;
                  }
               Rename(x[i[k]],y[i[k]], ScratchName);
 
               if (sh[i[n]] != sch) {
                  sch = sh[i[n]];              // *** change sheet
-                 sprintf(c, "Edit .s%d;\n", sch);
+                 sprintf(c, "Edit %s%d;\n", prefix, sch);
                  cmd += c;
                  }
 
@@ -327,176 +332,79 @@ void visible(UL_SCHEMATIC S) {
   cmd += ";\n";
   return;
 }
-/*
-void menue(void) {	//modified from original
-   int Result = dlgDialog("Renumber Schematic") {
-      dlgLabel(Info);
-      dlgHBoxLayout {
-         dlgGroup("Sort X") {
-            dlgRadioButton("&Ascending", descx);
-            dlgRadioButton("&Descending", descx);
-            }
-         dlgGroup("Sort Y") {
-            dlgRadioButton("A&scending", descy);
-            dlgRadioButton("D&escending", descy);
-            }
-         }
 
-      dlgLabel(Info_Extras);
+/**
+ * This function processes all parts in a sheet
+ */
+void processSheet(UL_SHEET SH){
+  SH.parts(P) {
+    int n = GetNumberIndex(P.name);
+    if (n > 0) {
 
-      dlgHBoxLayout {
-  	 dlgLabel("Enter the Start &Number between 0 and 9999");
-  	 dlgIntEdit(startNum, 0, 9999);
-      }
-      
-      dlgGroup("Which digits to use?") { 
-         dlgHBoxLayout {
-	    dlgCheckBox("0", digit0);
-            dlgCheckBox("1", digit1);
-            dlgCheckBox("2", digit2);
-            dlgCheckBox("3", digit3);
-            dlgCheckBox("4", digit4);
-            dlgCheckBox("5", digit5);
-            dlgCheckBox("6", digit6);
-            dlgCheckBox("7", digit7);
-            dlgCheckBox("8", digit8);
-            dlgCheckBox("9", digit9);
-            }
-         }
+      if (P.device.package) {    // **** only Devices with Package
+                                 // **** without Supply symbol Frames ect...
+         DevPrefix[Dnr] = prefix(P.name);
+         DevName[Dnr] = P.name;
+         ++Dnr;
+         P.instances(I) {
 
-      dlgHBoxLayout {
-	 dlgLabel("Use Parts inside Rectangle (leave Unchecked for ALL parts)?");
-         dlgCheckBox("", useRectangle);
-         }
-      dlgHBoxLayout {
-  	 dlgLabel("Enter rectangle Layer Number between 100 and 255 (Default is 254)");
-  	 dlgIntEdit(rectangleLayer, 100, 255);
-         }
+           int found = -1;
+           for (int fn = 0; fn < nrNames; fn++) {
+             if (OldNames[fn] == P.name) {
+                found = fn;
+                break;
+                }
+             }
+           if (found < 0) {
 
-      dlgHBoxLayout {
-         dlgPushButton("+&OK") dlgAccept();
-         dlgStretch(1);
-         dlgPushButton("-&Cancel") dlgReject();
-         }
-      };
-   if (!Result) exit (0);
-   return ;
-   }
-*/
-void getRectangleXY(void) //New subroutine
-{
-   int rectCount = 0;
-   schematic(grS) {
-      grS.sheets(grSH) {
-         grSH.rectangles(R) {
-            if (R.layer == rectangleLayer) {
-               rectCount++;
-               rectX1 = u2mm(R.x1);
-               rectY1 = u2mm(R.y1);
-               rectX2 = u2mm(R.x2);
-               rectY2 = u2mm(R.y2);
-               rectSheet = grSH.number;
-            }
-         }
-      }
-   }
-   if (rectCount > 1) {
-        //string rectError;
-        sprintf(rectError, "Only 1 Rectangle allowed on layer %d", rectangleLayer);
-        dlgMessageBox(rectError, "&Quit ULP");
-        exit (0);
-     }
-   if (rectCount < 1) {
-        //string rectError;
-        sprintf(rectError, "No Rectangle on layer %d, so nothing to do!", rectangleLayer);
-        dlgMessageBox(rectError, "&Quit ULP");
-        exit (0);
-     }
+             x[nrNames] = u2mil(I.x);    // cannot use E.x/y directly because of
+             y[nrNames] = u2mil(I.y);    // sort() problem with integers > 32767
+             OldNames[nrNames] = P.name; // in version 3.50
 
-      //sprintf(rectError, "Sheet Number %d", rectSheet);
-      //dlgMessageBox(rectError);
-   return;
-}
+              // Added by Neil Allison
+  // 22-Feb-04, NJA, Added rectSheet <> SH.number
+             if ((useRectangle == 1) && ((SH.number != rectSheet) || (u2mm(I.x) < rectX1) || (u2mm(I.x) > rectX2) || (u2mm(I.y) < rectY1) || (u2mm(I.y) > rectY2)))
+                 NewNames[nrNames] = OldNames[nrNames];
+             else
+                 NewNames[nrNames] = strsub(P.name, 0, n);
+             sh[nrNames] = I.sheet;
+             ++nrNames;
+             }
 
-
-//Main	modified from original
-if (schematic) {
- schematic(S) {
-  //menue();
-
-  if (useRectangle == 1) {
-     getRectangleXY();    // NJA Get Rectangle x & y limits
-  }
-
-  int l = 1;
-  S.sheets(SH) {
-    SH.parts(P) {
-      int n = GetNumberIndex(P.name);
-      if (n > 0) {
-
-        if (P.device.package) {    // **** only Devices with Package
-                                   // **** without Supply symbol Frames ect...
-           DevPrefix[Dnr] = prefix(P.name);
-           DevName[Dnr] = P.name;
-           ++Dnr;
-           P.instances(I) {
-
-             int found = -1;
-             for (int fn = 0; fn < nrNames; fn++) {
-               if (OldNames[fn] == P.name) {
-                  found = fn;
-                  break;
-                  }
-               }
-             if (found < 0) {
-
-               x[nrNames] = u2mil(I.x);    // cannot use E.x/y directly because of
-               y[nrNames] = u2mil(I.y);    // sort() problem with integers > 32767
-               OldNames[nrNames] = P.name; // in version 3.50
-
-               	// Added by Neil Allison
-		// 22-Feb-04, NJA, Added rectSheet <> SH.number
-               if ((useRectangle == 1) && ((SH.number != rectSheet) || (u2mm(I.x) < rectX1) || (u2mm(I.x) > rectX2) || (u2mm(I.y) < rectY1) || (u2mm(I.y) > rectY2)))
-                   NewNames[nrNames] = OldNames[nrNames];
-               else
-                   NewNames[nrNames] = strsub(P.name, 0, n);
-               sh[nrNames] = I.sheet;
-               ++nrNames;
-               }
-
-             else {
-                if (sh[fn] == I.sheet) {
-                  if ( u2mil(I.x) < x[fn] || u2mil(I.y) > y[fn] ) {
-                      // tausche wenn x kleiner oder y groesser
-                      x[fn] > u2mil(I.x);
-                      y[fn] > u2mil(I.y);
-                      }
-                  }
-               }
+           else {
+              if (sh[fn] == I.sheet) {
+                if ( u2mil(I.x) < x[fn] || u2mil(I.y) > y[fn] ) {
+                    // tausche wenn x kleiner oder y groesser
+                    x[fn] > u2mil(I.x);
+                    y[fn] > u2mil(I.y);
+                    }
+                }
              }
            }
+         }
 
-        // Only Symbol (Supply, Port, Frame...)
-        else {  // *** check PartName on Symbols Supply, Port, Frame ... ***
-           SymPrefix[Snr] = prefix(P.name);
-           SymDevName[Snr] = P.name;
-           P.instances(I) {
-              SymNames[Snr] = P.name;     // Device-Name of Symbol
-              sx[Snr] = u2mil(I.x);       // cannot use E.x/y directly because of
-              sy[Snr] = u2mil(I.y);       // sort() problem with integers > 32767
-              symsh[Snr] = I.sheet;
-              ++Snr;
-              break;
-              }
-           }
-        }
+      // Only Symbol (Supply, Port, Frame...)
+      else {  // *** check PartName on Symbols Supply, Port, Frame ... ***
+         SymPrefix[Snr] = prefix(P.name);
+         SymDevName[Snr] = P.name;
+         P.instances(I) {
+            SymNames[Snr] = P.name;     // Device-Name of Symbol
+            sx[Snr] = u2mil(I.x);       // cannot use E.x/y directly because of
+            sy[Snr] = u2mil(I.y);       // sort() problem with integers > 32767
+            symsh[Snr] = I.sheet;
+            ++Snr;
+            break;
+            }
+         }
       }
     }
+}
 
+void processScriptAndErrors(string mod){
   SortElements();
   GenerateNames();
   setgridmil ();
-  GenerateScript();
+  GenerateScript(mod);
 
   if (CheckNames()) {
     int select;
@@ -514,7 +422,34 @@ if (schematic) {
          }
        };
     exit (-1);
+  }  
+}
+
+
+
+
+
+//Main	modified from original
+if (schematic) {
+ schematic(S) {
+
+  //Process normal sheets
+  int l = 1;
+  S.sheets(SH) {
+    processSheet(SH);
+  }
+  processScriptAndErrors("");
+
+  //Reset everything and process modules
+  S.modules(M){
+    Dnr = 0;
+    nrNames = 0;
+    Snr = 0;
+    M.sheets(SH) {
+      processSheet(SH);
     }
+    processScriptAndErrors(M.name);
+  }
 
   sprintf(c, "GRID INCH 0.1;\n");
   cmd += c;
