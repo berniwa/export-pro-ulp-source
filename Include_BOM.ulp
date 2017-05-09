@@ -211,95 +211,96 @@ int bomPartPresent(string value, string dev, string pack, string desc, string di
 	return -1;
 }
 
+void bomPartsLoadPart(UL_PART P, string prefix){
+	if (P.device.package) 
+	{
+		int pdevice = 0;
+
+		string distributor 			= P.attribute["DISTRIBUTOR"];
+		string orderNo 				= P.attribute["ORDER_NO"];
+		string manufacturer 		= P.attribute["MANUFACTURER"];
+		string partNo 				= P.attribute["PART_NO"];
+		string referenceNo 			= P.attribute["REFERENCE_NO"];
+		string reserved1 			= P.attribute["RESERVED1"];
+		string reserved2 			= P.attribute["RESERVED2"];
+		string price 				= P.attribute["PRICE"];
+		string prices 				= P.attribute["PRICES"];
+		string availableQuantity 	= P.attribute["AVAILABLE_QUANTITY"];
+		string partsPerPackage		= P.attribute["PARTS_PER_PACKAGE"];
+		string minimumQuantity		= P.attribute["MINIMUM_QUANTITY"];
+		string quantityMultiplier	= P.attribute["QUANTITY_MULTIPLIER"];
+		string datasheet 			= P.attribute["DATASHEET"];
+		string populate 			= P.attribute["POPULATE"];
+		string note 				= P.attribute["NOTE"];
+		int    category				= BOM_PART_UNRECOGNISED;
+
+		if(P.attribute["CATEGORY"]){
+			category				= strtol(P.attribute["CATEGORY"]);
+		} 
+
+		//Resolve category
+		int 	categoryIndex 		= 0;
+		for(int j = 0; j < BOM_DATA_COUNT; j++){
+			if(BOM_DATA_PART_ID[j] == category){categoryIndex = j; break;}
+		}
+
+		if((pdevice = bomPartPresent(
+				P.value,P.device.name,P.device.package.name,
+				P.device.package.description,distributor, 
+				orderNo, manufacturer, partNo, referenceNo, 
+				reserved1, reserved2, populate)
+				) != -1) {
+			bomInfoParts[pdevice] += "," + prefix + P.name;
+			bomInfoPartCount[pdevice]++;				
+		}
+		else if(BOM_DATA_HIDE_IN_BOM[categoryIndex]) {
+			//Ignore the part totally!
+		}
+		else {
+			bomInfoParts[bomInfoCount] 						= P.name;
+			bomInfoValue[bomInfoCount] 						= P.value;
+			bomInfoDevice[bomInfoCount] 					= P.device.name;
+			bomInfoPackage[bomInfoCount] 					= P.device.package.name;
+			bomInfoDescription[bomInfoCount] 				= P.device.package.description;
+			bomAttributeDistributor[bomInfoCount] 			= distributor;
+			bomAttributeOrderNo[bomInfoCount] 				= orderNo;
+			bomAttributeManufacturer[bomInfoCount] 			= manufacturer;
+			bomAttributePartNo[bomInfoCount] 				= partNo;
+			bomAttributeReferenceNo[bomInfoCount] 			= referenceNo;
+			bomAttributeReserved1[bomInfoCount] 			= reserved1;
+			bomAttributeReserved2[bomInfoCount] 			= reserved2;
+			bomAttributePrice[bomInfoCount] 				= price;
+			bomAttributePrices[bomInfoCount] 				= prices;
+			bomAttributeAvailableQuantity[bomInfoCount] 	= availableQuantity;
+			bomAttributePartsPerPackage[bomInfoCount] 		= partsPerPackage;
+			bomAttributeMinimumQuantity[bomInfoCount]		= minimumQuantity;
+			bomAttributeQuantityMultiplier[bomInfoCount] 	= quantityMultiplier;
+			bomAttributeDatasheet[bomInfoCount] 			= datasheet;
+			bomAttributePopulate[bomInfoCount] 				= populate;
+			bomAttributeCategory[bomInfoCount] 				= category;
+			bomAttributeNote[bomInfoCount]					= note;
+
+
+			bomInfoPartCount[bomInfoCount] = 1;
+			bomInfoCount++;
+		}
+	}
+}
 
 void bomPartsLoad()
 {
-	project.schematic(S) 
-	{
-		S.parts(P) 
-		{
-			if (P.device.package) 
-			{
-				int pdevice = 0;
-
-				string distributor 			= P.attribute["DISTRIBUTOR"];
-				string orderNo 				= P.attribute["ORDER_NO"];
-				string manufacturer 		= P.attribute["MANUFACTURER"];
-				string partNo 				= P.attribute["PART_NO"];
-				string referenceNo 			= P.attribute["REFERENCE_NO"];
-				string reserved1 			= P.attribute["RESERVED1"];
-				string reserved2 			= P.attribute["RESERVED2"];
-				string price 				= P.attribute["PRICE"];
-				string prices 				= P.attribute["PRICES"];
-				string availableQuantity 	= P.attribute["AVAILABLE_QUANTITY"];
-				string partsPerPackage		= P.attribute["PARTS_PER_PACKAGE"];
-				string minimumQuantity		= P.attribute["MINIMUM_QUANTITY"];
-				string quantityMultiplier	= P.attribute["QUANTITY_MULTIPLIER"];
-				string datasheet 			= P.attribute["DATASHEET"];
-				string populate 			= P.attribute["POPULATE"];
-				string note 				= P.attribute["NOTE"];
-				int    category				= BOM_PART_UNRECOGNISED;
-
-				if(P.attribute["CATEGORY"])
-				{
-					category				= strtol(P.attribute["CATEGORY"]);
-				} 
-
-				//Resolve category
-				int 	categoryIndex 		= 0;
-				for(int j = 0; j < BOM_DATA_COUNT; j++)
-				{
-					if(BOM_DATA_PART_ID[j] == category){categoryIndex = j; break;}
-				}
-
-				if((pdevice = bomPartPresent(
-						P.value,P.device.name,P.device.package.name,
-						P.device.package.description,distributor, 
-						orderNo, manufacturer, partNo, referenceNo, 
-						reserved1, reserved2, populate)
-						) != -1)
-				{
-					bomInfoParts[pdevice] += "," + P.name;
-					bomInfoPartCount[pdevice]++;				
-				}
-				else if(BOM_DATA_HIDE_IN_BOM[categoryIndex])
-				{
-					//Ignore the part totally!
-				}
-				else
-				{
-					bomInfoParts[bomInfoCount] 						= P.name;
-					bomInfoValue[bomInfoCount] 						= P.value;
-					bomInfoDevice[bomInfoCount] 					= P.device.name;
-					bomInfoPackage[bomInfoCount] 					= P.device.package.name;
-					bomInfoDescription[bomInfoCount] 				= P.device.package.description;
-					bomAttributeDistributor[bomInfoCount] 			= distributor;
-					bomAttributeOrderNo[bomInfoCount] 				= orderNo;
-					bomAttributeManufacturer[bomInfoCount] 			= manufacturer;
-					bomAttributePartNo[bomInfoCount] 				= partNo;
-					bomAttributeReferenceNo[bomInfoCount] 			= referenceNo;
-					bomAttributeReserved1[bomInfoCount] 			= reserved1;
-					bomAttributeReserved2[bomInfoCount] 			= reserved2;
-					bomAttributePrice[bomInfoCount] 				= price;
-					bomAttributePrices[bomInfoCount] 				= prices;
-					bomAttributeAvailableQuantity[bomInfoCount] 	= availableQuantity;
-					bomAttributePartsPerPackage[bomInfoCount] 		= partsPerPackage;
-					bomAttributeMinimumQuantity[bomInfoCount]		= minimumQuantity;
-					bomAttributeQuantityMultiplier[bomInfoCount] 	= quantityMultiplier;
-					bomAttributeDatasheet[bomInfoCount] 			= datasheet;
-					bomAttributePopulate[bomInfoCount] 				= populate;
-					bomAttributeCategory[bomInfoCount] 				= category;
-					bomAttributeNote[bomInfoCount]					= note;
-
-
-					bomInfoPartCount[bomInfoCount] = 1;
-					bomInfoCount++;
+	project.schematic(SCH){
+		SCH.parts(P){
+			bomPartsLoadPart(P, "");
+      	}
+      	SCH.sheets(S) {
+			S.moduleinsts(M) {
+				M.module.parts(P){
+					bomPartsLoadPart(P, M.name + ":");
 				}
 			}
-	      	}
-	
+		}
 	}
-
 }
 
 

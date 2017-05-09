@@ -96,7 +96,6 @@ UL_PART bomGetPartByName(string name)
 	}	
 }
 
-
 void bomUpdatePart(int selected, int mode)
 {
 	int found = 0;
@@ -141,43 +140,84 @@ void bomUpdatePart(int selected, int mode)
 	}
 }
 
+int bomMatchModuleName(string partname, string name, string prefix){
+	if(prefix == "" && partname == name) {
+		return 1;
+	}
+
+	if(prefix != ""){
+		schematic(SCH){
+			SCH.sheets(S){	
+				S.moduleinsts(M){
+					if(M.module.name == prefix){
+						if( (M.name + ":" + partname) == name){
+							return 1;
+						}
+					}
+				}
+			}
+		}			
+	}
+
+	return 0;
+}
+
+string bomChangeSchematics(UL_PART P, string mysheet, string myprefix){
+	string execute = "";
+
+	//Match the first module instance
+	string match_name = P.name;
+	string part_name = P.name;
+	if(myprefix != ""){
+		match_name = myprefix + "1:" + P.name;
+		part_name = P.name;
+	}
+
+	for(int i = 0; i < partcount; i++){
+		if(match_name == names[i]) {
+			string execute_part = "";
+			if(manufacturer[i] 	!= P.attribute["MANUFACTURER"]) 		{sprintf(execute_part, "%s ATTRIBUTE %s MANUFACTURER \'%s\';\n", 		execute_part, part_name, manufacturer[i]);}
+			if(part_no[i] 		!= P.attribute["PART_NO"]) 				{sprintf(execute_part, "%s ATTRIBUTE %s PART_NO \'%s\';\n", 			execute_part, part_name, part_no[i]);}
+			if(distributor[i] 	!= P.attribute["DISTRIBUTOR"]) 			{sprintf(execute_part, "%s ATTRIBUTE %s DISTRIBUTOR \'%s\';\n", 		execute_part, part_name, distributor[i]);}
+			if(order_no[i] 		!= P.attribute["ORDER_NO"]) 			{sprintf(execute_part, "%s ATTRIBUTE %s ORDER_NO \'%s\';\n", 			execute_part, part_name, order_no[i]);}
+			if(price[i] 		!= P.attribute["PRICE"]) 				{sprintf(execute_part, "%s ATTRIBUTE %s PRICE \'%s\';\n", 				execute_part, part_name, price[i]);}
+			if(prices[i] 		!= P.attribute["PRICES"]) 				{sprintf(execute_part, "%s ATTRIBUTE %s PRICES \'%s\';\n", 				execute_part, part_name, prices[i]);}
+			if(min_qty[i] 		!= P.attribute["MINIMUM_QUANTITY"]) 	{sprintf(execute_part, "%s ATTRIBUTE %s MINIMUM_QUANTITY \'%s\';\n", 	execute_part, part_name, min_qty[i]);}
+			if(qty_mul[i] 		!= P.attribute["QUANTITY_MULTIPLIER"]) 	{sprintf(execute_part, "%s ATTRIBUTE %s QUANTITY_MULTIPLIER \'%s\';\n", execute_part, part_name, qty_mul[i]);}
+			if(datasheet[i] 	!= P.attribute["DATASHEET"]) 			{sprintf(execute_part, "%s ATTRIBUTE %s DATASHEET \'%s\';\n", 			execute_part, part_name, datasheet[i]);}
+			if(per_pkg[i] 		!= P.attribute["PARTS_PER_PACKAGE"]) 	{sprintf(execute_part, "%s ATTRIBUTE %s PARTS_PER_PACKAGE \'%s\';\n", 	execute_part, part_name, per_pkg[i]);}
+			if(available[i] 	!= P.attribute["AVAILABLE_QUANTITY"]) 	{sprintf(execute_part, "%s ATTRIBUTE %s AVAILABLE_QUANTITY \'%s\';\n", 	execute_part, part_name, available[i]);}
+			if(note[i] 			!= P.attribute["NOTE"]) 				{sprintf(execute_part, "%s ATTRIBUTE %s NOTE \'%s\';\n", 				execute_part, part_name, note[i]);}
+			if(category[i] 		!= strtol(P.attribute["CATEGORY"]))		{sprintf(execute_part, "%s ATTRIBUTE %s CATEGORY \'%d\';\n", 			execute_part, part_name, category[i]);}		
+			if(populate[i] 		!= P.attribute["POPULATE"])				{sprintf(execute_part, "%s ATTRIBUTE %s POPULATE \'%s\';\n", 			execute_part, part_name, populate[i]);}
+			
+			if(execute_part != ""){
+				sprintf(execute, "%s EDIT %s;\n%s",  execute, mysheet, execute_part);
+			}
+		}
+	}
+	return execute;
+}
+
+
 string bomUpdateChanges()
 {
 	string execute = "";
 	sprintf(execute, "CHANGE DISPLAY OFF;\n");
 
-	schematic(SCH)
-	{
-		SCH.sheets(S)
-		{	
-			S.parts(P)
-			{
-				for(int i = 0; i < partcount; i++)
-				{
-					if(P.name == names[i])
-					{
-						string execute_part = "";
-						if(manufacturer[i] 	!= P.attribute["MANUFACTURER"]) 		{sprintf(execute_part, "%s ATTRIBUTE %s MANUFACTURER \'%s\';\n", 		execute_part, names[i], manufacturer[i]);}
-						if(part_no[i] 		!= P.attribute["PART_NO"]) 				{sprintf(execute_part, "%s ATTRIBUTE %s PART_NO \'%s\';\n", 			execute_part, names[i], part_no[i]);}
-						if(distributor[i] 	!= P.attribute["DISTRIBUTOR"]) 			{sprintf(execute_part, "%s ATTRIBUTE %s DISTRIBUTOR \'%s\';\n", 		execute_part, names[i], distributor[i]);}
-						if(order_no[i] 		!= P.attribute["ORDER_NO"]) 			{sprintf(execute_part, "%s ATTRIBUTE %s ORDER_NO \'%s\';\n", 			execute_part, names[i], order_no[i]);}
-						if(price[i] 		!= P.attribute["PRICE"]) 				{sprintf(execute_part, "%s ATTRIBUTE %s PRICE \'%s\';\n", 				execute_part, names[i], price[i]);}
-						if(prices[i] 		!= P.attribute["PRICES"]) 				{sprintf(execute_part, "%s ATTRIBUTE %s PRICES \'%s\';\n", 				execute_part, names[i], prices[i]);}
-						if(min_qty[i] 		!= P.attribute["MINIMUM_QUANTITY"]) 	{sprintf(execute_part, "%s ATTRIBUTE %s MINIMUM_QUANTITY \'%s\';\n", 	execute_part, names[i], min_qty[i]);}
-						if(qty_mul[i] 		!= P.attribute["QUANTITY_MULTIPLIER"]) 	{sprintf(execute_part, "%s ATTRIBUTE %s QUANTITY_MULTIPLIER \'%s\';\n", execute_part, names[i], qty_mul[i]);}
-						if(datasheet[i] 	!= P.attribute["DATASHEET"]) 			{sprintf(execute_part, "%s ATTRIBUTE %s DATASHEET \'%s\';\n", 			execute_part, names[i], datasheet[i]);}
-						if(per_pkg[i] 		!= P.attribute["PARTS_PER_PACKAGE"]) 	{sprintf(execute_part, "%s ATTRIBUTE %s PARTS_PER_PACKAGE \'%s\';\n", 	execute_part, names[i], per_pkg[i]);}
-						if(available[i] 	!= P.attribute["AVAILABLE_QUANTITY"]) 	{sprintf(execute_part, "%s ATTRIBUTE %s AVAILABLE_QUANTITY \'%s\';\n", 	execute_part, names[i], available[i]);}
-						if(note[i] 			!= P.attribute["NOTE"]) 				{sprintf(execute_part, "%s ATTRIBUTE %s NOTE \'%s\';\n", 				execute_part, names[i], note[i]);}
-						if(category[i] 		!= strtol(P.attribute["CATEGORY"]))		{sprintf(execute_part, "%s ATTRIBUTE %s CATEGORY \'%d\';\n", 			execute_part, names[i], category[i]);}		
-						if(populate[i] 		!= P.attribute["POPULATE"])				{sprintf(execute_part, "%s ATTRIBUTE %s POPULATE \'%s\';\n", 			execute_part, names[i], populate[i]);}
-						
-						if(execute_part != "")
-						{
-							sprintf(execute, "%s EDIT .s%d;\n%s",  execute, pages[i], execute_part);
-						}
-					}
-				}
+	string mysheet = "";
+
+	schematic(SCH){
+		SCH.sheets(S){	
+			S.parts(P){
+				sprintf(mysheet, ".s%d", S.number);
+				execute += bomChangeSchematics(P, mysheet, "");
+			}
+		}
+		SCH.modules(M) {
+			M.parts(P){
+				sprintf(mysheet, "%s.mod", M.name);
+				execute += bomChangeSchematics(P, mysheet, M.name);
 			}
 		}
 	}
