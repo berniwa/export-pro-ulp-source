@@ -51,7 +51,7 @@ int
 layout_bot = 1, layout_top = 1, layout_l3 = 0, layout_l2 = 0, parts_top = 1, parts_bot = 1, drills = 1, measure = 1, drilltable = 1, 
 construction = 1, enable_export = 1, bom = 1, mirror_bot = 1, crop_all = 1, no_measures = 0, auto_project = 1,
 bom_xls = 1, bom_xlsx = 1, bom_csv = 0, bom_dbase3 = 1, bom_farnell = 1, bom_shorten_names = 1, bom_display_package_type = 1, 
-parts_display_names = 1, parts_display_values = 1, pricing = 1, sat_export = 1, pcbimage_top = 1, 
+parts_display_names = 1, parts_display_values = 1, pricing = 1, idf_export = 1, pcbimage_top = 1, 
 pcbimage_bottom = 1, pcbimage_resolution = 2, pcbimage_crop = 1, pcbimage_mirror = 1, pcbimage_color = 0,
 pcbimage_silkscreen_color = 0, pcbimage_plating = 0,
 silkscreen_top = 1, silkscreen_tplace = 1, silkscreen_tnames = 1, silkscreen_tvalues = 1, silkscreen_tdocu = 1,
@@ -76,7 +76,7 @@ string output_folder = "./";
 
 string output_file_lb, output_file_lt, output_file_li, 
 output_file_pb, output_file_pt, output_file_cs, 
-output_file_drl, output_file_sat, output_file_pcbt, 
+output_file_drl, output_folder_idf, output_file_pcbt, 
 output_file_pcbb, output_file_schematic_bw, 
 output_file_schematic_color,
 output_file_gerber_copper_top,  output_file_gerber_copper_bottom, output_file_gerber_copper_other,
@@ -207,7 +207,7 @@ void loadUsersettings()
 		parts_display_names = strtol(data[23]);
 		parts_display_values = strtol(data[24]);
 		pricing = strtol(data[25]);
-		sat_export = strtol(data[26]);
+		idf_export = strtol(data[26]);
 		pcbimage_top = strtol(data[27]);
 		pcbimage_bottom = strtol(data[28]);
 		pcbimage_resolution = strtol(data[29]);
@@ -319,7 +319,7 @@ void saveUsersettings()
 		printf("%d\n", parts_display_names);
 		printf("%d\n", parts_display_values);
 		printf("%d\n", pricing);
-		printf("%d\n", sat_export);
+		printf("%d\n", idf_export);
 
 		printf("%d\n", pcbimage_top);
 		printf("%d\n", pcbimage_bottom);
@@ -495,8 +495,7 @@ void export()
 	output_file_gerber_spec		= getFilename(output_file, "-specifications.txt");
 	
 	//Output files to CAD directory
-	output_file = output_folder + cad_folder + boardname;
-	output_file_sat = getFilename(output_file, ".sat");
+	output_folder_idf = output_folder + cad_folder;
 
 	//Output files in eagle directory (Eagle + Spec file)
 	output_file = output_folder + eagle_folder + boardname;
@@ -708,9 +707,9 @@ void export()
 		sprintf(cmd, "%s RUN "  + include_path + "ImageExport.ulp '%s' %d '%s' %d %d %d %d %s %s %s %s;", cmd, output_file_pcbb, pcbimage_bottom, output_file_pcbt, pcbimage_top, pcbImageResolutions[pcbimage_resolution], pcbimage_crop, pcbimage_mirror, pcbImagePcbColors[pcbimage_color],pcbImageCopperColors[pcbimage_color], pcbImageSilkscreenColors[pcbimage_silkscreen_color], pcbImagePlating[pcbimage_plating]);
 	}
 
-	if(sat_export)
+	if(idf_export)
 	{
-		cmd += "RUN "  + include_path + "Sat.ulp '" + output_file_sat + "';";
+		cmd += "RUN "  + include_path + "IDF.ulp '" + output_folder_idf + "';";
 	}	
 
 
@@ -1175,7 +1174,7 @@ Copyright 2013, Bernhard Wörndl-Aichriedler\n\
 		dlgHBoxLayout {dlgCheckBox("Bilder exportieren", enable_export); dlgPushButton("Einstellungen"){dialogImageSettings();}; };
 		dlgHBoxLayout {dlgCheckBox("Preise abfragen", pricing); dlgStretch(1); };
 		dlgHBoxLayout {dlgCheckBox("Stückliste exportieren", bom); dlgPushButton("Einstellungen"){dialogBomSettings();}; };
-		dlgHBoxLayout {dlgCheckBox("Cad Dateien exportieren", sat_export); dlgStretch(1); };
+		dlgHBoxLayout {dlgCheckBox("Cad Dateien exportieren", idf_export); dlgStretch(1); };
 		dlgHBoxLayout {dlgCheckBox("Stromlaufplan exportieren", schematic_export); dlgPushButton("Einstellungen"){dialogSchematicSettings();}; };
 		dlgHBoxLayout {dlgCheckBox("Gerber Dateien exportieren", gerber_export); dlgPushButton("Einstellungen"){dialogGerberSettings();}; };
 		dlgHBoxLayout {dlgCheckBox("Eagle Dateien exportieren", eagle_export); dlgStretch(1); };
