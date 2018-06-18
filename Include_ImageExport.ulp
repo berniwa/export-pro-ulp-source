@@ -60,12 +60,12 @@ void exportImages(int exportBot, string botImage, int exportTop, string topImage
 
 	if(exportTop)
 	{
-		cmd += "DISPLAY NONE;DISPLAY 1 18 121 123 124 125 127 ;";
+		cmd += "DISPLAY NONE;DISPLAY 1 18 29 121 123 124 125 127 ;";
 		sprintf(cmd, "%s EXPORT IMAGE '%s' %d;", cmd, topImage, resolution);
 	}
 	if(exportBot)
 	{
-		cmd += "DISPLAY NONE;DISPLAY 16 18 122 123 124 126 127;";
+		cmd += "DISPLAY NONE;DISPLAY 16 18 30 122 123 124 126 127;";
 		sprintf(cmd, "%s EXPORT IMAGE '%s' %d;", cmd, botImage, resolution);
 	}
 
