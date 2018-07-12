@@ -34,6 +34,9 @@
 /* Letzte Änderung am 20.03.2016                            */
 /* Version 8                                                */
 /************************************************************/
+/* Letzte Änderung am 12.07.2018                            */
+/* Version 9                                                */
+/************************************************************/
 
 #include "Include_Misc.ulp";
 
@@ -49,7 +52,7 @@ string cmd = "", bname = "", layers = "", palette_name = "BLACK", config_file = 
 
 int 
 layout_bot = 1, layout_top = 1, layout_l3 = 0, layout_l2 = 0, parts_top = 1, parts_bot = 1, drills = 1, measure = 1, drilltable = 1, 
-construction = 1, enable_export = 1, bom = 1, mirror_bot = 1, crop_all = 1, no_measures = 0, auto_project = 1,
+construction = 1, reference = 1, enable_export = 1, bom = 1, mirror_bot = 1, crop_all = 1, no_measures = 0, auto_project = 1,
 bom_xls = 1, bom_xlsx = 1, bom_csv = 0, bom_dbase3 = 1, bom_farnell = 1, bom_shorten_names = 1, bom_display_package_type = 1, 
 parts_display_names = 1, parts_display_values = 1, pricing = 1, idf_export = 1, pcbimage_top = 1, 
 pcbimage_bottom = 1, pcbimage_resolution = 2, pcbimage_crop = 1, pcbimage_mirror = 1, pcbimage_color = 0,
@@ -65,6 +68,7 @@ format_revision = 0,
 gerber_export = 0, 
 gerber_copper = 1, gerber_stc = 1, gerber_sts = 1, gerber_plc = 1, 
 gerber_pls = 1, gerber_crc = 1, gerber_crs = 1, gerber_drd = 1, gerber_otl = 1,
+gerber_ref = 0,
 board_thickness = 0, board_copper_thickness = 0, board_type = 0,
 eagle_export;
 
@@ -75,7 +79,7 @@ real bom_quantity;
 string output_folder = "./";
 
 string output_file_lb, output_file_lt, output_file_li, 
-output_file_pb, output_file_pt, output_file_cs, 
+output_file_pb, output_file_pt, output_file_cs, output_file_ref, 
 output_file_drl, output_folder_idf, output_file_pcbt, 
 output_file_pcbb, output_file_schematic_bw, 
 output_file_schematic_color,
@@ -84,7 +88,7 @@ output_file_gerber_st, output_file_gerber_sb,
 output_file_gerber_pt, output_file_gerber_pb,
 output_file_gerber_ct, output_file_gerber_cb,
 output_file_gerber_drill, output_file_gerber_otl,
-output_file_gerber_spec,
+output_file_gerber_ref, output_file_gerber_spec,
 output_folder_eagle, output_file_eagle_spec
 ;
 
@@ -99,23 +103,25 @@ string Resolutions[] = {
 };
 
 int pcbImageResolutions[]		= {600, 1200, 2400};
-string pcbImagePcbColors[] 		= {"0xFF007800", "0xFF660000", "0xFF010101", "0xFFF5F5F5"};
-string pcbImageCopperColors[] 		= {"0xFF00CA00", "0xFF990000", "0xFF111111", "0xFFFFFFFF"};
+string pcbImagePcbColors[] 		= {"0xFF007800", "0xFF660000", "0xFF010101", "0xFFF5F5F5", "0xFFCC6600"};
+string pcbImageCopperColors[] 		= {"0xFF00CA00", "0xFF990000", "0xFF111111", "0xFFFFFFFF", "0xFFFF8C1A"};
 string pcbImageSilkscreenColors[] 	= {"0xFFFFFFFF", "0xFFFFFF00", "0xFFAA0000", "0xFF000000"};
-string pcbImagePlating[] 		= {"0xFFC0C0C0", "0xFFC0C0C0", "0xFFE4CA42"};
+string pcbImagePlating[] 		= {"0xFFC0C0C0", "0xFFC0C0C0", "0xFFE4CA41"};
 
 string PcbColor[] = {
 	"Grüne PCB",
 	"Rote PCB", 
 	"Schwarze PCB", 
-	"Weiße PCB"
+	"Weiße PCB",
+	"Polyimid"
 };
 
 string pcbSpecColor[] = {
 	"green",
 	"red", 
 	"black", 
-	"white"
+	"white",
+	"polyimid"
 };
 
 string PcbSilkscreenColor[] = {
@@ -140,13 +146,13 @@ string PcbPlating[] = {
 
 string pcbSpecPlating[] = {
 	"HASL lead free",
-	"any HAL",
+	"any lead free",
 	"ENIG"
 };
 
-string PcbThickness[]		= {"1.6mm", "1mm", "0.8mm"};	
-string PcbType[]			= {"FR4", "Roggers", "Aluminium"};	
-string PcbCopperThickness[] 		= {"35.0um", "70.0um"};
+string PcbThickness[]		= {"1.6mm", "1mm", "0.8mm", "0.2mm", "0.1mm"};	
+string PcbType[]			= {"FR4", "Roggers", "Aluminium", "Polyamid"};	
+string PcbCopperThickness[] 		= {"35.0um", "70.0um", "18.0um"};
 
 string getSystemFilename(string ends_with)
 {
@@ -272,6 +278,9 @@ void loadUsersettings()
 
 		
 		gerber_otl 	= strtol(data[85]);
+
+		reference = strtol(data[86]);
+		gerber_ref  = strtol(data[87]);
 	
 
 
@@ -391,6 +400,9 @@ void saveUsersettings()
 		
 		printf("%d\n", gerber_otl);
 
+		printf("%d\n", reference);
+		printf("%d\n", gerber_ref);
+
 	}
 }
 
@@ -461,6 +473,7 @@ void export()
 		output_file_pb = getFilename(output_file, "-parts-bot.png");
 		output_file_pt = getFilename(output_file, "-parts-top.png");
 		output_file_cs = getFilename(output_file, "-construction.png");
+		output_file_ref = getFilename(output_file, "-reference.png");
 		output_file_drl = getFilename(output_file, "-drills.png");
 		output_file_pcbt = getFilename(output_file, "-pcb-top.png");
 		output_file_pcbb = getFilename(output_file, "-pcb-bot.png");
@@ -492,6 +505,7 @@ void export()
 	output_file_gerber_cb		= getFilename(output_file, ".crs");
 	output_file_gerber_drill		= getFilename(output_file, ".drd");
 	output_file_gerber_otl		= getFilename(output_file, ".otl");
+	output_file_gerber_ref 		= getFilename(output_file, ".ref");
 	output_file_gerber_spec		= getFilename(output_file, "-specifications.txt");
 	
 	//Output files to CAD directory
@@ -638,7 +652,10 @@ void export()
 	{
 		cmd += "DISPLAY NONE;DISPLAY 111 20;EXPORT IMAGE '" + output_file_cs + "' MONOCHROME 600;";		
 	}
-
+	if(enable_export && reference)
+	{
+		cmd += "DISPLAY NONE;DISPLAY 111 49;EXPORT IMAGE '" + output_file_ref + "' MONOCHROME 600;";		
+	}
 	if(EAGLE_VERSION > 5 || (EAGLE_VERSION == 5 && EAGLE_RELEASE >= 11) ) //Support for SET CONFIRM form Eagle 5.11 on
 	{
 		cmd += "SET CONFIRM NO;";
@@ -682,6 +699,10 @@ void export()
 		if(construction)
 		{
 			cmd += "RUN "  + include_path + "Crop.ulp '" + output_file_cs + "';";
+		}	
+		if(reference)
+		{
+			cmd += "RUN "  + include_path + "Crop.ulp '" + output_file_ref + "';";
 		}	
 	}	
 	if(enable_export && mirror_bot)
@@ -764,6 +785,7 @@ void export()
 		if(gerber_pls){ sprintf(cmd, "%s RUN "  + include_path + "Gerber.ulp 3 '%s' '%s' 0 %d %d %d %d;", cmd,  getSystemFilename(".brd"), output_file_gerber_pb, silkscreen_bplace, silkscreen_bnames, silkscreen_bvalues, silkscreen_bdocu); }
 		if(gerber_drd){ sprintf(cmd, "%s RUN "  + include_path + "Gerber.ulp 4 '%s' '%s';",   cmd,  getSystemFilename(".brd"), output_file_gerber_drill); }	
 		if(gerber_otl){ sprintf(cmd, "%s RUN "  + include_path + "Gerber.ulp 5 '%s' '%s';",   cmd,  getSystemFilename(".brd"), output_file_gerber_otl); }	
+		if(gerber_ref){ sprintf(cmd, "%s RUN "  + include_path + "Gerber.ulp 6 '%s' '%s';",   cmd,  getSystemFilename(".brd"), output_file_gerber_ref); }	
 				
 
 	
@@ -898,6 +920,10 @@ void dialogImageSettings()
 	 			dlgCheckBox("Bohrungen", drills);
 				dlgCheckBox("Konstruktion", construction);
 			};		
+			dlgHBoxLayout
+			{
+				dlgCheckBox("Reference", reference);
+			};	
 		};
 		dlgGroup("Erweitert:")
 		{			
@@ -1082,10 +1108,11 @@ void dialogGerberSettings()
 			dlgCheckBox("Lötstopmaske Top (.stc)", 			gerber_stc);	
 			dlgCheckBox("Lötstopmaske Bottom (.sts)", 		gerber_sts);
 			dlgCheckBox("Bestückungsdruck Top (.plc)", 		gerber_plc);	
-			dlgCheckBox("Bestückungsdruck Bottom (.pls)", 		gerber_pls);
-			dlgCheckBox("Lötpaste Top (.crc)", 			gerber_crc);	
+			dlgCheckBox("Bestückungsdruck Bottom (.pls)", 	gerber_pls);
+			dlgCheckBox("Lötpaste Top (.crc)", 				gerber_crc);	
 			dlgCheckBox("Lötpaste Bottom (.crs)", 			gerber_crs);	
-			dlgCheckBox("Dimensionen (.otl)", 			gerber_otl);			
+			dlgCheckBox("Dimensionen (.otl)", 				gerber_otl);		
+			dlgCheckBox("Reference Layer (.ref)",			gerber_ref);			
 		}
 		dlgGroup("Excellon:") 
 		{		

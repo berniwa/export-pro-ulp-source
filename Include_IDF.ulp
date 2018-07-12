@@ -1651,6 +1651,7 @@ string GetEmnBoardOutline() {
 
                          break;
                     }
+					/*
                     //check for Tolerance match on line start
                     else if (GetDistBetweenPts(bx2, by2,
                               GetX1FromPtString(outlinePoints[j]),
@@ -1698,6 +1699,7 @@ string GetEmnBoardOutline() {
 
                          break;
                     }
+					
                     //check for Tolerance match on line end
                     else if (GetDistBetweenPts(bx2, by2,
                               GetX2FromPtString(outlinePoints[j]),
@@ -1754,6 +1756,7 @@ string GetEmnBoardOutline() {
 
                          break;
                     }
+					*/
                     //else line has not matching point.
                     else {
                          //boardOutlineSectionDebug += "No match for i=" + itos( i ) + " and j=" + itos( j ) + ".\n";

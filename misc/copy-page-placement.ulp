@@ -5,7 +5,7 @@
 //int offset_x = 20;
 
 string copy_from = "HUB1";
-string apply_to[]  = {"HUB2"};
+string apply_to[]  = {"HUB2", "HUB3"};
 string exclude[] = {"DUMMY"};
 string include[] = {"+3.3V"};
 int offset_x = 60;

@@ -50,7 +50,8 @@ int 	type 		= strtol(argv[1]);
 //type = 2 => Export cream
 //type = 3 => Export silkscreen
 //type = 4 => Export drill
-
+//type = 5 => Export outline
+//type = 6 => Export reference
 
 string	inputfile	= argv[2];
 string	outputfile	= argv[3];
@@ -147,6 +148,15 @@ else if(type == 5)
 {
 	status("Processing outline layer");
 	int layer = 20;
+
+	string cmd = "";
+	sprintf(cmd, "%s -X -dGERBER_RS274X -o \"%s\" \"%s\" %d ", eagle_binary, outputfile, inputfile, layer);
+	system(cmd);		
+}
+else if(type == 6)
+{
+	status("Processing reference layer");
+	int layer = 49;
 
 	string cmd = "";
 	sprintf(cmd, "%s -X -dGERBER_RS274X -o \"%s\" \"%s\" %d ", eagle_binary, outputfile, inputfile, layer);
