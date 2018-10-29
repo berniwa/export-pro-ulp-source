@@ -1,0 +1,92 @@
+
+int initialized = 0;
+int max_x = 0;
+int min_x = 0;
+int max_y = 0;
+int min_y = 0;
+
+
+void setCoordinates(int x, int y)
+{
+	if(!initialized)
+	{
+		max_x = x;
+		min_x = x;
+		max_y = y;
+		min_y = y;
+		initialized = 1;
+	}
+
+	if(x < min_x)
+	{
+		min_x = x;
+	}
+	if(y < min_y)
+	{
+		min_y = y;
+	}
+
+	if(y > max_y)
+	{
+		max_y = y;	
+	}
+	if(x > max_x)
+	{
+		max_x = x;	
+	}
+}
+
+
+void getBoardSize(){
+	
+board(B) 
+{
+ 	B.wires(W) 
+	{
+		if(W.layer == 20)
+		{
+			if(W.arc)
+			{
+				setCoordinates(W.arc.x1, W.arc.y1);
+				setCoordinates(W.arc.x2, W.arc.y2);
+				
+				int angle = W.arc.angle2 - W.arc.angle1;
+				
+				int set_elements = round(angle/90);
+				int start_element = round(W.arc.angle1/90);
+				start_element = start_element % 4;
+
+				/*string tmp = "";
+				sprintf(tmp, "%f %f %d %d", W.arc.angle1, W.arc.angle2, start_element, set_elements);
+				dlgMessageBox(tmp);*/
+				
+				for(int i = start_element; i < (start_element + set_elements); i++)
+				{
+					if(i == 0)
+					{
+						setCoordinates(W.arc.xc - W.arc.radius, W.arc.y1);
+					}
+					else if(i == 1)
+					{
+						setCoordinates(W.arc.x2, W.arc.yc + W.arc.radius);
+					}
+					else if(i == 2)
+					{
+						setCoordinates(W.arc.xc + W.arc.radius, W.arc.y1);
+					}
+					else if(i == 3)
+					{
+						setCoordinates(W.arc.x2, W.arc.yc - W.arc.radius);
+					}
+				}
+			}
+			else
+			{
+				setCoordinates(W.x1, W.y1);
+				setCoordinates(W.x2, W.y2);
+			}
+		}
+	}
+}
+
+}

@@ -70,7 +70,12 @@ gerber_copper = 1, gerber_stc = 1, gerber_sts = 1, gerber_plc = 1,
 gerber_pls = 1, gerber_crc = 1, gerber_crs = 1, gerber_drd = 1, gerber_otl = 1,
 gerber_ref = 0,
 board_thickness = 0, board_copper_thickness = 0, board_type = 0,
-eagle_export;
+eagle_export,
+ec_export,
+gerberjlc_export = 0,
+gerber_GTS = 1, gerber_GBS = 1, gerber_GTO = 1, gerber_GBO = 1, gerber_TXT = 1,
+gerber_GML = 1, gerber_GTP = 1, gerber_GBP = 1
+;
 
 
 
@@ -89,7 +94,8 @@ output_file_gerber_pt, output_file_gerber_pb,
 output_file_gerber_ct, output_file_gerber_cb,
 output_file_gerber_drill, output_file_gerber_otl,
 output_file_gerber_ref, output_file_gerber_spec,
-output_folder_eagle, output_file_eagle_spec
+output_folder_eagle, output_file_eagle_spec,
+ecpanel_path
 ;
 
 string layer_fill[];
@@ -180,6 +186,8 @@ project.board(B)
 		}
 	}
 }
+
+string filepath = bname;
 
 void loadUsersettings()
 {
@@ -281,6 +289,19 @@ void loadUsersettings()
 
 		reference = strtol(data[86]);
 		gerber_ref  = strtol(data[87]);
+
+		ec_export = strtol(data[88]);
+		
+		gerberjlc_export = strtol(data[89]);
+		gerber_copper	 = strtol(data[90]);
+		gerber_GTS 	= strtol(data[91]);
+		gerber_GBS	= strtol(data[92]);
+		gerber_GTO	= strtol(data[93]);
+		gerber_GBO	= strtol(data[94]);
+		gerber_GTP	= strtol(data[95]);
+		gerber_GBP	= strtol(data[96]);
+		gerber_TXT	= strtol(data[97]);
+		gerber_GML	= strtol(data[98]);
 	
 
 
@@ -402,7 +423,18 @@ void saveUsersettings()
 
 		printf("%d\n", reference);
 		printf("%d\n", gerber_ref);
-
+		
+		printf("%d\n", ec_export);
+		
+		printf("%d\n", gerberjlc_export);
+		printf("%d\n", gerber_copper);
+		printf("%d\n", gerber_GTS);
+		printf("%d\n", gerber_GBS);
+		printf("%d\n", gerber_GTO);
+		printf("%d\n", gerber_GBO);
+		printf("%d\n", gerber_GTP);
+		printf("%d\n", gerber_GBP);
+		printf("%d\n", gerber_TXT);
 	}
 }
 
@@ -420,15 +452,17 @@ void export()
 		system("mkdir \"" + output_folder + "\""); //Make new folder
 	}
 
-	string image_folder = "", gerber_folder = "", eagle_folder = "", cad_folder = "";
+	string image_folder = "", gerber_folder = "", eagle_folder = "", cad_folder = "", gerberjlc_folder = "", ecpanel_folder = "";
 
 	if(output_date_folder)	//If a date folder and subfolders should be created
 	{
 		string date_folder 	= t2string(time(), "yyyy-MM-dd") + "/";
 		image_folder 		= "images";
 		gerber_folder 		= "gerber";
+		gerberjlc_folder	= "gerber/jlc";
 		eagle_folder 		= "eagle";
 		cad_folder 		= "cad";
+		ecpanel_folder		= "panel";
 		
 		output_folder = output_folder + date_folder;
 			
@@ -452,11 +486,21 @@ void export()
 		{
 			system("mkdir \"" + output_folder + cad_folder + "\""); 
 		}
+		if(fileglob(tmp, output_folder + gerberjlc_folder) <= 0)
+		{
+			system("mkdir \"" + output_folder + gerberjlc_folder + "\"");
+		}
+		if(fileglob(tmp, output_folder + ecpanel_folder) <= 0)
+		{
+			system("mkdir \"" + output_folder + ecpanel_folder + "\"");
+		}
 
 		image_folder 	+= "/";
 		gerber_folder 	+= "/";
-		eagle_folder 	+= "/";
-		cad_folder 	+= "/";
+		gerberjlc_folder	+= "/";
+		eagle_folder 		+= "/";
+		cad_folder 			+= "/";
+		ecpanel_folder		+= "/";
 	}
 
 	string output_file_extension = "";
@@ -505,6 +549,22 @@ void export()
 	output_file_gerber_cb		= getFilename(output_file, ".crs");
 	output_file_gerber_drill		= getFilename(output_file, ".drd");
 	output_file_gerber_otl		= getFilename(output_file, ".otl");
+	output_file_gerber_ref 		= getFilename(output_file, ".ref");
+	output_file_gerber_spec		= getFilename(output_file, "-specifications.txt");
+	
+	//Output files to gerberjlc directory
+	output_file = output_folder + gerberjlc_folder + boardname;
+	output_file_gerber_copper_top 	= getFilename(output_file, ".GTL");
+	output_file_gerber_copper_other 	= getFilename(output_file, ".g");
+	output_file_gerber_copper_bottom 	= getFilename(output_file, ".GBL");
+	output_file_gerber_st		= getFilename(output_file, ".GTS");
+	output_file_gerber_sb		= getFilename(output_file, ".GBS");
+	output_file_gerber_pt		= getFilename(output_file, ".GTO");
+	output_file_gerber_pb		= getFilename(output_file, ".GBO");
+	output_file_gerber_ct		= getFilename(output_file, ".GTP");
+	output_file_gerber_cb		= getFilename(output_file, ".GBP");
+	output_file_gerber_drill	= getFilename(output_file, ".txt");
+	output_file_gerber_otl		= getFilename(output_file, ".GML");
 	output_file_gerber_ref 		= getFilename(output_file, ".ref");
 	output_file_gerber_spec		= getFilename(output_file, "-specifications.txt");
 	
@@ -577,6 +637,21 @@ void export()
 
 	cmd += "WRITE;";
 	cmd += "EDIT .brd;";
+	
+	if(ec_export)
+	{
+		sprintf(cmd, "%s WRITE " + output_folder + ecpanel_folder + boardname + "_ec.brd;", cmd);
+		sprintf(cmd, "%s EDIT " +  output_folder + ecpanel_folder + boardname + "_ec.brd;", cmd);
+		sprintf(cmd, "%s RUN " + include_path + "ec_panel.ulp;", cmd);
+		dlgMessageBox("Hello World");
+		
+		ecpanel_path = output_folder + ecpanel_folder + boardname;
+		
+		//bname = filedir(ecpanel_path);
+		//boardname = filesetext(filename(ecpanel_path), "");		
+	}
+	
+	cmd += "WRITE;";
 	
 	//Save old palette settings
 	if(palette(-1) == PALETTE_BLACK)
@@ -793,6 +868,50 @@ void export()
 		sprintf(cmd, "%s RUN "  + include_path + "Specification.ulp '%s' '%s' '%s' %d '%s' '%s' '%s' '%s';", cmd, output_file_gerber_spec, PcbThickness[board_thickness], PcbType[board_type], count, PcbCopperThickness[board_copper_thickness], pcbSpecColor[pcbimage_color], pcbSpecSilkscreenColor[pcbimage_silkscreen_color], pcbSpecPlating[pcbimage_plating]); 		
 	}
 
+	if(gerberjlc_export)
+	{
+		//Let the ulp retrieve the eagle executeable path once
+		int count = 0;
+		if(gerber_copper)
+		{
+			for(int i = 0; i < 16; i++)
+			{
+				if(board_layer[i] == 1)
+				{
+					if(i == 0)
+					{	
+						sprintf(cmd, "%s RUN "  + include_path + "Gerber.ulp 0 '%s' '%s' %d;", cmd,  getSystemFilename(".brd"), output_file_gerber_copper_top,  i+1);
+					}
+					else if(i == 15)
+					{
+						sprintf(cmd, "%s RUN "  + include_path + "Gerber.ulp 0 '%s' '%s' %d;", cmd,  getSystemFilename(".brd"), output_file_gerber_copper_bottom,  i+1);
+					}
+					else
+					{
+						string tfname = "";
+						sprintf(tfname, "%s%d", output_file_gerber_copper_other, i+1); 			
+						sprintf(cmd, "%s RUN "  + include_path + "Gerber.ulp 0 '%s' '%s' %d;", cmd,  getSystemFilename(".brd"), tfname ,  i+1);					
+					}
+					count++;
+				}			
+			}
+		}
+		if(gerber_GTS){ sprintf(cmd, "%s RUN "  + include_path + "Gerber.ulp 1 '%s' '%s' 1;", cmd,  getSystemFilename(".brd"), output_file_gerber_st); }
+		if(gerber_GBS){ sprintf(cmd, "%s RUN "  + include_path + "Gerber.ulp 1 '%s' '%s' 0;", cmd,  getSystemFilename(".brd"), output_file_gerber_sb); }
+		if(gerber_GTP){ sprintf(cmd, "%s RUN "  + include_path + "Gerber.ulp 2 '%s' '%s' 1;", cmd,  getSystemFilename(".brd"), output_file_gerber_ct); }
+		if(gerber_GBP){ sprintf(cmd, "%s RUN "  + include_path + "Gerber.ulp 2 '%s' '%s' 0;", cmd,  getSystemFilename(".brd"), output_file_gerber_cb); }
+		if(gerber_GTO){ sprintf(cmd, "%s RUN "  + include_path + "Gerber.ulp 3 '%s' '%s' 1 %d %d %d %d;", cmd,  getSystemFilename(".brd"), output_file_gerber_pt, silkscreen_tplace, silkscreen_tnames, silkscreen_tvalues, silkscreen_tdocu); }
+		if(gerber_GBO){ sprintf(cmd, "%s RUN "  + include_path + "Gerber.ulp 3 '%s' '%s' 0 %d %d %d %d;", cmd,  getSystemFilename(".brd"), output_file_gerber_pb, silkscreen_bplace, silkscreen_bnames, silkscreen_bvalues, silkscreen_bdocu); }
+		if(gerber_TXT){ sprintf(cmd, "%s RUN "  + include_path + "Gerber.ulp 4 '%s' '%s';",   cmd,  getSystemFilename(".brd"), output_file_gerber_drill); }	
+		if(gerber_GML){ sprintf(cmd, "%s RUN "  + include_path + "Gerber.ulp 5 '%s' '%s';",   cmd,  getSystemFilename(".brd"), output_file_gerber_otl); }	
+		if(gerber_ref){ sprintf(cmd, "%s RUN "  + include_path + "Gerber.ulp 6 '%s' '%s';",   cmd,  getSystemFilename(".brd"), output_file_gerber_ref); }	
+				
+
+	
+		//Generate specification file
+		sprintf(cmd, "%s RUN "  + include_path + "Specification.ulp '%s' '%s' '%s' %d '%s' '%s' '%s' '%s';", cmd, output_file_gerber_spec, PcbThickness[board_thickness], PcbType[board_type], count, PcbCopperThickness[board_copper_thickness], pcbSpecColor[pcbimage_color], pcbSpecSilkscreenColor[pcbimage_silkscreen_color], pcbSpecPlating[pcbimage_plating]); 		
+	}
+	
 	cmd += "WRITE;";
 
 	if(eagle_export)
@@ -828,6 +947,8 @@ void export()
 		sprintf(cmd, "%s RUN "  + include_path + "Specification.ulp '%s' '%s' '%s' %d '%s' '%s' '%s' '%s' '%s' '%s';", cmd, output_file_eagle_spec, PcbThickness[board_thickness], PcbType[board_type], count, PcbCopperThickness[board_copper_thickness], pcbSpecColor[pcbimage_color], pcbSpecSilkscreenColor[pcbimage_silkscreen_color], pcbSpecPlating[pcbimage_plating], tsilk_layers, bsilk_layers); 		
 
 	}	
+	
+	cmd += "EDIT " + filepath + boardname + ".brd" + ";";
 	
 	exit(cmd);
 }
@@ -1124,6 +1245,32 @@ void dialogGerberSettings()
 	};
 }
 
+void dialogGerberjlcSettings()
+{
+	dlgDialog("Gerberjlc Einstellungen")
+	{
+		dlgGroup("Gerber:") 
+		{
+			dlgCheckBox("Alle Kupferlagen (.sol, .gXX, .cmp) ", 	gerber_copper);
+			dlgCheckBox("Lötstopmaske Top (.GTS)", 			gerber_GTS);	
+			dlgCheckBox("Lötstopmaske Bottom (.GBS)", 		gerber_GBS);
+			dlgCheckBox("Bestückungsdruck Top (.GTO)", 		gerber_GTO);	
+			dlgCheckBox("Bestückungsdruck Bottom (.GBO)", 	gerber_GBO);
+			dlgCheckBox("Lötpaste Top (.GTP)", 				gerber_GTP);	
+			dlgCheckBox("Lötpaste Bottom (.GBP)", 			gerber_GBP);	
+			dlgCheckBox("Dimensionen (.GML)", 				gerber_GML);		
+			dlgCheckBox("Reference Layer (.ref)",			gerber_ref);			
+		}
+		dlgGroup("Excellon:") 
+		{		
+	 		dlgCheckBox("Bohrungen (.TXT)", 				gerber_TXT);	
+		};		
+		dlgPushButton("OK") {
+			dlgAccept();
+		};
+	};
+}
+
 void dialogHelpView()
 {
 	string text;
@@ -1205,6 +1352,8 @@ Copyright 2013, Bernhard Wörndl-Aichriedler\n\
 		dlgHBoxLayout {dlgCheckBox("Stromlaufplan exportieren", schematic_export); dlgPushButton("Einstellungen"){dialogSchematicSettings();}; };
 		dlgHBoxLayout {dlgCheckBox("Gerber Dateien exportieren", gerber_export); dlgPushButton("Einstellungen"){dialogGerberSettings();}; };
 		dlgHBoxLayout {dlgCheckBox("Eagle Dateien exportieren", eagle_export); dlgStretch(1); };
+		dlgHBoxLayout {dlgCheckBox("Eurocircuits-Panel erstellen und exportieren", ec_export); dlgStretch(1); };
+		dlgHBoxLayout {dlgCheckBox("Gerber Dateien für jlc exportieren", gerberjlc_export); dlgPushButton("Einstellungen"){dialogGerberjlcSettings();}; };
 	}
 	dlgGroup("Ausgabeordner")
 	{
