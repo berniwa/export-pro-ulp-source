@@ -94,6 +94,12 @@ output_file_gerber_pt, output_file_gerber_pb,
 output_file_gerber_ct, output_file_gerber_cb,
 output_file_gerber_drill, output_file_gerber_otl,
 output_file_gerber_ref, output_file_gerber_spec,
+output_file_gerberjlc_copper_top,  output_file_gerberjlc_copper_bottom, output_file_gerberjlc_copper_other,
+output_file_gerberjlc_st, output_file_gerberjlc_sb,
+output_file_gerberjlc_pt, output_file_gerberjlc_pb,
+output_file_gerberjlc_ct, output_file_gerberjlc_cb,
+output_file_gerberjlc_drill, output_file_gerberjlc_otl,
+output_file_gerberjlc_ref, output_file_gerberjlc_spec,
 output_folder_eagle, output_file_eagle_spec,
 ecpanel_path
 ;
@@ -145,8 +151,8 @@ string pcbSpecSilkscreenColor[] = {
 };
 	
 string PcbPlating[] = {
-	"Verzint (bleifrei)",
-	"Verzint (jedes)",
+	"Verzinnt (bleifrei)",
+	"Verzinnt (jedes)",
 	"Vergoldet"
 };
 
@@ -554,19 +560,19 @@ void export()
 	
 	//Output files to gerberjlc directory
 	output_file = output_folder + gerberjlc_folder + boardname;
-	output_file_gerber_copper_top 	= getFilename(output_file, ".GTL");
-	output_file_gerber_copper_other 	= getFilename(output_file, ".g");
-	output_file_gerber_copper_bottom 	= getFilename(output_file, ".GBL");
-	output_file_gerber_st		= getFilename(output_file, ".GTS");
-	output_file_gerber_sb		= getFilename(output_file, ".GBS");
-	output_file_gerber_pt		= getFilename(output_file, ".GTO");
-	output_file_gerber_pb		= getFilename(output_file, ".GBO");
-	output_file_gerber_ct		= getFilename(output_file, ".GTP");
-	output_file_gerber_cb		= getFilename(output_file, ".GBP");
-	output_file_gerber_drill	= getFilename(output_file, ".txt");
-	output_file_gerber_otl		= getFilename(output_file, ".GML");
-	output_file_gerber_ref 		= getFilename(output_file, ".ref");
-	output_file_gerber_spec		= getFilename(output_file, "-specifications.txt");
+	output_file_gerberjlc_copper_top 	= getFilename(output_file, ".GTL");
+	output_file_gerberjlc_copper_other 	= getFilename(output_file, ".g");
+	output_file_gerberjlc_copper_bottom 	= getFilename(output_file, ".GBL");
+	output_file_gerberjlc_st		= getFilename(output_file, ".GTS");
+	output_file_gerberjlc_sb		= getFilename(output_file, ".GBS");
+	output_file_gerberjlc_pt		= getFilename(output_file, ".GTO");
+	output_file_gerberjlc_pb		= getFilename(output_file, ".GBO");
+	output_file_gerberjlc_ct		= getFilename(output_file, ".GTP");
+	output_file_gerberjlc_cb		= getFilename(output_file, ".GBP");
+	output_file_gerberjlc_drill	= getFilename(output_file, ".txt");
+	output_file_gerberjlc_otl		= getFilename(output_file, ".GML");
+	output_file_gerberjlc_ref 		= getFilename(output_file, ".ref");
+	output_file_gerberjlc_spec		= getFilename(output_file, "-specifications.txt");
 	
 	//Output files to CAD directory
 	output_folder_idf = output_folder + cad_folder;
@@ -896,15 +902,15 @@ void export()
 				}			
 			}
 		}
-		if(gerber_GTS){ sprintf(cmd, "%s RUN "  + include_path + "Gerber.ulp 1 '%s' '%s' 1;", cmd,  getSystemFilename(".brd"), output_file_gerber_st); }
-		if(gerber_GBS){ sprintf(cmd, "%s RUN "  + include_path + "Gerber.ulp 1 '%s' '%s' 0;", cmd,  getSystemFilename(".brd"), output_file_gerber_sb); }
-		if(gerber_GTP){ sprintf(cmd, "%s RUN "  + include_path + "Gerber.ulp 2 '%s' '%s' 1;", cmd,  getSystemFilename(".brd"), output_file_gerber_ct); }
-		if(gerber_GBP){ sprintf(cmd, "%s RUN "  + include_path + "Gerber.ulp 2 '%s' '%s' 0;", cmd,  getSystemFilename(".brd"), output_file_gerber_cb); }
-		if(gerber_GTO){ sprintf(cmd, "%s RUN "  + include_path + "Gerber.ulp 3 '%s' '%s' 1 %d %d %d %d;", cmd,  getSystemFilename(".brd"), output_file_gerber_pt, silkscreen_tplace, silkscreen_tnames, silkscreen_tvalues, silkscreen_tdocu); }
-		if(gerber_GBO){ sprintf(cmd, "%s RUN "  + include_path + "Gerber.ulp 3 '%s' '%s' 0 %d %d %d %d;", cmd,  getSystemFilename(".brd"), output_file_gerber_pb, silkscreen_bplace, silkscreen_bnames, silkscreen_bvalues, silkscreen_bdocu); }
-		if(gerber_TXT){ sprintf(cmd, "%s RUN "  + include_path + "Gerber.ulp 4 '%s' '%s';",   cmd,  getSystemFilename(".brd"), output_file_gerber_drill); }	
-		if(gerber_GML){ sprintf(cmd, "%s RUN "  + include_path + "Gerber.ulp 5 '%s' '%s';",   cmd,  getSystemFilename(".brd"), output_file_gerber_otl); }	
-		if(gerber_ref){ sprintf(cmd, "%s RUN "  + include_path + "Gerber.ulp 6 '%s' '%s';",   cmd,  getSystemFilename(".brd"), output_file_gerber_ref); }	
+		if(gerber_GTS){ sprintf(cmd, "%s RUN "  + include_path + "Gerber.ulp 1 '%s' '%s' 1;", cmd,  getSystemFilename(".brd"), output_file_gerberjlc_st); }
+		if(gerber_GBS){ sprintf(cmd, "%s RUN "  + include_path + "Gerber.ulp 1 '%s' '%s' 0;", cmd,  getSystemFilename(".brd"), output_file_gerberjlc_sb); }
+		if(gerber_GTP){ sprintf(cmd, "%s RUN "  + include_path + "Gerber.ulp 2 '%s' '%s' 1;", cmd,  getSystemFilename(".brd"), output_file_gerberjlc_ct); }
+		if(gerber_GBP){ sprintf(cmd, "%s RUN "  + include_path + "Gerber.ulp 2 '%s' '%s' 0;", cmd,  getSystemFilename(".brd"), output_file_gerberjlc_cb); }
+		if(gerber_GTO){ sprintf(cmd, "%s RUN "  + include_path + "Gerber.ulp 3 '%s' '%s' 1 %d %d %d %d;", cmd,  getSystemFilename(".brd"), output_file_gerberjlc_pt, silkscreen_tplace, silkscreen_tnames, silkscreen_tvalues, silkscreen_tdocu); }
+		if(gerber_GBO){ sprintf(cmd, "%s RUN "  + include_path + "Gerber.ulp 3 '%s' '%s' 0 %d %d %d %d;", cmd,  getSystemFilename(".brd"), output_file_gerberjlc_pb, silkscreen_bplace, silkscreen_bnames, silkscreen_bvalues, silkscreen_bdocu); }
+		if(gerber_TXT){ sprintf(cmd, "%s RUN "  + include_path + "Gerber.ulp 4 '%s' '%s';",   cmd,  getSystemFilename(".brd"), output_file_gerberjlc_drill); }	
+		if(gerber_GML){ sprintf(cmd, "%s RUN "  + include_path + "Gerber.ulp 5 '%s' '%s';",   cmd,  getSystemFilename(".brd"), output_file_gerberjlc_otl); }	
+		if(gerber_ref){ sprintf(cmd, "%s RUN "  + include_path + "Gerber.ulp 6 '%s' '%s';",   cmd,  getSystemFilename(".brd"), output_file_gerberjlc_ref); }	
 				
 
 	
