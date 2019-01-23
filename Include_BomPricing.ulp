@@ -51,6 +51,7 @@ void bomPricingRequestDo()
 	string lines[];
 	int nlines = netpost(lines, DOWNLOAD_URL, "tsv=" + escapeString(bomPricingTsv));
 
+	/*
 	output("W:\\Hardware\\ulptest\\input.txt", "wt")
 	{
 		printf("%s", bomPricingTsv);
@@ -63,7 +64,7 @@ void bomPricingRequestDo()
 			printf("%s\n", lines[i]);		
 		}
 	}
-	
+	*/
 	lines[0] = "ID	DISTRIBUTOR	ORDER_NO	QUANTITY	PRICES	PRICE	AVAILABLE_QUANTITY	PARTS_PER_PACKAGE	MINIMUM_QUANTITY	QUANTITY_MULTIPLIER	DATASHEET";
 	if(nlines >= 0)
 	{

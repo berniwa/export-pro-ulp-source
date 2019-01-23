@@ -515,10 +515,12 @@ void create_smd(int layer, int x, int y, int dx, int dy, real angle, int roundne
 	//ry = y;
 	//rdx = dx;
 	//rdy = dy;
-	
+  int minlength = (dx < dy)?dx:dy;
+  real radius = 1.0 * roundness / 100.0 * minlength;
+
 	sprintf(h, "CHANGE LAYER %d;", layer); cmd += h;
 
-	if(roundness != 100)
+	if(roundness != 100 || (dx != dy))
 	{
 		sprintf(h, "RECT R%f (%f %f) (%f %f);", angle, u2mil(rx), u2mil(ry), u2mil(rdx), u2mil(rdy)); cmd += h;
 	}
