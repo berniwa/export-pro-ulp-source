@@ -502,13 +502,76 @@ void create_via(int x, int y, int drill, int diameter_top, int diameter_bottom, 
 	}
 }
 
-void create_smd(int layer, int x, int y, int dx, int dy, real angle, int roundness)
+/**
+ * Transforms to coordinates to a new position
+ * @param x         Relative X coordinate
+ * @param y         Relative Y coordinate
+ * @param r         Rotation rotation
+ * @param center_x  Center X coordinate
+ * @param center_y  Center Y coordinate
+ * @return  x       New X coordinate (will overwrite global variable)
+ * @return  y       Nex Y coordinate (will overwrite global variable)
+ */
+int x = 0; int y = 0;
+void transform(int xi, int yi, real ri,  int center_x, int center_y){
+  //Compute relative cooridinates
+  int rx = xi;
+  int ry = yi;
+
+  //Get the new center coordinates
+  int cx = center_x;
+  int cy = center_y;
+
+  //Transform to polar cooridnates
+  real l    = sqrt((1.0*rx*rx) + (1.0*ry*ry));
+  real phi  = 0.0;
+
+  if(rx > 0){
+    phi = atan((1.0*ry)/(1.0*rx));
+  } else if(rx < 0 && ry >= 0){
+    phi = atan((1.0*ry)/(1.0*rx)) + PI;
+  } else if(rx < 0 && ry < 0){
+    phi = atan((1.0*ry)/(1.0*rx)) - PI;
+  } else if(rx == 0 && ry > 0){
+    phi = PI/2;
+  } else if(rx == 0 && ry <= 0){
+    phi = -PI/2;
+  }
+  
+
+  if(ri < 0){
+    string tmp;
+    sprintf(tmp, "Rotate %f", ri);
+    dlgMessageBox(tmp);
+  }
+
+  //Rotate
+  phi = phi + (2.0*PI*ri/360.0);
+
+  if(phi > 2.0*PI){
+    phi = phi - 2.0*PI;
+  }
+  if(phi < -2.0*PI){
+    phi = phi + 2.0*PI;
+  }
+
+
+  //Convert back cartesian
+  int rx2 = l * cos(phi);
+  int ry2 = l * sin(phi);
+
+  x = cx + rx2;
+  y = cy + ry2; 
+}
+
+
+void create_smd(int layer, int cx, int cy, int dx, int dy, real angle, int roundness)
 {
 	string h = "";
 	int rx, ry, rdx, rdy;
 	
-	rx = x - (dx/2);
-	ry = y - (dy/2);
+	rx = cx - (dx/2);
+	ry = cy - (dy/2);
 	rdx = rx + dx;
 	rdy = ry + dy;
 	//rx = x;
@@ -516,18 +579,60 @@ void create_smd(int layer, int x, int y, int dx, int dy, real angle, int roundne
 	//rdx = dx;
 	//rdy = dy;
   int minlength = (dx < dy)?dx:dy;
-  real radius = 1.0 * roundness / 100.0 * minlength;
+  real radius = 1.0 * roundness / 100.0 * minlength / 2.0;
+
+  //angle = -90;
 
 	sprintf(h, "CHANGE LAYER %d;", layer); cmd += h;
 
+  sprintf(h, "POLYGON "); cmd += h;
+  if(dx==dy && dx/2 == radius){
+    transform(-dx/2,        0,              angle, cx, cy);   sprintf(h, "(%f %f) ", u2mil(x), u2mil(y)); cmd += h;
+    transform(0,            dy/2,           angle, cx, cy);   sprintf(h, "-90 (%f %f) ", u2mil(x), u2mil(y)); cmd += h;
+    transform(+dx/2,        0,              angle, cx, cy);   sprintf(h, "-90 (%f %f) ", u2mil(x), u2mil(y)); cmd += h;
+    transform(0,            -dy/2,          angle, cx, cy);   sprintf(h, "-90 (%f %f) ", u2mil(x), u2mil(y)); cmd += h;
+    transform(-dx/2,        -dy/2+radius,   angle, cx, cy);   sprintf(h, "-90 (%f %f) ", u2mil(x), u2mil(y)); cmd += h; 
+  } else if(dx/2 == radius){
+    transform(-dx/2,        -dy/2+radius,   angle, cx, cy);   sprintf(h, "(%f %f) ", u2mil(x), u2mil(y)); cmd += h;
+    transform(-dx/2,        dy/2-radius,    angle, cx, cy);   sprintf(h, "(%f %f) ", u2mil(x), u2mil(y)); cmd += h;
+    transform(0,            dy/2,           angle, cx, cy);   sprintf(h, "-90 (%f %f) ", u2mil(x), u2mil(y)); cmd += h;
+    transform(+dx/2,        dy/2-radius,    angle, cx, cy);   sprintf(h, "-90 (%f %f) ", u2mil(x), u2mil(y)); cmd += h;
+    transform(+dx/2,        -dy/2+radius,   angle, cx, cy);   sprintf(h, "(%f %f) ", u2mil(x), u2mil(y)); cmd += h;
+    transform(0,            -dy/2,          angle, cx, cy);   sprintf(h, "-90 (%f %f) ", u2mil(x), u2mil(y)); cmd += h;
+    transform(-dx/2,        -dy/2+radius,   angle, cx, cy);   sprintf(h, "-90 (%f %f) ", u2mil(x), u2mil(y)); cmd += h;    
+  } else if(dy/2 == radius){
+    transform(-dx/2,        0,              angle, cx, cy);   sprintf(h, "(%f %f) ", u2mil(x), u2mil(y)); cmd += h;
+    transform(-dx/2+radius, dy/2,           angle, cx, cy);   sprintf(h, "-90 (%f %f) ", u2mil(x), u2mil(y)); cmd += h;
+    transform(+dx/2-radius, dy/2,           angle, cx, cy);   sprintf(h, "(%f %f) ", u2mil(x), u2mil(y)); cmd += h;
+    transform(+dx/2,        0,              angle, cx, cy);   sprintf(h, "-90 (%f %f) ", u2mil(x), u2mil(y)); cmd += h;
+    transform(+dx/2-radius, -dy/2,          angle, cx, cy);   sprintf(h, "-90 (%f %f) ", u2mil(x), u2mil(y)); cmd += h;
+    transform(-dx/2+radius, -dy/2,          angle, cx, cy);   sprintf(h, "(%f %f) ", u2mil(x), u2mil(y)); cmd += h;
+    transform(-dx/2,        0,              angle, cx, cy);   sprintf(h, "-90 (%f %f) ", u2mil(x), u2mil(y)); cmd += h;       
+  } else {
+    transform(-dx/2,        -dy/2+radius,   angle, cx, cy);   sprintf(h, "(%f %f) ", u2mil(x), u2mil(y)); cmd += h;
+    transform(-dx/2,        dy/2-radius,    angle, cx, cy);   sprintf(h, "(%f %f) ", u2mil(x), u2mil(y)); cmd += h;
+    transform(-dx/2+radius, dy/2,           angle, cx, cy);   sprintf(h, "-90 (%f %f) ", u2mil(x), u2mil(y)); cmd += h;
+    transform(+dx/2-radius, dy/2,           angle, cx, cy);   sprintf(h, "(%f %f) ", u2mil(x), u2mil(y)); cmd += h;
+    transform(+dx/2,        dy/2-radius,    angle, cx, cy);   sprintf(h, "-90 (%f %f) ", u2mil(x), u2mil(y)); cmd += h;
+    transform(+dx/2,        -dy/2+radius,   angle, cx, cy);   sprintf(h, "(%f %f) ", u2mil(x), u2mil(y)); cmd += h;
+    transform(+dx/2-radius, -dy/2,          angle, cx, cy);   sprintf(h, "-90 (%f %f) ", u2mil(x), u2mil(y)); cmd += h;
+    transform(-dx/2+radius, -dy/2,          angle, cx, cy);   sprintf(h, "(%f %f) ", u2mil(x), u2mil(y)); cmd += h;
+    transform(-dx/2,        -dy/2+radius,   angle, cx, cy);   sprintf(h, "-90 (%f %f) ", u2mil(x), u2mil(y)); cmd += h;    
+  }
+
+  sprintf(h, ";"); cmd += h;
+
+
+  /*
 	if(roundness != 100 || (dx != dy))
 	{
 		sprintf(h, "RECT R%f (%f %f) (%f %f);", angle, u2mil(rx), u2mil(ry), u2mil(rdx), u2mil(rdy)); cmd += h;
 	}
 	else	//Simple fix for round fiducials
 	{
-		sprintf(h, "CIRCLE 0 (%f %f) (%f %f);", u2mil( x ), u2mil( y ), u2mil(x+(dx/2)), u2mil(y)); cmd += h;	
+		sprintf(h, "CIRCLE 0 (%f %f) (%f %f);", u2mil( cx ), u2mil( cy ), u2mil(x+(dx/2)), u2mil(cy)); cmd += h;	
 	}
+  */
 }
 
 void do_hole(UL_HOLE hole)
