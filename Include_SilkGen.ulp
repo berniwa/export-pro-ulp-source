@@ -586,7 +586,13 @@ void create_smd(int layer, int cx, int cy, int dx, int dy, real angle, int round
 	sprintf(h, "CHANGE LAYER %d;", layer); cmd += h;
 
   sprintf(h, "POLYGON "); cmd += h;
-  if(dx==dy && dx/2 == radius){
+  if(radius == 0){
+    transform(-dx/2,        -dy/2,          angle, cx, cy);   sprintf(h, "(%f %f) ", u2mil(x), u2mil(y)); cmd += h;
+    transform(-dx/2,        dy/2,           angle, cx, cy);   sprintf(h, "(%f %f) ", u2mil(x), u2mil(y)); cmd += h;
+    transform(+dx/2,        dy/2,           angle, cx, cy);   sprintf(h, "(%f %f) ", u2mil(x), u2mil(y)); cmd += h;
+    transform(+dx/2,        -dy/2,          angle, cx, cy);   sprintf(h, "(%f %f) ", u2mil(x), u2mil(y)); cmd += h;
+    transform(-dx/2,        -dy/2,          angle, cx, cy);   sprintf(h, "(%f %f) ", u2mil(x), u2mil(y)); cmd += h;
+  } else if(dx==dy && dx/2 == radius){
     transform(-dx/2,        0,              angle, cx, cy);   sprintf(h, "(%f %f) ", u2mil(x), u2mil(y)); cmd += h;
     transform(0,            dy/2,           angle, cx, cy);   sprintf(h, "-90 (%f %f) ", u2mil(x), u2mil(y)); cmd += h;
     transform(+dx/2,        0,              angle, cx, cy);   sprintf(h, "-90 (%f %f) ", u2mil(x), u2mil(y)); cmd += h;
