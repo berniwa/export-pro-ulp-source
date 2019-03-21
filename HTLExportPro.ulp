@@ -70,13 +70,13 @@ gerber_copper = 1, gerber_stc = 1, gerber_sts = 1, gerber_plc = 1,
 gerber_pls = 1, gerber_crc = 1, gerber_crs = 1, gerber_drd = 1, gerber_otl = 1,
 gerber_ref = 0, parts_top_docu = 1, parts_bot_docu = 1,
 board_thickness = 0, board_copper_thickness = 0, board_type = 0,
-eagle_export,
-ec_export, gerber_format = 0
+eagle_export, ec_export, gerber_format = 0,
+pnp_export = 0, pnp_top = 0, pnp_bot = 0, pnp_flip = 0, pnp_auto_offset = 0
 ;
 
 
 
-real bom_quantity;
+real bom_quantity, pnp_offset_x = 0.0, pnp_offset_y = 0.0;
 
 string output_folder = "./";
 
@@ -293,6 +293,14 @@ void loadUsersettings()
 		
 		gerber_format 	= strtol(data[91]);
 
+		pnp_export		= strtol(data[92]);
+		pnp_top			= strtol(data[93]);
+		pnp_bot			= strtol(data[94]);
+		pnp_flip		= strtol(data[95]);
+		pnp_auto_offset = strtol(data[96]);
+		pnp_offset_x	= strtod(data[97]);
+		pnp_offset_y	= strtod(data[98]);
+
 		if(format_revision == 0)	
 		//If the format revision was not set, the version is < 7
 		{
@@ -417,6 +425,16 @@ void saveUsersettings()
 
 		printf("%d\n", ec_export);
 		printf("%d\n", gerber_format);
+
+		printf("%d\n", pnp_export);
+		printf("%d\n", pnp_top);
+		printf("%d\n", pnp_bot);
+		printf("%d\n", pnp_flip);
+		printf("%d\n", pnp_auto_offset);
+		printf("%f\n", pnp_offset_x);
+		printf("%f\n", pnp_offset_y);
+
+
 	}
 }
 
@@ -434,7 +452,7 @@ void export()
 		system("mkdir \"" + output_folder + "\""); //Make new folder
 	}
 
-	string image_folder = "", gerber_folder = "", eagle_folder = "", cad_folder = "", ecpanel_folder = "";
+	string image_folder = "", gerber_folder = "", eagle_folder = "", cad_folder = "", ecpanel_folder = "", pnp_folder = "";
 
 	if(output_date_folder)	//If a date folder and subfolders should be created
 	{
@@ -442,8 +460,9 @@ void export()
 		image_folder 		= "images";
 		gerber_folder 		= "gerber";
 		eagle_folder 		= "eagle";
-		cad_folder 		= "cad";
+		cad_folder 			= "cad";
 		ecpanel_folder		= "panel";
+		pnp_folder			= "assembly";
 		
 		output_folder = output_folder + date_folder;
 			
@@ -471,12 +490,17 @@ void export()
 		{
 			system("mkdir \"" + output_folder + ecpanel_folder + "\"");
 		}
+		if(fileglob(tmp, output_folder + pnp_folder) <= 0)
+		{
+			system("mkdir \"" + output_folder + pnp_folder + "\"");
+		}
 
-		image_folder 	+= "/";
-		gerber_folder 	+= "/";
+		image_folder 		+= "/";
+		gerber_folder 		+= "/";
 		eagle_folder 		+= "/";
 		cad_folder 			+= "/";
 		ecpanel_folder		+= "/";
+		pnp_folder			+= "/";
 	}
 
 	string output_file_extension = "";
@@ -548,6 +572,9 @@ void export()
 	
 	//Output files to CAD directory
 	output_folder_idf = output_folder + cad_folder;
+
+	//Output files for PNP file
+	string ouput_file_pnp		= output_folder + pnp_folder + boardname;
 
 	//Output files in eagle directory (Eagle + Spec file)
 	output_file = output_folder + eagle_folder + boardname;
@@ -846,6 +873,15 @@ void export()
 	
 		//Generate specification file
 		sprintf(cmd, "%s RUN "  + include_path + "Specification.ulp '%s' '%s' '%s' %d '%s' '%s' '%s' '%s';", cmd, output_file_gerber_spec, PcbThickness[board_thickness], PcbType[board_type], count, PcbCopperThickness[board_copper_thickness], pcbSpecColor[pcbimage_color], pcbSpecSilkscreenColor[pcbimage_silkscreen_color], pcbSpecPlating[pcbimage_plating]); 		
+	}
+
+	if(pnp_export)
+	{
+		//string tmp = "";
+		//sprintf(tmp, "%s RUN "  + include_path + "PickAndPlace.ulp '%s' %d %d %d %d %f %f;", tmp, ouput_file_pnp + "-cpl.csv", pnp_top, pnp_bot, pnp_auto_offset, pnp_flip, pnp_offset_x, pnp_offset_y); 		
+		//dlgMessageBox(tmp);
+		sprintf(cmd, "%s RUN "  + include_path + "PickAndPlace.ulp '%s' %d %d %d %d %f %f;", cmd, ouput_file_pnp + "-cpl.csv", pnp_top, pnp_bot, pnp_auto_offset, pnp_flip, pnp_offset_x, pnp_offset_y); 		
+		sprintf(cmd, "%s RUN "  + include_path + "BOM.ulp '%s' -pnp ;", cmd, ouput_file_pnp);
 	}
 
 	cmd += "WRITE;";
@@ -1188,6 +1224,37 @@ void dialogGerberSettings()
 	};
 }
 
+void dialogPnpSettings()
+{
+	dlgDialog("PNP")
+	{
+		dlgGroup("Side") 
+		{
+			dlgCheckBox("Top", 					pnp_top);
+			dlgCheckBox("Bottom", 				pnp_bot);			
+		};
+		dlgGroup("Offset")
+		{
+	 		dlgCheckBox("Automatic offset correction", 	pnp_auto_offset);
+			dlgHBoxLayout {
+				dlgLabel("Offset X");
+				dlgRealEdit(pnp_offset_x, -1000.0, 1000.0);
+			} 
+			dlgHBoxLayout {
+				dlgLabel("Offset Y");
+				dlgRealEdit(pnp_offset_y, -1000.0, 1000.0);
+			} 
+		};
+		dlgGroup("Options:") 
+		{		
+	 		dlgCheckBox("Flip bottom layer", 			pnp_flip);	
+		};		
+		dlgPushButton("OK") {
+			dlgAccept();
+		};
+	};
+}
+
 void dialogHelpView()
 {
 	string text;
@@ -1268,6 +1335,7 @@ Copyright 2013, Bernhard Wörndl-Aichriedler\n\
 		dlgHBoxLayout {dlgCheckBox("Cad Dateien exportieren", idf_export); dlgStretch(1); };
 		dlgHBoxLayout {dlgCheckBox("Stromlaufplan exportieren", schematic_export); dlgPushButton("Einstellungen"){dialogSchematicSettings();}; };
 		dlgHBoxLayout {dlgCheckBox("Gerber Dateien exportieren", gerber_export); dlgPushButton("Einstellungen"){dialogGerberSettings();}; };
+		dlgHBoxLayout {dlgCheckBox("Pick&Place Dateien exportieren", pnp_export); dlgPushButton("Einstellungen"){dialogPnpSettings();}; };		
 		dlgHBoxLayout {dlgCheckBox("Eagle Dateien exportieren", eagle_export); dlgStretch(1); };
 		dlgHBoxLayout {dlgCheckBox("Eurocircuits-Panel erstellen und exportieren", ec_export); dlgStretch(1); };
 	}
