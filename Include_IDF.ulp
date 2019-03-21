@@ -1262,7 +1262,7 @@ string GetEmnBoardOutline() {
       */
 
      //init vars
-     int Debug = 1; //used for debugging and generation of log in board outline processing
+     int Debug = 0; //used for debugging and generation of log in board outline processing
      string logFilePath = filesetext(GetBoardPath(), ".log");
      string BoardThickness = GetBoardThickness();
      string boardOutlineSection = ".BOARD_OUTLINE UNOWNED\n" + BoardThickness + "\n";

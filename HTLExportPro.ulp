@@ -1,4 +1,4 @@
-﻿/************************************************************/
+/************************************************************/
 /* HTLExportPro.ulp                                         */
 /* - Generiert die Bemaßung des Boards                      */
 /* - Generiert den Drill Table                              */
@@ -68,7 +68,7 @@ format_revision = 0,
 gerber_export = 0, 
 gerber_copper = 1, gerber_stc = 1, gerber_sts = 1, gerber_plc = 1, 
 gerber_pls = 1, gerber_crc = 1, gerber_crs = 1, gerber_drd = 1, gerber_otl = 1,
-gerber_ref = 0,
+gerber_ref = 0, parts_top_docu = 1, parts_bot_docu = 1,
 board_thickness = 0, board_copper_thickness = 0, board_type = 0,
 eagle_export,
 ec_export,
@@ -289,14 +289,16 @@ void loadUsersettings()
 		board_copper_thickness= strtol(data[83]);
 
 		eagle_export 	= strtol(data[84]);
-
 		
 		gerber_otl 	= strtol(data[85]);
 
 		reference = strtol(data[86]);
 		gerber_ref  = strtol(data[87]);
-
-		ec_export = strtol(data[88]);
+		
+		parts_top_docu  = strtol(data[88]);
+		parts_bot_docu  = strtol(data[89]);
+		
+		ec_export = strtol(data[90]);
 		
 		gerberjlc_export = strtol(data[89]);
 		gerber_copper	 = strtol(data[90]);
@@ -309,6 +311,7 @@ void loadUsersettings()
 		gerber_TXT	= strtol(data[97]);
 		gerber_GML	= strtol(data[98]);
 	
+
 
 
 		if(format_revision == 0)	
@@ -430,6 +433,9 @@ void saveUsersettings()
 		printf("%d\n", reference);
 		printf("%d\n", gerber_ref);
 		
+		printf("%d\n", parts_top_docu);
+		printf("%d\n", parts_bot_docu);
+
 		printf("%d\n", ec_export);
 		
 		printf("%d\n", gerberjlc_export);
@@ -594,6 +600,7 @@ void export()
 	string names_layer_bottom = "26 ";
 	string values_layer_top = "27 ";
 	string values_layer_bottom = "28 ";
+	
 
 	if(no_measures)
 	{
@@ -719,11 +726,15 @@ void export()
 	}
 	if(enable_export && parts_top)
 	{
-		cmd += "DISPLAY NONE;DISPLAY 121 123 " + measure_layer_top + ";EXPORT IMAGE '" + output_file_pt + "' MONOCHROME 600;";
+		string lx = "";
+		if(parts_top_docu){lx = "51 ";}
+		cmd += "DISPLAY NONE;DISPLAY " + lx + "121 123 " + measure_layer_top + ";EXPORT IMAGE '" + output_file_pt + "' MONOCHROME 600;";
 	}
 	if(enable_export && parts_bot)
 	{	
-		cmd += "DISPLAY NONE;DISPLAY 122 123 " + measure_layer_bottom + ";EXPORT IMAGE '" + output_file_pb + "' MONOCHROME 600;";
+		string lx = "";
+		if(parts_bot_docu){lx = "52 ";}
+		cmd += "DISPLAY NONE;DISPLAY " + lx + "122 123 " + measure_layer_bottom + ";EXPORT IMAGE '" + output_file_pb + "' MONOCHROME 600;";
 	}
 	if(enable_export && drills)
 	{
@@ -1058,6 +1069,8 @@ void dialogImageSettings()
 			dlgCheckBox("Bilder beschneiden* (entfernen des weißen Randes)", crop_all);
 			dlgCheckBox("Keine Bemassungen (außer Leiterplattenkonstruktion)", no_measures);	
 			dlgLabel("* Dies kann je nach Boardgröße einige Zeit \n(bis zu mehreren Minuten) dauern.");
+			dlgCheckBox("tDocu bei Bestückungsdruck immer exportieren", parts_top_docu);
+			dlgCheckBox("bsDocu bei Bestückungsdruck immer exportieren", parts_bot_docu);
 		};
 		dlgGroup("Leiterplatten Ansicht: ")
 		{
