@@ -71,10 +71,7 @@ gerber_pls = 1, gerber_crc = 1, gerber_crs = 1, gerber_drd = 1, gerber_otl = 1,
 gerber_ref = 0, parts_top_docu = 1, parts_bot_docu = 1,
 board_thickness = 0, board_copper_thickness = 0, board_type = 0,
 eagle_export,
-ec_export,
-gerberjlc_export = 0,
-gerber_GTS = 1, gerber_GBS = 1, gerber_GTO = 1, gerber_GBO = 1, gerber_TXT = 1,
-gerber_GML = 1, gerber_GTP = 1, gerber_GBP = 1
+ec_export, gerber_format = 0
 ;
 
 
@@ -94,12 +91,6 @@ output_file_gerber_pt, output_file_gerber_pb,
 output_file_gerber_ct, output_file_gerber_cb,
 output_file_gerber_drill, output_file_gerber_otl,
 output_file_gerber_ref, output_file_gerber_spec,
-output_file_gerberjlc_copper_top,  output_file_gerberjlc_copper_bottom, output_file_gerberjlc_copper_other,
-output_file_gerberjlc_st, output_file_gerberjlc_sb,
-output_file_gerberjlc_pt, output_file_gerberjlc_pb,
-output_file_gerberjlc_ct, output_file_gerberjlc_cb,
-output_file_gerberjlc_drill, output_file_gerberjlc_otl,
-output_file_gerberjlc_ref, output_file_gerberjlc_spec,
 output_folder_eagle, output_file_eagle_spec,
 ecpanel_path
 ;
@@ -298,21 +289,9 @@ void loadUsersettings()
 		parts_top_docu  = strtol(data[88]);
 		parts_bot_docu  = strtol(data[89]);
 		
-		ec_export = strtol(data[90]);
+		ec_export 		= strtol(data[90]);
 		
-		gerberjlc_export = strtol(data[89]);
-		gerber_copper	 = strtol(data[90]);
-		gerber_GTS 	= strtol(data[91]);
-		gerber_GBS	= strtol(data[92]);
-		gerber_GTO	= strtol(data[93]);
-		gerber_GBO	= strtol(data[94]);
-		gerber_GTP	= strtol(data[95]);
-		gerber_GBP	= strtol(data[96]);
-		gerber_TXT	= strtol(data[97]);
-		gerber_GML	= strtol(data[98]);
-	
-
-
+		gerber_format 	= strtol(data[91]);
 
 		if(format_revision == 0)	
 		//If the format revision was not set, the version is < 7
@@ -437,16 +416,7 @@ void saveUsersettings()
 		printf("%d\n", parts_bot_docu);
 
 		printf("%d\n", ec_export);
-		
-		printf("%d\n", gerberjlc_export);
-		printf("%d\n", gerber_copper);
-		printf("%d\n", gerber_GTS);
-		printf("%d\n", gerber_GBS);
-		printf("%d\n", gerber_GTO);
-		printf("%d\n", gerber_GBO);
-		printf("%d\n", gerber_GTP);
-		printf("%d\n", gerber_GBP);
-		printf("%d\n", gerber_TXT);
+		printf("%d\n", gerber_format);
 	}
 }
 
@@ -464,14 +434,13 @@ void export()
 		system("mkdir \"" + output_folder + "\""); //Make new folder
 	}
 
-	string image_folder = "", gerber_folder = "", eagle_folder = "", cad_folder = "", gerberjlc_folder = "", ecpanel_folder = "";
+	string image_folder = "", gerber_folder = "", eagle_folder = "", cad_folder = "", ecpanel_folder = "";
 
 	if(output_date_folder)	//If a date folder and subfolders should be created
 	{
 		string date_folder 	= t2string(time(), "yyyy-MM-dd") + "/";
 		image_folder 		= "images";
 		gerber_folder 		= "gerber";
-		gerberjlc_folder	= "gerber/jlc";
 		eagle_folder 		= "eagle";
 		cad_folder 		= "cad";
 		ecpanel_folder		= "panel";
@@ -498,10 +467,6 @@ void export()
 		{
 			system("mkdir \"" + output_folder + cad_folder + "\""); 
 		}
-		if(fileglob(tmp, output_folder + gerberjlc_folder) <= 0)
-		{
-			system("mkdir \"" + output_folder + gerberjlc_folder + "\"");
-		}
 		if(fileglob(tmp, output_folder + ecpanel_folder) <= 0)
 		{
 			system("mkdir \"" + output_folder + ecpanel_folder + "\"");
@@ -509,7 +474,6 @@ void export()
 
 		image_folder 	+= "/";
 		gerber_folder 	+= "/";
-		gerberjlc_folder	+= "/";
 		eagle_folder 		+= "/";
 		cad_folder 			+= "/";
 		ecpanel_folder		+= "/";
@@ -547,38 +511,40 @@ void export()
 		output_file_pcbt = getFilename(output_file, "-pcb-top.bmp");
 		output_file_pcbb = getFilename(output_file, "-pcb-bot.bmp");
 	}*/
-		
-	//Output files to gerber directory
-	output_file = output_folder + gerber_folder + boardname;
-	output_file_gerber_copper_top 	= getFilename(output_file, ".cmp");
-	output_file_gerber_copper_other 	= getFilename(output_file, ".g");
-	output_file_gerber_copper_bottom 	= getFilename(output_file, ".sol");
-	output_file_gerber_st		= getFilename(output_file, ".stc");
-	output_file_gerber_sb		= getFilename(output_file, ".sts");
-	output_file_gerber_pt		= getFilename(output_file, ".plc");
-	output_file_gerber_pb		= getFilename(output_file, ".pls");
-	output_file_gerber_ct		= getFilename(output_file, ".crc");
-	output_file_gerber_cb		= getFilename(output_file, ".crs");
-	output_file_gerber_drill		= getFilename(output_file, ".drd");
-	output_file_gerber_otl		= getFilename(output_file, ".otl");
-	output_file_gerber_ref 		= getFilename(output_file, ".ref");
-	output_file_gerber_spec		= getFilename(output_file, "-specifications.txt");
 	
-	//Output files to gerberjlc directory
-	output_file = output_folder + gerberjlc_folder + boardname;
-	output_file_gerberjlc_copper_top 	= getFilename(output_file, ".GTL");
-	output_file_gerberjlc_copper_other 	= getFilename(output_file, ".g");
-	output_file_gerberjlc_copper_bottom 	= getFilename(output_file, ".GBL");
-	output_file_gerberjlc_st		= getFilename(output_file, ".GTS");
-	output_file_gerberjlc_sb		= getFilename(output_file, ".GBS");
-	output_file_gerberjlc_pt		= getFilename(output_file, ".GTO");
-	output_file_gerberjlc_pb		= getFilename(output_file, ".GBO");
-	output_file_gerberjlc_ct		= getFilename(output_file, ".GTP");
-	output_file_gerberjlc_cb		= getFilename(output_file, ".GBP");
-	output_file_gerberjlc_drill	= getFilename(output_file, ".txt");
-	output_file_gerberjlc_otl		= getFilename(output_file, ".GML");
-	output_file_gerberjlc_ref 		= getFilename(output_file, ".ref");
-	output_file_gerberjlc_spec		= getFilename(output_file, "-specifications.txt");
+
+	output_file = output_folder + gerber_folder + boardname;
+	if(gerber_format == 0){				//Standard EAGLE file naming
+		//Output files to gerber directory
+		output_file_gerber_copper_top 		= getFilename(output_file, ".cmp");
+		output_file_gerber_copper_other 	= getFilename(output_file, ".g");
+		output_file_gerber_copper_bottom 	= getFilename(output_file, ".sol");
+		output_file_gerber_st				= getFilename(output_file, ".stc");
+		output_file_gerber_sb				= getFilename(output_file, ".sts");
+		output_file_gerber_pt				= getFilename(output_file, ".plc");
+		output_file_gerber_pb				= getFilename(output_file, ".pls");
+		output_file_gerber_ct				= getFilename(output_file, ".crc");
+		output_file_gerber_cb				= getFilename(output_file, ".crs");
+		output_file_gerber_drill			= getFilename(output_file, ".drd");
+		output_file_gerber_otl				= getFilename(output_file, ".otl");
+		output_file_gerber_ref 				= getFilename(output_file, ".ref");
+		output_file_gerber_spec				= getFilename(output_file, "-specifications.txt");		
+	} else if(gerber_format == 1) {		//Protel file naming
+		//Output files to gerber directory
+		output_file_gerber_copper_top 		= getFilename(output_file, ".GTL");
+		output_file_gerber_copper_other 	= getFilename(output_file, ".G");
+		output_file_gerber_copper_bottom 	= getFilename(output_file, ".GBL");
+		output_file_gerber_st				= getFilename(output_file, ".GTS");
+		output_file_gerber_sb				= getFilename(output_file, ".GBS");
+		output_file_gerber_pt				= getFilename(output_file, ".GTO");
+		output_file_gerber_pb				= getFilename(output_file, ".GBO");
+		output_file_gerber_ct				= getFilename(output_file, ".GTP");
+		output_file_gerber_cb				= getFilename(output_file, ".GBP");
+		output_file_gerber_drill			= getFilename(output_file, ".txt");
+		output_file_gerber_otl				= getFilename(output_file, ".GML");
+		output_file_gerber_ref 				= getFilename(output_file, ".REF");
+		output_file_gerber_spec				= getFilename(output_file, "-specifications.txt");
+	}
 	
 	//Output files to CAD directory
 	output_folder_idf = output_folder + cad_folder;
@@ -655,8 +621,7 @@ void export()
 	{
 		sprintf(cmd, "%s WRITE " + output_folder + ecpanel_folder + boardname + "_ec.brd;", cmd);
 		sprintf(cmd, "%s EDIT " +  output_folder + ecpanel_folder + boardname + "_ec.brd;", cmd);
-		sprintf(cmd, "%s RUN " + include_path + "ec_panel.ulp;", cmd);
-		dlgMessageBox("Hello World");
+		sprintf(cmd, "%s RUN " + include_path + "EcPanel.ulp;", cmd);
 		
 		ecpanel_path = output_folder + ecpanel_folder + boardname;
 		
@@ -878,57 +843,11 @@ void export()
 		if(gerber_drd){ sprintf(cmd, "%s RUN "  + include_path + "Gerber.ulp 4 '%s' '%s';",   cmd,  getSystemFilename(".brd"), output_file_gerber_drill); }	
 		if(gerber_otl){ sprintf(cmd, "%s RUN "  + include_path + "Gerber.ulp 5 '%s' '%s';",   cmd,  getSystemFilename(".brd"), output_file_gerber_otl); }	
 		if(gerber_ref){ sprintf(cmd, "%s RUN "  + include_path + "Gerber.ulp 6 '%s' '%s';",   cmd,  getSystemFilename(".brd"), output_file_gerber_ref); }	
-				
-
 	
 		//Generate specification file
 		sprintf(cmd, "%s RUN "  + include_path + "Specification.ulp '%s' '%s' '%s' %d '%s' '%s' '%s' '%s';", cmd, output_file_gerber_spec, PcbThickness[board_thickness], PcbType[board_type], count, PcbCopperThickness[board_copper_thickness], pcbSpecColor[pcbimage_color], pcbSpecSilkscreenColor[pcbimage_silkscreen_color], pcbSpecPlating[pcbimage_plating]); 		
 	}
 
-	if(gerberjlc_export)
-	{
-		//Let the ulp retrieve the eagle executeable path once
-		int count = 0;
-		if(gerber_copper)
-		{
-			for(int i = 0; i < 16; i++)
-			{
-				if(board_layer[i] == 1)
-				{
-					if(i == 0)
-					{	
-						sprintf(cmd, "%s RUN "  + include_path + "Gerber.ulp 0 '%s' '%s' %d;", cmd,  getSystemFilename(".brd"), output_file_gerber_copper_top,  i+1);
-					}
-					else if(i == 15)
-					{
-						sprintf(cmd, "%s RUN "  + include_path + "Gerber.ulp 0 '%s' '%s' %d;", cmd,  getSystemFilename(".brd"), output_file_gerber_copper_bottom,  i+1);
-					}
-					else
-					{
-						string tfname = "";
-						sprintf(tfname, "%s%d", output_file_gerber_copper_other, i+1); 			
-						sprintf(cmd, "%s RUN "  + include_path + "Gerber.ulp 0 '%s' '%s' %d;", cmd,  getSystemFilename(".brd"), tfname ,  i+1);					
-					}
-					count++;
-				}			
-			}
-		}
-		if(gerber_GTS){ sprintf(cmd, "%s RUN "  + include_path + "Gerber.ulp 1 '%s' '%s' 1;", cmd,  getSystemFilename(".brd"), output_file_gerberjlc_st); }
-		if(gerber_GBS){ sprintf(cmd, "%s RUN "  + include_path + "Gerber.ulp 1 '%s' '%s' 0;", cmd,  getSystemFilename(".brd"), output_file_gerberjlc_sb); }
-		if(gerber_GTP){ sprintf(cmd, "%s RUN "  + include_path + "Gerber.ulp 2 '%s' '%s' 1;", cmd,  getSystemFilename(".brd"), output_file_gerberjlc_ct); }
-		if(gerber_GBP){ sprintf(cmd, "%s RUN "  + include_path + "Gerber.ulp 2 '%s' '%s' 0;", cmd,  getSystemFilename(".brd"), output_file_gerberjlc_cb); }
-		if(gerber_GTO){ sprintf(cmd, "%s RUN "  + include_path + "Gerber.ulp 3 '%s' '%s' 1 %d %d %d %d;", cmd,  getSystemFilename(".brd"), output_file_gerberjlc_pt, silkscreen_tplace, silkscreen_tnames, silkscreen_tvalues, silkscreen_tdocu); }
-		if(gerber_GBO){ sprintf(cmd, "%s RUN "  + include_path + "Gerber.ulp 3 '%s' '%s' 0 %d %d %d %d;", cmd,  getSystemFilename(".brd"), output_file_gerberjlc_pb, silkscreen_bplace, silkscreen_bnames, silkscreen_bvalues, silkscreen_bdocu); }
-		if(gerber_TXT){ sprintf(cmd, "%s RUN "  + include_path + "Gerber.ulp 4 '%s' '%s';",   cmd,  getSystemFilename(".brd"), output_file_gerberjlc_drill); }	
-		if(gerber_GML){ sprintf(cmd, "%s RUN "  + include_path + "Gerber.ulp 5 '%s' '%s';",   cmd,  getSystemFilename(".brd"), output_file_gerberjlc_otl); }	
-		if(gerber_ref){ sprintf(cmd, "%s RUN "  + include_path + "Gerber.ulp 6 '%s' '%s';",   cmd,  getSystemFilename(".brd"), output_file_gerberjlc_ref); }	
-				
-
-	
-		//Generate specification file
-		sprintf(cmd, "%s RUN "  + include_path + "Specification.ulp '%s' '%s' '%s' %d '%s' '%s' '%s' '%s';", cmd, output_file_gerber_spec, PcbThickness[board_thickness], PcbType[board_type], count, PcbCopperThickness[board_copper_thickness], pcbSpecColor[pcbimage_color], pcbSpecSilkscreenColor[pcbimage_silkscreen_color], pcbSpecPlating[pcbimage_plating]); 		
-	}
-	
 	cmd += "WRITE;";
 
 	if(eagle_export)
@@ -1242,6 +1161,11 @@ void dialogGerberSettings()
 {
 	dlgDialog("Gerber Einstellungen")
 	{
+		dlgGroup("File Naming:")
+		{
+			dlgRadioButton("EAGLE (for Eurocircuits)",  gerber_format);
+			dlgRadioButton("Protel (for JLC) ", 		gerber_format);
+		}
 		dlgGroup("Gerber RS274X:") 
 		{
 			dlgCheckBox("Alle Kupferlagen (.sol, .gXX, .cmp) ", 	gerber_copper);
@@ -1257,32 +1181,6 @@ void dialogGerberSettings()
 		dlgGroup("Excellon:") 
 		{		
 	 		dlgCheckBox("Bohrungen (.drd, .drl)", 			gerber_drd);	
-		};		
-		dlgPushButton("OK") {
-			dlgAccept();
-		};
-	};
-}
-
-void dialogGerberjlcSettings()
-{
-	dlgDialog("Gerberjlc Einstellungen")
-	{
-		dlgGroup("Gerber:") 
-		{
-			dlgCheckBox("Alle Kupferlagen (.sol, .gXX, .cmp) ", 	gerber_copper);
-			dlgCheckBox("Lötstopmaske Top (.GTS)", 			gerber_GTS);	
-			dlgCheckBox("Lötstopmaske Bottom (.GBS)", 		gerber_GBS);
-			dlgCheckBox("Bestückungsdruck Top (.GTO)", 		gerber_GTO);	
-			dlgCheckBox("Bestückungsdruck Bottom (.GBO)", 	gerber_GBO);
-			dlgCheckBox("Lötpaste Top (.GTP)", 				gerber_GTP);	
-			dlgCheckBox("Lötpaste Bottom (.GBP)", 			gerber_GBP);	
-			dlgCheckBox("Dimensionen (.GML)", 				gerber_GML);		
-			dlgCheckBox("Reference Layer (.ref)",			gerber_ref);			
-		}
-		dlgGroup("Excellon:") 
-		{		
-	 		dlgCheckBox("Bohrungen (.TXT)", 				gerber_TXT);	
 		};		
 		dlgPushButton("OK") {
 			dlgAccept();
@@ -1372,7 +1270,6 @@ Copyright 2013, Bernhard Wörndl-Aichriedler\n\
 		dlgHBoxLayout {dlgCheckBox("Gerber Dateien exportieren", gerber_export); dlgPushButton("Einstellungen"){dialogGerberSettings();}; };
 		dlgHBoxLayout {dlgCheckBox("Eagle Dateien exportieren", eagle_export); dlgStretch(1); };
 		dlgHBoxLayout {dlgCheckBox("Eurocircuits-Panel erstellen und exportieren", ec_export); dlgStretch(1); };
-		dlgHBoxLayout {dlgCheckBox("Gerber Dateien für jlc exportieren", gerberjlc_export); dlgPushButton("Einstellungen"){dialogGerberjlcSettings();}; };
 	}
 	dlgGroup("Ausgabeordner")
 	{

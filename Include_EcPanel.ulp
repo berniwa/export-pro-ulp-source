@@ -1,4 +1,4 @@
-#include "boardsize.ulp"
+#include "Include_Boardsize.ulp"
 
 getBoardSize();
 
@@ -181,7 +181,7 @@ void stege(){
 	sprintf(temp, "%s WIRE (%fmm %fmm) (%fmm %fmm);", temp, steg_rechts_x_min, maxY, steg_rechts_x_min, y_max_inline);
 	sprintf(temp, "%s WIRE (%fmm %fmm) (%fmm %fmm);", temp, steg_rechts_x_max, maxY, steg_rechts_x_max, y_max_inline);
 
-	dlgMessageBox("Stege Created");
+	//dlgMessageBox("Stege Created");
 	// ================================================
 	//             Verbindungslinien löschen
 	// ================================================
