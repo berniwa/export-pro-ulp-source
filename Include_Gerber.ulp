@@ -14,6 +14,7 @@
 #usage ""
 
 string working_directory = "", temporary_file = "", eagle_binary = "";
+string option = "-c-"; 
 
 /*
  We cannot script the CAM processor using the user language, 
@@ -69,7 +70,7 @@ if(type == 0)
 
 	//Export a single copper layer
 	string cmd = "";
-	sprintf(cmd, "%s -X -dGERBER_RS274X -o \"%s\" \"%s\" %d 17 18", eagle_binary, outputfile, inputfile, layer);
+	sprintf(cmd, "%s -X -dGERBER_RS274X %s -o \"%s\" \"%s\" %d 17 18", eagle_binary, option, outputfile, inputfile, layer);
 	system(cmd);
 }
 else if(type == 1)
@@ -83,7 +84,7 @@ else if(type == 1)
 	status(tmp);
 
 	string cmd = "";
-	sprintf(cmd, "%s -X -dGERBER_RS274X -o \"%s\" \"%s\" %d ", eagle_binary, outputfile, inputfile, layer);
+	sprintf(cmd, "%s -X -dGERBER_RS274X %s -o \"%s\" \"%s\" %d ", eagle_binary, option, outputfile, inputfile, layer);
 	system(cmd);	
 }
 else if(type == 2)
@@ -97,7 +98,7 @@ else if(type == 2)
 	status(tmp);
 
 	string cmd = "";
-	sprintf(cmd, "%s -X -dGERBER_RS274X -o \"%s\" \"%s\" %d ", eagle_binary, outputfile, inputfile, layer);
+	sprintf(cmd, "%s -X -dGERBER_RS274X %s -o \"%s\" \"%s\" %d ", eagle_binary, option, outputfile, inputfile, layer);
 	system(cmd);		
 }
 else if(type == 3)
@@ -113,7 +114,7 @@ else if(type == 3)
 	status(tmp);
 
 	string cmd = "";
-	sprintf(cmd, "%s -X -dGERBER_RS274X -o \"%s\" \"%s\" 20", eagle_binary, outputfile, inputfile);
+	sprintf(cmd, "%s -X -dGERBER_RS274X %s -o \"%s\" \"%s\" 20", eagle_binary, option, outputfile, inputfile);
 
 	if(top_bottom)
 	{
@@ -141,7 +142,7 @@ else if(type == 4)
 	status(tmp);	
 
 	string cmd = "";
-	sprintf(cmd, "%s -X -dEXCELLON -o \"%s\" \"%s\" 44 45", eagle_binary, outputfile, inputfile);	
+	sprintf(cmd, "%s -X -dEXCELLON %s -o \"%s\" \"%s\" 44 45", eagle_binary, option, outputfile, inputfile);	
 	system(cmd);
 }
 else if(type == 5)
@@ -150,7 +151,7 @@ else if(type == 5)
 	int layer = 20;
 
 	string cmd = "";
-	sprintf(cmd, "%s -X -dGERBER_RS274X -o \"%s\" \"%s\" %d ", eagle_binary, outputfile, inputfile, layer);
+	sprintf(cmd, "%s -X -dGERBER_RS274X %s -o \"%s\" \"%s\" %d ", eagle_binary, option, outputfile, inputfile, layer);
 	system(cmd);		
 }
 else if(type == 6)
@@ -159,7 +160,7 @@ else if(type == 6)
 	int layer = 49;
 
 	string cmd = "";
-	sprintf(cmd, "%s -X -dGERBER_RS274X -o \"%s\" \"%s\" %d ", eagle_binary, outputfile, inputfile, layer);
+	sprintf(cmd, "%s -X -dGERBER_RS274X %s -o \"%s\" \"%s\" %d ", eagle_binary, option, outputfile, inputfile, layer);
 	system(cmd);		
 }
 

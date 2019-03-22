@@ -259,7 +259,7 @@ void bomPartsLoadPart(UL_PART P, string prefix){
 			//Ignore the part totally!
 		}
 		else {
-			bomInfoParts[bomInfoCount] 						= P.name;
+			bomInfoParts[bomInfoCount] 						= prefix + P.name;
 			bomInfoValue[bomInfoCount] 						= P.value;
 			bomInfoDevice[bomInfoCount] 					= P.device.name;
 			bomInfoPackage[bomInfoCount] 					= P.device.package.name;
