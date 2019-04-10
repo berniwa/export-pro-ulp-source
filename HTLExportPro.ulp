@@ -474,23 +474,23 @@ void export()
 		{
 			system("mkdir \"" + output_folder + image_folder + "\""); 
 		}
-		if(fileglob(tmp, output_folder + gerber_folder) <= 0)
+		if(gerber_export == 1 && fileglob(tmp, output_folder + gerber_folder) <= 0)
 		{
 			system("mkdir \"" + output_folder + gerber_folder + "\""); 
 		}
-		if(fileglob(tmp, output_folder + eagle_folder) <= 0)
+		if(eagle_export == 1 && fileglob(tmp, output_folder + eagle_folder) <= 0)
 		{
 			system("mkdir \"" + output_folder + eagle_folder + "\""); 
 		}
-		if(fileglob(tmp, output_folder + cad_folder) <= 0)
+		if(idf_export == 1 && fileglob(tmp, output_folder + cad_folder) <= 0)
 		{
 			system("mkdir \"" + output_folder + cad_folder + "\""); 
 		}
-		if(fileglob(tmp, output_folder + ecpanel_folder) <= 0)
+		if(ec_export == 1 && fileglob(tmp, output_folder + ecpanel_folder) <= 0)
 		{
 			system("mkdir \"" + output_folder + ecpanel_folder + "\"");
 		}
-		if(fileglob(tmp, output_folder + pnp_folder) <= 0)
+		if(pnp_export == 1 && fileglob(tmp, output_folder + pnp_folder) <= 0)
 		{
 			system("mkdir \"" + output_folder + pnp_folder + "\"");
 		}
@@ -1232,23 +1232,7 @@ void dialogPnpSettings()
 		{
 			dlgCheckBox("Top", 					pnp_top);
 			dlgCheckBox("Bottom", 				pnp_bot);			
-		};
-		dlgGroup("Offset")
-		{
-	 		dlgCheckBox("Automatic offset correction", 	pnp_auto_offset);
-			dlgHBoxLayout {
-				dlgLabel("Offset X");
-				dlgRealEdit(pnp_offset_x, -1000.0, 1000.0);
-			} 
-			dlgHBoxLayout {
-				dlgLabel("Offset Y");
-				dlgRealEdit(pnp_offset_y, -1000.0, 1000.0);
-			} 
-		};
-		dlgGroup("Options:") 
-		{		
-	 		dlgCheckBox("Flip bottom layer", 			pnp_flip);	
-		};		
+		};	
 		dlgPushButton("OK") {
 			dlgAccept();
 		};

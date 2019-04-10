@@ -13,6 +13,7 @@ int    pnpY[];
 real   pnpAngle[];
 int    pnpFeeder[];
 int    pnpPos[];    //Top or bottom
+int    pnpType[];
 int    pnpCount;    
 int    pnpStatsPartsTotal;
 int    pnpStatsPartsOk;
@@ -115,7 +116,7 @@ int transformCoordinateY(int y, int pos){
 void addHeader()
 {
   //File header
-  printf("ID, PART, SIDE, X, Y, ROTATION\n");
+  printf("ID, PART, SIDE, TYPE, X, Y, ROTATION\n");
 }
 
 int componentID = 0;
@@ -134,8 +135,14 @@ void addComponents(int position)
   for(int i = 0; i < pnpCount; i++){
     if(pnpPos[i] == position){
 
-      printf("%d, %s, %s, %.3f, %.3f, %.3f\n",
-             componentID, pnpDesignator[i], pos,
+      string type = "TH";
+      if(pnpType[i] == 1){
+        type = "SMD";
+      }
+
+
+      printf("%d, %s, %s, %s, %.3f, %.3f, %.3f\n",
+             componentID, pnpDesignator[i], pos, type,
              u2mm(transformCoordinateX(pnpX[i], pnpPos[i])), 
              u2mm(transformCoordinateY(pnpY[i], pnpPos[i])), 
              pnpAngle[i]); 
@@ -215,30 +222,34 @@ void loadBoardInformation() {
       int xmax = -2147483648,
           xmin = 2147483647,
           ymax = xmax,
-          ymin = xmin;	  
+          ymin = xmin;	
+      xmax = E.x;
+      xmin = E.x;
+      ymax = E.y;
+      ymin = E.y;
+
       E.package.contacts(C) {
         if (C.smd && C.smd.layer == 1) {
           isSmd = 1;
-
-	        //Find centroid of this component
-          if (C.x > xmax) xmax = C.x;
-          if (C.y > ymax) ymax = C.y;
-          if (C.x < xmin) xmin = C.x;
-          if (C.y < ymin) ymin = C.y;
         }
         if (C.smd && C.smd.layer == 16) {
           isSmd = 1;
           isBottom = 1;
-
-          if (C.x > xmax) xmax = C.x;
-          if (C.y > ymax) ymax = C.y;
-          if (C.x < xmin) xmin = C.x;
-          if (C.y < ymin) ymin = C.y;
         }
+
+        //Find centroid of this component
+        if (C.x > xmax) xmax = C.x;
+        if (C.y > ymax) ymax = C.y;
+        if (C.x < xmin) xmin = C.x;
+        if (C.y < ymin) ymin = C.y;
+      }
+
+      if(!isSmd && E.mirror == 1){
+        isBottom = 1;
       }
 
       //If the part is SMD, process it
-      if (isSmd) {
+      //if (isSmd) {
 		    real xCenter = (xmin + xmax) / 2;
         real yCenter = (ymin + ymax) / 2;
 		
@@ -248,9 +259,10 @@ void loadBoardInformation() {
         pnpY[pnpCount]          = yCenter;
         pnpAngle[pnpCount]      = E.angle;
         pnpPos[pnpCount]        = isBottom;
+        pnpType[pnpCount]       = isSmd;
 
         pnpCount++;
-      }
+      //}
 
       //Autodetect to board outline
       B.wires(W) {
