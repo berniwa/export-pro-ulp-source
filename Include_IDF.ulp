@@ -567,8 +567,12 @@ string GetDateTime() {
 }  //end sub
 
 //looks up package outline and generates text for .electical section entry
-string GetComponentOutline(string footprint, string altname, string packageName,
-                                   string units, string height) {
+string GetComponentOutline(
+	string ftprint, 
+	string altname, 
+	string packageName, 
+	string units, 
+	string height) {
 
      //package array = [ { packname1, maxX, maxY, minX, minY },
      //                          { packname2, maxX, maxY, minX, minY }
@@ -748,7 +752,7 @@ string GetComponentOutline(string footprint, string altname, string packageName,
      }  //end if for lookup check
 
      //generate outline data. first line is footpring, name, and units
-     string outline = footprint + " " + altname + " " + units;
+     string outline = ftprint + " " + altname + " " + units;
 
      //set default height based on units
      if (units == "MM") {
@@ -847,7 +851,7 @@ string GetEmpElectrical() {
 
      string electricalSection;
 
-     string footprint;
+     string ftprint;
      string altname;
      string height = NULL_HEIGHT;
 
@@ -871,30 +875,30 @@ string GetEmpElectrical() {
                //check if library in lookup
                LibraryLookup = lookup(Libraries, strupr(E.package.library), 0);
 
-               //set footprint and altname based on logic
+               //set ftprint and altname based on logic
                if (LibraryLookup != "") {
-                    footprint = E.package.name;
+                    ftprint = E.package.name;
                     altname = E.package.name;
 
                     //add comment to emn for debuggin
                     //placementSection += "#Resistor or rcl library found\n";
                } else if (E.value != "") {
                     altname = E.value;
-                    footprint = E.package.name;
+                    ftprint = E.package.name;
 
                     //add comment to emn for debuggin
                     //placementSection += "#E.value present\n";
                } else {
                     //if library Is not in list and the E.value Is blank then concat refid and package name
                     altname = E.name + "_" + E.package.name;
-                    footprint = E.package.name;
+                    ftprint = E.package.name;
 
                     //add comment to emn for debuggin
                     //placementSection += "#Fallback logic applied. Not res/rcl and E.value not found.\n";
                }
 
                altname = CleanString(altname);
-               footprint = CleanString(footprint);
+               ftprint = CleanString(ftprint);
 
                //check for element height
                /*
@@ -932,39 +936,39 @@ string GetEmpElectrical() {
                //if height is default value then do not append it to altname. this will prevent the height from poluting the naming convention
                //if height is not default then append it to altname so that its unique
                if( height == "1.0" ){
-                    //component = lookup(components, footprint + "~" + altname, 0); - Fix for multi comp and heights
-                    component = lookup(components, footprint + "~" + altname, 0);
+                    //component = lookup(components, ftprint + "~" + altname, 0); - Fix for multi comp and heights
+                    component = lookup(components, ftprint + "~" + altname, 0);
 
                     //if component Is empty then it has not been written out yet.
                     if (component == "") {
 
-                         //build section by call to GetComponentOutlineDummy( string footprint, string altname, string units )
+                         //build section by call to GetComponentOutlineDummy( string ftprint, string altname, string units )
                          electricalSection += ".ELECTRICAL\n" +
-                                                       GetComponentOutline(footprint, altname, E.package.name, GetBoardUnits(), height) +
+                                                       GetComponentOutline(ftprint, altname, E.package.name, GetBoardUnits(), height) +
                                                        ".END_ELECTRICAL\n";
 
                          //add component to components list.
-                         //components[i] = footprint + "~" + altname; - Fix for multi comp and heights
-                         components[i] = footprint + "~" + altname;
+                         //components[i] = ftprint + "~" + altname; - Fix for multi comp and heights
+                         components[i] = ftprint + "~" + altname;
 
                          i++;
                     }  //end if
 
                }
                else{
-                    component = lookup(components, footprint + "_" + height + "~" + altname + "_" + height, 0);
+                    component = lookup(components, ftprint + "_" + height + "~" + altname + "_" + height, 0);
 
                     //if component Is empty then it has not been written out yet.
                     if (component == "") {
 
-                         //build section by call to GetComponentOutlineDummy( string footprint, string altname, string units )
+                         //build section by call to GetComponentOutlineDummy( string ftprint, string altname, string units )
                          electricalSection += ".ELECTRICAL\n" +
-                                                       GetComponentOutline(footprint + "_" + height, altname + "_" + height, E.package.name, GetBoardUnits(), height) +
+                                                       GetComponentOutline(ftprint + "_" + height, altname + "_" + height, E.package.name, GetBoardUnits(), height) +
                                                        ".END_ELECTRICAL\n";
 
                          //add component to components list.
-                         //components[i] = footprint + "~" + altname; - Fix for multi comp and heights
-                         components[i] = footprint + "_" + height + "~" + altname + "_" + height;
+                         //components[i] = ftprint + "~" + altname; - Fix for multi comp and heights
+                         components[i] = ftprint + "_" + height + "~" + altname + "_" + height;
 
                          i++;
                     }  //end if
@@ -1970,7 +1974,7 @@ string GetEmnPlacements() {
       0805 CAP C13
       2565.0 1380.0 0.0 0.0 TOP PLACED
 
-      <footprint>  <altname>   <refid>
+      <ftprint>  <altname>   <refid>
       <x>   <y>  <?>  <rot>  <top/bottom>  <placed>
 
       ...
@@ -1981,7 +1985,7 @@ string GetEmnPlacements() {
 
      string placementSection;
 
-     string footprint;
+     string ftprint;
      string altname;
      string ref_id;
 
@@ -2004,22 +2008,22 @@ string GetEmnPlacements() {
 
                LibraryLookup = lookup(Libraries, strupr(E.package.library), 0);
 
-               //logic to setup footprint an altname values
+               //logic to setup ftprint an altname values
                if (LibraryLookup != "") {
-                    //if found in LibraryLookup then assign package name to both footprint and altname
+                    //if found in LibraryLookup then assign package name to both ftprint and altname
                     altname = E.package.name;
-                    footprint = E.package.name;
+                    ftprint = E.package.name;
                } else if (E.value != "") {
-                    //if e.value Is not empty then put it in the footprint
+                    //if e.value Is not empty then put it in the ftprint
                     altname = E.value;
-                    footprint = E.package.name;
+                    ftprint = E.package.name;
                } else {
                     //if library Is not in list and the E.value Is blank then concat refid and package name
                     altname = E.name + "_" + E.package.name;
-                    footprint = E.package.name;
+                    ftprint = E.package.name;
                }  //end if-else
 
-               footprint = CleanString(footprint);
+               ftprint = CleanString(ftprint);
                altname = CleanString(altname);
 
                ref_id = E.name;
@@ -2038,20 +2042,20 @@ string GetEmnPlacements() {
 
                //if default height then dont append to altname. otherwise put unique height on altname
                if( height == "1.0" ){
-                    sprintf(temp, "%s %s %s\n%f %f 0 %f %s PLACED\n", footprint,
+                    sprintf(temp, "%s %s %s\n%f %f 0 %f %s PLACED\n", ftprint,
                          altname, ref_id, GetDimInBoardUnits(E.x),
                          GetDimInBoardUnits(E.y), E.angle, side);
 
                     //add component to components list
-                    components[i] = footprint + "~" + altname;
+                    components[i] = ftprint + "~" + altname;
                }
                else{
-                    sprintf(temp, "%s %s %s\n%f %f 0 %f %s PLACED\n", footprint + "_" + height,
+                    sprintf(temp, "%s %s %s\n%f %f 0 %f %s PLACED\n", ftprint + "_" + height,
                          altname + "_" + height, ref_id, GetDimInBoardUnits(E.x),
                          GetDimInBoardUnits(E.y), E.angle, side);
 
                     //add component to components list
-                    components[i] = footprint + "_" + height + "~" + altname + "_" + height;
+                    components[i] = ftprint + "_" + height + "~" + altname + "_" + height;
 
                }  //end if-else
 

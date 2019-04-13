@@ -1260,103 +1260,117 @@ void dialogHelpView()
 	};
 }
 
-loadUsersettings();
 
-int dialog = dlgDialog(ULP_VERSION)
-{
-	dlgHBoxLayout
-	{
-		dlgGroup("")
-		{
-		dlgLabel("\
-An meine lieben HTLer und HTLerinnen =):\n\
-Ich hoffe es hilft euch schnell ans Ziel zu kommen ^^\n\
-Bei Fragen, Problemen oder Wünschen könnt ihr mich jederzeit unter \n\
-bwa@berniwa.com erreichen. \n\
-\n\
-Liebe Grüße BWA\
-");
-	dlgHBoxLayout
-	{
+void main(){
+	//In Eagle Version > 7, we need to have a fixed
+	//an absolute Path to our ULPs as Eagle otherwhise
+	//wont find it
+	include_path = getUlpDir(include_path);
 
-		dlgPushButton("Nutzungsbedingungen") 
+	//Load the users project settings
+	loadUsersettings();
+
+	//Create the main dialog
+	int dialog = dlgDialog(ULP_VERSION)
+	{
+		dlgHBoxLayout
 		{
-		dlgMessageBox("\
-\n\
-Dieses ULP ist NUR für die Verwendung an der HTL-Salzburg gedacht!\n\
-Sollten Sie diese ULP anderweitig (kommerziell oder nicht-kommerziell)\n\
-verwenden wollen, kontaktieren Sie mich unter bwa@berniwa.com\n\
-Copyright 2013, Bernhard Wörndl-Aichriedler\n\
-");
-		}
-		
-		dlgPushButton("Funktionen") 
-		{
-			dialogHelpView();
-		}
-	}
-		}
-	}
-	dlgGroup("Updates")
-	{
-		dlgHBoxLayout {
-			dlgLabel(ULP_VERSION); dlgPushButton("Auf Updates prüfen."){update();}; 
-		};
-	}
-	dlgGroup("Board Einstellungen")
-	{
-		dlgHBoxLayout {dlgLabel("Allgemeine Einstellungen"); dlgPushButton("Einstellungen"){dialogBoardSettings();}; };
-	}
-	dlgGroup("Schritte")
-	{
-		dlgHBoxLayout {dlgCheckBox("Bauteile neu nummerieren", renumber); dlgStretch(1);}
-		dlgHBoxLayout {dlgCheckBox("Bemaßung erstellen", measure);  dlgStretch(1); };
-		dlgHBoxLayout {dlgCheckBox("Bohrertabelle erstellen", drilltable); dlgStretch(1); };
-		dlgHBoxLayout {dlgCheckBox("Bestückungsdruck erstellen", silkscreen_enable); dlgPushButton("Einstellungen"){dialogSilkscreenSettings();}; };
-		dlgHBoxLayout {dlgCheckBox("Bilder exportieren", enable_export); dlgPushButton("Einstellungen"){dialogImageSettings();}; };
-		dlgHBoxLayout {dlgCheckBox("Preise abfragen", pricing); dlgStretch(1); };
-		dlgHBoxLayout {dlgCheckBox("Stückliste exportieren", bom); dlgPushButton("Einstellungen"){dialogBomSettings();}; };
-		dlgHBoxLayout {dlgCheckBox("Cad Dateien exportieren", idf_export); dlgStretch(1); };
-		dlgHBoxLayout {dlgCheckBox("Stromlaufplan exportieren", schematic_export); dlgPushButton("Einstellungen"){dialogSchematicSettings();}; };
-		dlgHBoxLayout {dlgCheckBox("Gerber Dateien exportieren", gerber_export); dlgPushButton("Einstellungen"){dialogGerberSettings();}; };
-		dlgHBoxLayout {dlgCheckBox("Pick&Place Dateien exportieren", pnp_export); dlgPushButton("Einstellungen"){dialogPnpSettings();}; };		
-		dlgHBoxLayout {dlgCheckBox("Eagle Dateien exportieren", eagle_export); dlgStretch(1); };
-		dlgHBoxLayout {dlgCheckBox("Eurocircuits-Panel erstellen und exportieren", ec_export); dlgStretch(1); };
-	}
-	dlgGroup("Ausgabeordner")
-	{
-		dlgHBoxLayout {
- 			dlgLabel("Ausgabeordner");
-  			dlgStringEdit(output_folder);
-			dlgPushButton("Auswählen")
+			dlgGroup("")
 			{
-				if(output_folder == "./")
-				{
-					output_folder = bname;
-				}
-				output_folder = dlgDirectory("Ausgabeordner wählen", output_folder);
-				output_folder += "/";
-			}
-  		}
-		dlgHBoxLayout {dlgCheckBox("Unterordner mit aktuellem Datum, sowie Einzelordner erstellen", output_date_folder); dlgStretch(1);}		
-	}
-	dlgHBoxLayout
-	{
-		dlgStretch(1); 
-		dlgPushButton("OK") {
-			saveUsersettings();
-			export();
-		};
-		dlgPushButton("Abbrechen") 
+			dlgLabel("\
+	An meine lieben HTLer und HTLerinnen =):\n\
+	Ich hoffe es hilft euch schnell ans Ziel zu kommen ^^\n\
+	Bei Fragen, Problemen oder Wünschen könnt ihr mich jederzeit unter \n\
+	bwa@berniwa.com erreichen. \n\
+	\n\
+	Liebe Grüße BWA\
+	");
+		dlgHBoxLayout
 		{
-			exit(EXIT_SUCCESS);
-		};
-		dlgStretch(1); 
-	}
-	dlgHBoxLayout
-	{
-		dlgStretch(1); 
-		dlgLabel("(c) Copyright 2007-2013, Bernhard Wörndl-Aichriedler");
-		dlgStretch(1); 
-	}
-};
+
+			dlgPushButton("Nutzungsbedingungen") 
+			{
+			dlgMessageBox("\
+	\n\
+	Dieses ULP ist NUR für die Verwendung an der HTL-Salzburg gedacht!\n\
+	Sollten Sie diese ULP anderweitig (kommerziell oder nicht-kommerziell)\n\
+	verwenden wollen, kontaktieren Sie mich unter bwa@berniwa.com\n\
+	Copyright 2013, Bernhard Wörndl-Aichriedler\n\
+	");
+			}
+			
+			dlgPushButton("Funktionen") 
+			{
+				dialogHelpView();
+			}
+		}
+			}
+		}
+		dlgGroup("Updates")
+		{
+			dlgHBoxLayout {
+				dlgLabel(ULP_VERSION); dlgPushButton("Auf Updates prüfen."){update();}; 
+			};
+		}
+		dlgGroup("Board Einstellungen")
+		{
+			dlgHBoxLayout {dlgLabel("Allgemeine Einstellungen"); dlgPushButton("Einstellungen"){dialogBoardSettings();}; };
+		}
+		dlgGroup("Schritte")
+		{
+			dlgHBoxLayout {dlgCheckBox("Bauteile neu nummerieren", renumber); dlgStretch(1);}
+			dlgHBoxLayout {dlgCheckBox("Bemaßung erstellen", measure);  dlgStretch(1); };
+			dlgHBoxLayout {dlgCheckBox("Bohrertabelle erstellen", drilltable); dlgStretch(1); };
+			dlgHBoxLayout {dlgCheckBox("Bestückungsdruck erstellen", silkscreen_enable); dlgPushButton("Einstellungen"){dialogSilkscreenSettings();}; };
+			dlgHBoxLayout {dlgCheckBox("Bilder exportieren", enable_export); dlgPushButton("Einstellungen"){dialogImageSettings();}; };
+			dlgHBoxLayout {dlgCheckBox("Preise abfragen", pricing); dlgStretch(1); };
+			dlgHBoxLayout {dlgCheckBox("Stückliste exportieren", bom); dlgPushButton("Einstellungen"){dialogBomSettings();}; };
+			dlgHBoxLayout {dlgCheckBox("Cad Dateien exportieren", idf_export); dlgStretch(1); };
+			dlgHBoxLayout {dlgCheckBox("Stromlaufplan exportieren", schematic_export); dlgPushButton("Einstellungen"){dialogSchematicSettings();}; };
+			dlgHBoxLayout {dlgCheckBox("Gerber Dateien exportieren", gerber_export); dlgPushButton("Einstellungen"){dialogGerberSettings();}; };
+			dlgHBoxLayout {dlgCheckBox("Pick&Place Dateien exportieren", pnp_export); dlgPushButton("Einstellungen"){dialogPnpSettings();}; };		
+			dlgHBoxLayout {dlgCheckBox("Eagle Dateien exportieren", eagle_export); dlgStretch(1); };
+			dlgHBoxLayout {dlgCheckBox("Eurocircuits-Panel erstellen und exportieren", ec_export); dlgStretch(1); };
+		}
+		dlgGroup("Ausgabeordner")
+		{
+			dlgHBoxLayout {
+	 			dlgLabel("Ausgabeordner");
+	  			dlgStringEdit(output_folder);
+				dlgPushButton("Auswählen")
+				{
+					if(output_folder == "./")
+					{
+						output_folder = bname;
+					}
+					output_folder = dlgDirectory("Ausgabeordner wählen", output_folder);
+					output_folder += "/";
+				}
+	  		}
+			dlgHBoxLayout {dlgCheckBox("Unterordner mit aktuellem Datum, sowie Einzelordner erstellen", output_date_folder); dlgStretch(1);}		
+		}
+		dlgHBoxLayout
+		{
+			dlgStretch(1); 
+			dlgPushButton("OK") {
+				saveUsersettings();
+				export();
+			};
+			dlgPushButton("Abbrechen") 
+			{
+				exit(EXIT_SUCCESS);
+			};
+			dlgStretch(1); 
+		}
+		dlgHBoxLayout
+		{
+			dlgStretch(1); 
+			dlgLabel("(c) Copyright 2007-2013, Bernhard Wörndl-Aichriedler");
+			dlgStretch(1); 
+		}
+	};	
+}
+
+
+//Call main menu
+main();

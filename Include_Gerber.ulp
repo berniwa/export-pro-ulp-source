@@ -58,7 +58,11 @@ string	inputfile	= argv[2];
 string	outputfile	= argv[3];
 
 //Get correct eagle binary
-eagle_binary = EAGLE_DIR + "/bin/eagle";
+if(EAGLE_VERSION > 7){
+	eagle_binary = EAGLE_DIR + "/eagle";
+} else {
+	eagle_binary = EAGLE_DIR + "/bin/eagle";
+}
 
 if(type == 0)
 {

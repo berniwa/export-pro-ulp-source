@@ -84,7 +84,7 @@ int copy_bdimension = strtol(argv[6]);      // Whether to copy the Dimension lay
 int hatch_fill = 0;          // Whether to use the hatch fill style.
 int no_fill = 0;             // Whether to draw rectangles and discs in outline.
 int hide_sources = 1;        // Whether to hide the source layers.
-int disable_undo = 1;        // Whether to disable undo during script execution.
+int disable_undo = 0;        // Whether to disable undo during script execution.
 int show_script = 0;         // Whether to show the script before executing it.
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -383,41 +383,41 @@ void create_via(int x, int y, int drill, int diameter_top, int diameter_bottom, 
 	{	
 		int diameter = diameter_top;
 		//Center hole
-		sprintf(h, "CHANGE LAYER %s;", emptyname); cmd += h;
-		sprintf(h, "CIRCLE 0 (%f %f) (%f %f);", u2mil(x), u2mil(y), u2mil(x + (drill/2)), u2mil(y)); cmd += h;
-		sprintf(h, "CHANGE LAYER %s;", vianame); cmd += h;
+		sprintf(h, "CHANGE LAYER %s;\n", emptyname); cmd += h;
+		sprintf(h, "CIRCLE 0 (%f %f) (%f %f);\n", u2mil(x), u2mil(y), u2mil(x + (drill/2)), u2mil(y)); cmd += h;
+		sprintf(h, "CHANGE LAYER %s;\n", vianame); cmd += h;
 		if(shape == PAD_SHAPE_SQUARE)
 		{
-			sprintf(h, "RECT (%f %f) (%f %f);", u2mil(x - (diameter/2)), u2mil(y - (diameter/2)), u2mil(x + (diameter/2)), u2mil(y + (diameter/2))); cmd += h;		
+			sprintf(h, "RECT (%f %f) (%f %f);\n", u2mil(x - (diameter/2)), u2mil(y - (diameter/2)), u2mil(x + (diameter/2)), u2mil(y + (diameter/2))); cmd += h;		
 		}
 		else if(shape == PAD_SHAPE_LONG)
 		{
 			
-			sprintf(h, "RECT (%f %f) (%f %f);", u2mil(x - (diameter/2)), u2mil(y - (diameter/2)), u2mil(x + (diameter/2)), u2mil(y + (diameter/2))); cmd += h;
+			sprintf(h, "RECT (%f %f) (%f %f);\n", u2mil(x - (diameter/2)), u2mil(y - (diameter/2)), u2mil(x + (diameter/2)), u2mil(y + (diameter/2))); cmd += h;
 
 			if(angle == 0 || angle == 180)
 			{
-				sprintf(h, "CIRCLE 0 (%f %f) (%f %f);", u2mil(x  + (diameter/2)), u2mil(y), u2mil(x + diameter), u2mil(y)); cmd += h;
-				sprintf(h, "CIRCLE 0 (%f %f) (%f %f);", u2mil(x  - (diameter/2)), u2mil(y), u2mil(x - diameter), u2mil(y)); cmd += h;
+				sprintf(h, "CIRCLE 0 (%f %f) (%f %f);\n", u2mil(x  + (diameter/2)), u2mil(y), u2mil(x + diameter), u2mil(y)); cmd += h;
+				sprintf(h, "CIRCLE 0 (%f %f) (%f %f);\n", u2mil(x  - (diameter/2)), u2mil(y), u2mil(x - diameter), u2mil(y)); cmd += h;
 			}
 			else
 			{
-				sprintf(h, "CIRCLE 0 (%f %f) (%f %f);", u2mil(x), u2mil(y + (diameter/2)), u2mil(x), u2mil(y + diameter)); cmd += h;
-				sprintf(h, "CIRCLE 0 (%f %f) (%f %f);", u2mil(x), u2mil(y - (diameter/2)), u2mil(x), u2mil(y - diameter)); cmd += h;			
+				sprintf(h, "CIRCLE 0 (%f %f) (%f %f);\n", u2mil(x), u2mil(y + (diameter/2)), u2mil(x), u2mil(y + diameter)); cmd += h;
+				sprintf(h, "CIRCLE 0 (%f %f) (%f %f);\n", u2mil(x), u2mil(y - (diameter/2)), u2mil(x), u2mil(y - diameter)); cmd += h;			
 			}
 
 		}
 		else if(shape == PAD_SHAPE_OCTAGON)
 		{
 			
-			sprintf(h, "RECT (%f %f) (%f %f);", u2mil(x - (diameter/2)), u2mil(y - int(diameter/octagonFactor)), u2mil(x + (diameter/2)), u2mil(y + int(diameter/octagonFactor))); cmd += h;
-			sprintf(h, "RECT R45 (%f %f) (%f %f);", u2mil(x - (diameter/2)), u2mil(y - int(diameter/octagonFactor)), u2mil(x + (diameter/2)), u2mil(y + int(diameter/octagonFactor))); cmd += h;
-			sprintf(h, "RECT (%f %f) (%f %f);", u2mil(x - int(diameter/octagonFactor)), u2mil(y - (diameter/2)), u2mil(x + int(diameter/octagonFactor)), u2mil(y + (diameter/2))); cmd += h;	
-			sprintf(h, "RECT R45 (%f %f) (%f %f);", u2mil(x - int(diameter/octagonFactor)), u2mil(y - (diameter/2)), u2mil(x + int(diameter/octagonFactor)), u2mil(y + (diameter/2))); cmd += h;	
+			sprintf(h, "RECT (%f %f) (%f %f);\n", u2mil(x - (diameter/2)), u2mil(y - int(diameter/octagonFactor)), u2mil(x + (diameter/2)), u2mil(y + int(diameter/octagonFactor))); cmd += h;
+			sprintf(h, "RECT R45 (%f %f) (%f %f);\n", u2mil(x - (diameter/2)), u2mil(y - int(diameter/octagonFactor)), u2mil(x + (diameter/2)), u2mil(y + int(diameter/octagonFactor))); cmd += h;
+			sprintf(h, "RECT (%f %f) (%f %f);\n", u2mil(x - int(diameter/octagonFactor)), u2mil(y - (diameter/2)), u2mil(x + int(diameter/octagonFactor)), u2mil(y + (diameter/2))); cmd += h;	
+			sprintf(h, "RECT R45 (%f %f) (%f %f);\n", u2mil(x - int(diameter/octagonFactor)), u2mil(y - (diameter/2)), u2mil(x + int(diameter/octagonFactor)), u2mil(y + (diameter/2))); cmd += h;	
 		}
 		else	/* if(shape == PAD_SHAPE_ROUND) */
 		{		
-			sprintf(h, "CIRCLE 0 (%f %f) (%f %f);", u2mil(x), u2mil(y), u2mil(x + (diameter/2)), u2mil(y)); cmd += h;
+			sprintf(h, "CIRCLE 0 (%f %f) (%f %f);\n", u2mil(x), u2mil(y), u2mil(x + (diameter/2)), u2mil(y)); cmd += h;
 		}
 	}
 	else
@@ -426,39 +426,39 @@ void create_via(int x, int y, int drill, int diameter_top, int diameter_bottom, 
 		if(diameter_top > 0)
 		{
 			int diameter = diameter_top;
-			sprintf(h, "CHANGE LAYER %s;", tsmdname); cmd += h;
+			sprintf(h, "CHANGE LAYER %s;\n", tsmdname); cmd += h;
 			if(shape == PAD_SHAPE_SQUARE)
 			{
-				sprintf(h, "RECT (%f %f) (%f %f);", u2mil(x - (diameter/2)), u2mil(y - (diameter/2)), u2mil(x + (diameter/2)), u2mil(y + (diameter/2))); cmd += h;		
+				sprintf(h, "RECT (%f %f) (%f %f);\n", u2mil(x - (diameter/2)), u2mil(y - (diameter/2)), u2mil(x + (diameter/2)), u2mil(y + (diameter/2))); cmd += h;		
 			}
 			else if(shape == PAD_SHAPE_LONG)
 			{
 				
-				sprintf(h, "RECT (%f %f) (%f %f);", u2mil(x - (diameter/2)), u2mil(y - (diameter/2)), u2mil(x + (diameter/2)), u2mil(y + (diameter/2))); cmd += h;
+				sprintf(h, "RECT (%f %f) (%f %f);\n", u2mil(x - (diameter/2)), u2mil(y - (diameter/2)), u2mil(x + (diameter/2)), u2mil(y + (diameter/2))); cmd += h;
 
 				if(angle == 0 || angle == 180)
 				{
-					sprintf(h, "CIRCLE 0 (%f %f) (%f %f);", u2mil(x  + (diameter/2)), u2mil(y), u2mil(x + diameter), u2mil(y)); cmd += h;
-					sprintf(h, "CIRCLE 0 (%f %f) (%f %f);", u2mil(x  - (diameter/2)), u2mil(y), u2mil(x - diameter), u2mil(y)); cmd += h;
+					sprintf(h, "CIRCLE 0 (%f %f) (%f %f);\n", u2mil(x  + (diameter/2)), u2mil(y), u2mil(x + diameter), u2mil(y)); cmd += h;
+					sprintf(h, "CIRCLE 0 (%f %f) (%f %f);\n", u2mil(x  - (diameter/2)), u2mil(y), u2mil(x - diameter), u2mil(y)); cmd += h;
 				}
 				else
 				{
-					sprintf(h, "CIRCLE 0 (%f %f) (%f %f);", u2mil(x), u2mil(y + (diameter/2)), u2mil(x), u2mil(y + diameter)); cmd += h;
-					sprintf(h, "CIRCLE 0 (%f %f) (%f %f);", u2mil(x), u2mil(y - (diameter/2)), u2mil(x), u2mil(y - diameter)); cmd += h;			
+					sprintf(h, "CIRCLE 0 (%f %f) (%f %f);\n", u2mil(x), u2mil(y + (diameter/2)), u2mil(x), u2mil(y + diameter)); cmd += h;
+					sprintf(h, "CIRCLE 0 (%f %f) (%f %f);\n", u2mil(x), u2mil(y - (diameter/2)), u2mil(x), u2mil(y - diameter)); cmd += h;			
 				}
 
 			}
 			else if(shape == PAD_SHAPE_OCTAGON)
 			{
 				
-				sprintf(h, "RECT (%f %f) (%f %f);", u2mil(x - (diameter/2)), u2mil(y - int(diameter/octagonFactor)), u2mil(x + (diameter/2)), u2mil(y + int(diameter/octagonFactor))); cmd += h;
-				sprintf(h, "RECT R45 (%f %f) (%f %f);", u2mil(x - (diameter/2)), u2mil(y - int(diameter/octagonFactor)), u2mil(x + (diameter/2)), u2mil(y + int(diameter/octagonFactor))); cmd += h;
-				sprintf(h, "RECT (%f %f) (%f %f);", u2mil(x - int(diameter/octagonFactor)), u2mil(y - (diameter/2)), u2mil(x + int(diameter/octagonFactor)), u2mil(y + (diameter/2))); cmd += h;	
-				sprintf(h, "RECT R45 (%f %f) (%f %f);", u2mil(x - int(diameter/octagonFactor)), u2mil(y - (diameter/2)), u2mil(x + int(diameter/octagonFactor)), u2mil(y + (diameter/2))); cmd += h;	
+				sprintf(h, "RECT (%f %f) (%f %f);\n", u2mil(x - (diameter/2)), u2mil(y - int(diameter/octagonFactor)), u2mil(x + (diameter/2)), u2mil(y + int(diameter/octagonFactor))); cmd += h;
+				sprintf(h, "RECT R45 (%f %f) (%f %f);\n", u2mil(x - (diameter/2)), u2mil(y - int(diameter/octagonFactor)), u2mil(x + (diameter/2)), u2mil(y + int(diameter/octagonFactor))); cmd += h;
+				sprintf(h, "RECT (%f %f) (%f %f);\n", u2mil(x - int(diameter/octagonFactor)), u2mil(y - (diameter/2)), u2mil(x + int(diameter/octagonFactor)), u2mil(y + (diameter/2))); cmd += h;	
+				sprintf(h, "RECT R45 (%f %f) (%f %f);\n", u2mil(x - int(diameter/octagonFactor)), u2mil(y - (diameter/2)), u2mil(x + int(diameter/octagonFactor)), u2mil(y + (diameter/2))); cmd += h;	
 			}
 			else	/* if(shape == PAD_SHAPE_ROUND) */
 			{		
-				sprintf(h, "CIRCLE 0 (%f %f) (%f %f);", u2mil(x), u2mil(y), u2mil(x + (diameter/2)), u2mil(y)); cmd += h;
+				sprintf(h, "CIRCLE 0 (%f %f) (%f %f);\n", u2mil(x), u2mil(y), u2mil(x + (diameter/2)), u2mil(y)); cmd += h;
 			}
 		}
 		if(diameter_bottom > 0)
@@ -467,36 +467,36 @@ void create_via(int x, int y, int drill, int diameter_top, int diameter_bottom, 
 			sprintf(h, "CHANGE LAYER %s;", bsmdname); cmd += h;
 			if(shape == PAD_SHAPE_SQUARE)
 			{
-				sprintf(h, "RECT (%f %f) (%f %f);", u2mil(x - (diameter/2)), u2mil(y - (diameter/2)), u2mil(x + (diameter/2)), u2mil(y + (diameter/2))); cmd += h;		
+				sprintf(h, "RECT (%f %f) (%f %f);\n", u2mil(x - (diameter/2)), u2mil(y - (diameter/2)), u2mil(x + (diameter/2)), u2mil(y + (diameter/2))); cmd += h;		
 			}
 			else if(shape == PAD_SHAPE_LONG)
 			{
 				
-				sprintf(h, "RECT (%f %f) (%f %f);", u2mil(x - (diameter/2)), u2mil(y - (diameter/2)), u2mil(x + (diameter/2)), u2mil(y + (diameter/2))); cmd += h;
+				sprintf(h, "RECT (%f %f) (%f %f);\n", u2mil(x - (diameter/2)), u2mil(y - (diameter/2)), u2mil(x + (diameter/2)), u2mil(y + (diameter/2))); cmd += h;
 
 				if(angle == 0 || angle == 180)
 				{
-					sprintf(h, "CIRCLE 0 (%f %f) (%f %f);", u2mil(x  + (diameter/2)), u2mil(y), u2mil(x + diameter), u2mil(y)); cmd += h;
-					sprintf(h, "CIRCLE 0 (%f %f) (%f %f);", u2mil(x  - (diameter/2)), u2mil(y), u2mil(x - diameter), u2mil(y)); cmd += h;
+					sprintf(h, "CIRCLE 0 (%f %f) (%f %f);\n", u2mil(x  + (diameter/2)), u2mil(y), u2mil(x + diameter), u2mil(y)); cmd += h;
+					sprintf(h, "CIRCLE 0 (%f %f) (%f %f);\n", u2mil(x  - (diameter/2)), u2mil(y), u2mil(x - diameter), u2mil(y)); cmd += h;
 				}
 				else
 				{
-					sprintf(h, "CIRCLE 0 (%f %f) (%f %f);", u2mil(x), u2mil(y + (diameter/2)), u2mil(x), u2mil(y + diameter)); cmd += h;
-					sprintf(h, "CIRCLE 0 (%f %f) (%f %f);", u2mil(x), u2mil(y - (diameter/2)), u2mil(x), u2mil(y - diameter)); cmd += h;			
+					sprintf(h, "CIRCLE 0 (%f %f) (%f %f);\n", u2mil(x), u2mil(y + (diameter/2)), u2mil(x), u2mil(y + diameter)); cmd += h;
+					sprintf(h, "CIRCLE 0 (%f %f) (%f %f);\n", u2mil(x), u2mil(y - (diameter/2)), u2mil(x), u2mil(y - diameter)); cmd += h;			
 				}
 
 			}
 			else if(shape == PAD_SHAPE_OCTAGON)
 			{
 				
-				sprintf(h, "RECT (%f %f) (%f %f);", u2mil(x - (diameter/2)), u2mil(y - int(diameter/octagonFactor)), u2mil(x + (diameter/2)), u2mil(y + int(diameter/octagonFactor))); cmd += h;
-				sprintf(h, "RECT R45 (%f %f) (%f %f);", u2mil(x - (diameter/2)), u2mil(y - int(diameter/octagonFactor)), u2mil(x + (diameter/2)), u2mil(y + int(diameter/octagonFactor))); cmd += h;
-				sprintf(h, "RECT (%f %f) (%f %f);", u2mil(x - int(diameter/octagonFactor)), u2mil(y - (diameter/2)), u2mil(x + int(diameter/octagonFactor)), u2mil(y + (diameter/2))); cmd += h;	
-				sprintf(h, "RECT R45 (%f %f) (%f %f);", u2mil(x - int(diameter/octagonFactor)), u2mil(y - (diameter/2)), u2mil(x + int(diameter/octagonFactor)), u2mil(y + (diameter/2))); cmd += h;	
+				sprintf(h, "RECT (%f %f) (%f %f);\n", u2mil(x - (diameter/2)), u2mil(y - int(diameter/octagonFactor)), u2mil(x + (diameter/2)), u2mil(y + int(diameter/octagonFactor))); cmd += h;
+				sprintf(h, "RECT R45 (%f %f) (%f %f);\n", u2mil(x - (diameter/2)), u2mil(y - int(diameter/octagonFactor)), u2mil(x + (diameter/2)), u2mil(y + int(diameter/octagonFactor))); cmd += h;
+				sprintf(h, "RECT (%f %f) (%f %f);\n", u2mil(x - int(diameter/octagonFactor)), u2mil(y - (diameter/2)), u2mil(x + int(diameter/octagonFactor)), u2mil(y + (diameter/2))); cmd += h;	
+				sprintf(h, "RECT R45 (%f %f) (%f %f);\n", u2mil(x - int(diameter/octagonFactor)), u2mil(y - (diameter/2)), u2mil(x + int(diameter/octagonFactor)), u2mil(y + (diameter/2))); cmd += h;	
 			}
 			else	/* if(shape == PAD_SHAPE_ROUND) */
 			{		
-				sprintf(h, "CIRCLE 0 (%f %f) (%f %f);", u2mil(x), u2mil(y), u2mil(x + (diameter/2)), u2mil(y)); cmd += h;
+				sprintf(h, "CIRCLE 0 (%f %f) (%f %f);\n", u2mil(x), u2mil(y), u2mil(x + (diameter/2)), u2mil(y)); cmd += h;
 			}
 		}
 	}
@@ -583,7 +583,7 @@ void create_smd(int layer, int cx, int cy, int dx, int dy, real angle, int round
 
   //angle = -90;
 
-	sprintf(h, "CHANGE LAYER %d;", layer); cmd += h;
+	sprintf(h, "CHANGE LAYER %d;\n", layer); cmd += h;
 
   sprintf(h, "POLYGON "); cmd += h;
   if(radius == 0){
@@ -626,7 +626,7 @@ void create_smd(int layer, int cx, int cy, int dx, int dy, real angle, int round
     transform(-dx/2,        -dy/2+radius,   angle, cx, cy);   sprintf(h, "-90 (%f %f) ", u2mil(x), u2mil(y)); cmd += h;    
   }
 
-  sprintf(h, ";"); cmd += h;
+  sprintf(h, ";\n"); cmd += h;
 
 
   /*
@@ -644,8 +644,8 @@ void create_smd(int layer, int cx, int cy, int dx, int dy, real angle, int round
 void do_hole(UL_HOLE hole)
 {
 	string h = "";
-	sprintf(h, "CHANGE LAYER %s;", emptyname); cmd += h;
-	sprintf(h, "CIRCLE 0 (%f %f) (%f %f);", u2mil(hole.x), u2mil(hole.y), u2mil(hole.x + (hole.drill/2)), u2mil(hole.y)); cmd += h;
+	sprintf(h, "CHANGE LAYER %s;\n", emptyname); cmd += h;
+	sprintf(h, "CIRCLE 0 (%f %f) (%f %f);\n", u2mil(hole.x), u2mil(hole.y), u2mil(hole.x + (hole.drill/2)), u2mil(hole.y)); cmd += h;
 } 
 
 void do_via(UL_VIA v)
