@@ -39,6 +39,7 @@
 /************************************************************/
 
 #include "Include_Misc.ulp";
+#include "Include_Dru.ulp"
 
 string include_path = "Include_";
 
@@ -48,7 +49,7 @@ string UPDATE_SERVER = "http://eagle.berniwa.com/update/";
 int ULP_REVISION_FORMAT_REVISION = 7;
 
 
-string cmd = "", bname = "", layers = "", palette_name = "BLACK", config_file = "-exportpro.cfg";
+string cmd = "", bname = "", layers = "", palette_name = "BLACK", config_file = "-exportpro.cfg", drc_file = "-exportpro.dru";
 
 int 
 layout_bot = 1, layout_top = 1, layout_l3 = 0, layout_l2 = 0, parts_top = 1, parts_bot = 1, drills = 1, measure = 1, drilltable = 1, 
@@ -925,43 +926,6 @@ void export()
 	exit(cmd);
 }
 
-
-void update()
-{
-	string lines[];
-	int nlines = netpost(lines, UPDATE_SERVER + "update.log", "");
-
-	if(nlines >= 0)
-	{
-		if(ULP_VERSION != lines[0])
-		{
-			if(dlgMessageBox("A new version of this ULP is available! \nNew version: " + lines[0] + "\nCurrent version: " + ULP_VERSION + "\nDo you want to download the new version?", "Ja", "Nein") == 0)
-			{
-				if(getUlpDir("") != "")
-				{
-					for(int i = 1; i < nlines; i++)
-					{
-						download(UPDATE_SERVER + lines[i], getUlpDir(lines[i]), "");
-					}
-					exit("RUN HTLExportPro.ulp");
-				}
-				else
-				{
-					dlgMessageBox("Unable to update the ULP, please add this ULP to your standard ULP path!");
-				}
-			}	
-		}
-		else
-		{
-			dlgMessageBox("Your ULP is up-to-date");
-		}
-	}
-	else
-	{
-		dlgMessageBox("Unable to connect to update server!");
-	}
-}
-
 void dialogSilkscreenSettings()
 {
 	dlgDialog("Bestückungsdruck Einstellungen")
@@ -1239,29 +1203,15 @@ void dialogPnpSettings()
 	};
 }
 
-void dialogHelpView()
-{
-	string text;
-	int nchars = fileread(text, getUlpDir("help/help.htm"));
-	
-	dlgDialog("Funktionen / HowTo")
-	{	
-		//Do some magic to stretch the TextView
-		dlgHBoxLayout{dlgSpacing(550);};
-		dlgHBoxLayout{
-			dlgVBoxLayout{dlgSpacing(550);};
-			dlgTextView(text);
-		};
-		dlgHBoxLayout{
-			dlgStretch(1);
-			dlgPushButton("Schließen")    dlgAccept();
-			dlgStretch(1);
-		}	
-	};
-}
-
-
 void main(){
+	//Load/Reload DRC rule files
+	if(argc > 1 && argv[1] == "drcLoaded"){
+		drcLoadRules(getSystemFilename(drc_file), 0);
+	} else {
+		drcLoadRules(getSystemFilename(drc_file), 1);		
+	}
+	dlgMessageBox(drcGetRule("layerSetup"));
+
 	//In Eagle Version > 7, we need to have a fixed
 	//an absolute Path to our ULPs as Eagle otherwhise
 	//wont find it
@@ -1273,45 +1223,6 @@ void main(){
 	//Create the main dialog
 	int dialog = dlgDialog(ULP_VERSION)
 	{
-		dlgHBoxLayout
-		{
-			dlgGroup("")
-			{
-			dlgLabel("\
-	An meine lieben HTLer und HTLerinnen =):\n\
-	Ich hoffe es hilft euch schnell ans Ziel zu kommen ^^\n\
-	Bei Fragen, Problemen oder Wünschen könnt ihr mich jederzeit unter \n\
-	bwa@berniwa.com erreichen. \n\
-	\n\
-	Liebe Grüße BWA\
-	");
-		dlgHBoxLayout
-		{
-
-			dlgPushButton("Nutzungsbedingungen") 
-			{
-			dlgMessageBox("\
-	\n\
-	Dieses ULP ist NUR für die Verwendung an der HTL-Salzburg gedacht!\n\
-	Sollten Sie diese ULP anderweitig (kommerziell oder nicht-kommerziell)\n\
-	verwenden wollen, kontaktieren Sie mich unter bwa@berniwa.com\n\
-	Copyright 2013, Bernhard Wörndl-Aichriedler\n\
-	");
-			}
-			
-			dlgPushButton("Funktionen") 
-			{
-				dialogHelpView();
-			}
-		}
-			}
-		}
-		dlgGroup("Updates")
-		{
-			dlgHBoxLayout {
-				dlgLabel(ULP_VERSION); dlgPushButton("Auf Updates prüfen."){update();}; 
-			};
-		}
 		dlgGroup("Board Einstellungen")
 		{
 			dlgHBoxLayout {dlgLabel("Allgemeine Einstellungen"); dlgPushButton("Einstellungen"){dialogBoardSettings();}; };
@@ -1365,7 +1276,7 @@ void main(){
 		dlgHBoxLayout
 		{
 			dlgStretch(1); 
-			dlgLabel("(c) Copyright 2007-2013, Bernhard Wörndl-Aichriedler");
+			dlgLabel("(c) Copyright 2007-2019, Bernhard Wörndl-Aichriedler");
 			dlgStretch(1); 
 		}
 	};	

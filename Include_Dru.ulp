@@ -1,0 +1,58 @@
+#include "Include_String.ulp"
+
+string  drcContent = "";
+int 	drcLines = 0;
+
+/**
+ * Load Design rules
+ */
+void drcLoadRules(string drc, int reload)
+{
+	string data[];
+	if(filesize(drc))
+	{
+		//Load DRC file
+		drcLines = fileread(drcContent, drc);
+	}
+	else
+	{
+		//Export DRC file and re-run ULP
+		exit("DRC SAVE " + drc + "; RUN " + getUlpDir("HTLExportPro.ulp") + " drcLoaded");
+	}
+}
+
+/* Parameters look like: grid 5 mm, outline 5 x 5 mm */
+string drcValue(string parameter, string haystack)
+{
+	string data = "";
+
+	parameter = parameter + " =";
+
+	int start = strstr(haystack, parameter, 0);
+	int len = strlen(parameter) + 1;
+	int end = 0;
+
+	if(start != -1)
+	{
+		end = strstr(haystack, "\n", start);
+		end = end==-1?strlen(haystack):end;
+
+		data = strsub(haystack, start + len , end-(start+len));
+	}
+
+	return stringTrim(data);
+}
+
+string drcGetRule(string name)
+{
+	string result = "";
+	for(int i = 0; i < drcLines; i++)
+	{
+		result = drcValue(name, drcContent);
+		if(result != "")
+		{
+			return result;
+		}
+	}
+	return "";
+}
