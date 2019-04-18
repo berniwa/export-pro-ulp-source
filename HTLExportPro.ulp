@@ -445,11 +445,15 @@ void export()
 		output_folder = bname + strsub(output_folder, 2);
 	}
 
+	if(output_folder[strlen(output_folder)] != '/'){
+		output_folder += "/";
+	}
+
 	string tmp[];
 
 	if(fileglob(tmp, output_folder) == 0) //Empty folder - ulp never run before
 	{
-		system("mkdir \"" + output_folder + "\""); //Make new folder
+		system("CMD.EXE /C mkdir \"" + output_folder + "\""); //Make new folder
 	}
 
 	string image_folder = "", gerber_folder = "", eagle_folder = "", cad_folder = "", ecpanel_folder = "", pnp_folder = "";
@@ -468,31 +472,31 @@ void export()
 			
 		if(fileglob(tmp, output_folder) <= 0)
 		{
-			system("mkdir \"" + output_folder + "\""); //Make new folder
+			system("CMD.EXE /C mkdir \"" + output_folder + "\""); //Make new folder
 		}
 		if(fileglob(tmp, output_folder + image_folder) <= 0)
 		{
-			system("mkdir \"" + output_folder + image_folder + "\""); 
+			system("CMD.EXE /C mkdir \"" + output_folder + image_folder + "\""); 
 		}
 		if(gerber_export == 1 && fileglob(tmp, output_folder + gerber_folder) <= 0)
 		{
-			system("mkdir \"" + output_folder + gerber_folder + "\""); 
+			system("CMD.EXE /C mkdir \"" + output_folder + gerber_folder + "\""); 
 		}
 		if(eagle_export == 1 && fileglob(tmp, output_folder + eagle_folder) <= 0)
 		{
-			system("mkdir \"" + output_folder + eagle_folder + "\""); 
+			system("CMD.EXE /C mkdir \"" + output_folder + eagle_folder + "\""); 
 		}
 		if(idf_export == 1 && fileglob(tmp, output_folder + cad_folder) <= 0)
 		{
-			system("mkdir \"" + output_folder + cad_folder + "\""); 
+			system("CMD.EXE /C mkdir \"" + output_folder + cad_folder + "\""); 
 		}
 		if(ec_export == 1 && fileglob(tmp, output_folder + ecpanel_folder) <= 0)
 		{
-			system("mkdir \"" + output_folder + ecpanel_folder + "\"");
+			system("CMD.EXE /C mkdir \"" + output_folder + ecpanel_folder + "\"");
 		}
 		if(pnp_export == 1 && fileglob(tmp, output_folder + pnp_folder) <= 0)
 		{
-			system("mkdir \"" + output_folder + pnp_folder + "\"");
+			system("CMD.EXE /C mkdir \"" + output_folder + pnp_folder + "\"");
 		}
 
 		image_folder 		+= "/";
