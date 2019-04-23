@@ -22,7 +22,6 @@
 "<author>Author: marc.battistello@gmail.com</author>"
 
 "Version: 2.41 - draw real arcs - 18.04.2019 - cwin"
-"TODO: verify
 
 #require 5.1000
 string version = "2.4";  //ulp version
@@ -1342,7 +1341,7 @@ string GetEmnBoardOutline() {
                                                                
                          real angle1 = W.arc.angle1;
                          real angle2 = W.arc.angle2;
-					real centerx = GetDimInBoardUnits(W.arc.xc);
+                         real centerx = GetDimInBoardUnits(W.arc.xc);
                          real centery = GetDimInBoardUnits(W.arc.yc);
 
                          // todo not useable? why? cant distinguish between counterClock vs clockwise
