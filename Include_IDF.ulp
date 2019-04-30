@@ -1360,7 +1360,6 @@ string GetEmnBoardOutline() {
 
                          if (!(CompareReals(incx, bx1) && CompareReals(incy, by1))){
                               arcAngle = arcAngle * -1;
-                              dlgMessageBox("CompareReals(incx, bx1) && CompareReals(incy, by1)");
                          }
 
                          sprintf(temp, "%f\t%f\t%f\t%f\t%f\tn\n", bx1, by1, bx2, by2, arcAngle);
