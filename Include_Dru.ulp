@@ -3,6 +3,17 @@
 string  drcContent = "";
 int 	drcLines = 0;
 
+string drcGetDefaultFilename(){
+	string bname = "";
+
+	project.board(B)
+	{
+		bname = filesetext(B.name, "-exportpro.dru");
+	}
+
+	return bname;
+}
+
 /**
  * Load Design rules
  */

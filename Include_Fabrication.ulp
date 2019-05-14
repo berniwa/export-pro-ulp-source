@@ -1,0 +1,191 @@
+/**
+ * This ULP exports the fabrication documentation directly out
+ * of EAGLE. This includes board and drill parameters
+ * as well as the layer stackup
+ *
+ * @note 	Please export the design rules before running this ULP
+ * 
+ * Include_Fabriaction.ulp <StopmaskColor> <SilkscreenColor> <SurfaceFinish>
+ * @param 	StopmaskColor		Color for the solder stop mask (eg. green)
+ * @param 	SilkscreenColor   Color for the screen printing (eg. white)
+ * @param 	SurfaceFinish  	PAD surface finish (eg. ENIG, HAL)
+ *
+ * @author 		Bernhard Wörndl-Aichriedler <bwa@xdevelop.at>
+ * @copyright	2019, Bernhard Wörndl-Aichriedler
+ */
+
+#include "Include_Misc.ulp";
+#include "Include_Dru.ulp";
+#include "Include_FastExecute.ulp";
+#include "Include_String.ulp"
+
+string LIBRARY_NAME 	= "fabriaction.lbr";
+
+real 	rowHeight = 2.0; 		//in mm
+real 	textSize  = 1.788; 		//in mm
+
+string 	colsMain = "30,40,30"; 	//Thickness, Type, Layer
+
+string layerSetup 		= "";
+string copperThickness 	= "";
+string isolateThickness = "";
+string data 			= "";
+
+
+int 	LAYERS_MAX 		= 16;
+int 	viaLayerStart[];
+int 	viaLayerStop[];
+int 	layers[];
+string 	layerThicknesses[];
+int 	isolationType[];
+string 	isolationThicknesses[]; 
+
+
+/**
+ * Analyze the DRU data
+ * Note: Blind via handling is currently not implemented
+ */
+void analyzeDru(){
+	//Load the DRU values
+	drcLoadRules(drcGetDefaultFilename() , 0);
+	layerSetup 			= drcGetRule("layerSetup");
+	copperThickness 	= drcGetRule("mtCopper");
+	isolateThickness 	= drcGetRule("mtIsolate");
+
+
+	//dlgMessageBox(layerSetup);
+	//dlgMessageBox(copperThickness);
+	//dlgMessageBox(isolateThickness);
+
+
+	//Reset all values
+	for(int i = 0; i < LAYERS_MAX; i++){
+		layers[i]				= 0;
+		layerThicknesses[i]		= "";
+		isolationThicknesses[i]	= "";
+	}
+
+
+	//Start analyzing the layer setup in the
+	//eagle DRC
+	int viaLayerStartCurrent 	= 0;
+	int viaLayerStopCurrent 	= 0;
+	int layerCurrent 			= 0;
+	int isolationCurrent 		= 0;
+
+	//String in Eagle are zero terminated
+	for(i = 0; layerSetup[i]; i++){
+		if(layerSetup[i] == '('){			//Via start
+			viaLayerStart[viaLayerStartCurrent++]	= layerCurrent;
+		} else if (layerSetup[i] == '('){	//Via ends
+			viaLayerStop[viaLayerStopCurrent++]	= layerCurrent;
+		} else if (layerSetup[i] == '['){	//Blind via start
+
+		} else if (layerSetup[i] == ']'){	//Blind via end
+
+		} else if (layerSetup[i] == '+'){	//Prepreg
+			isolationType[isolationCurrent++]	= 1;
+		} else if (layerSetup[i] == '*'){	//Core
+			isolationType[isolationCurrent++]	= 0;			
+		} else {							//A normal layer
+			//Check if we have a 2 digit layer or not
+			//dlgMessageBox(strsub(layerSetup, i, 2));
+			//dlgMessageBox(strsub(layerSetup, i, 1));
+			int layer = strtol(strsub(layerSetup, i, 2));
+			if(layer == 0){
+				layer = strtol(strsub(layerSetup, i, 1));
+			} else {
+				i++;
+			}
+			//string dummy = "";
+			//sprintf(dummy, "%s %s %")
+
+			layers[layerCurrent++]	= layer;
+		}
+	}
+
+	//Load layer heights
+	layerCurrent = 0;
+	string buffer = "";
+	for(i = 0; 1; i++){
+		if(copperThickness[i] == ' ' || copperThickness[i] == 0){
+			layerThicknesses[layerCurrent++] = buffer;
+			buffer = "";
+		} else {
+			buffer = buffer + copperThickness[i];
+		}
+
+		if(copperThickness[i] == 0){
+			break;
+		}
+	}
+
+	//Load isolation heights
+	layerCurrent = 0;
+	buffer = "";
+	for(i = 0; 1; i++){
+		if(isolateThickness[i] == ' ' || isolateThickness[i] == 0){
+			isolationThicknesses[layerCurrent++] = buffer;
+			buffer = "";
+			
+		} else {
+			buffer = buffer + isolateThickness[i];
+		}
+
+		if(isolateThickness[i] == 0){
+			break;
+		}
+	}
+}
+
+
+/**
+ * Draw a row of table
+ */
+string drawRow(real startx, real starty, int row, int isHeadline, string cols, string text){
+	//dlgMessageBox(text);
+	return text + "\n";
+}
+
+
+
+void run(string StopmaskColor, string SilkscreenColor, string SurfaceFinish){
+	analyzeDru();
+
+	sprintf(data, "%sOPEN %s;\n", data, LIBRARY_NAME);
+	sprintf(data, "%sEDIT fabriaction.pac;\n", data);
+
+	real startX = 0.0;
+	real startY = 0.0;
+	int row = 0;
+	string buffer = "";
+
+	//Draw layer table
+	drawRow(startX, startY, row++, 1, colsMain, "Thickness,Type,Layer");
+	for(int i = 0; i < LAYERS_MAX; i++){
+		sprintf(buffer, "%s, Copper, Layer %d", layerThicknesses[i], layers[i]);
+		data = data + drawRow(startX, startY, row++, 0, colsMain, buffer);
+
+		if(layers[i+1] == 0){
+			break;
+		}
+
+		if(isolationType[i] == 0){
+			buffer = "Core";
+		} else{
+			buffer = "Prepreg";
+		}
+		sprintf(buffer, "%s, %s, ", isolationThicknesses[i], buffer);
+		data = data + drawRow(startX, startY, row++, 0, colsMain, buffer);
+	}
+
+	sprintf(data, "%sWRITE;\n", data);
+	sprintf(data, "%sCLOSE;\n", data);
+
+	dlgMessageBox(data);
+
+}
+
+
+
+run(argv[1], argv[2], argv[3]);
