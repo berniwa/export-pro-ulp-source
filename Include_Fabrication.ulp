@@ -21,10 +21,16 @@
 
 string LIBRARY_NAME 	= "fabriaction.lbr";
 
-real 	rowHeight = 2.0; 		//in mm
-real 	textSize  = 1.788; 		//in mm
+real 	rowHeight 		= 2.5; 		//in mm
+real 	textSize  		= 1.8; 		//in mm
+real 	lineWidth 		= 0.15; 	//in mm
+real 	distance  		= 0.3;		//in mm, from left cell edge
+int 	ratioNormal 	= 8;		//
+int 	ratioHeadline	= 12;		//
+real 	stackupWidth	= 15; 		//in mm
+real 	stackupXOffset 	= 5;		//in mm - X offset
 
-string 	colsMain = "30,40,30"; 	//Thickness, Type, Layer
+string 	colsMain = "15;15;15;25"; 	//Thickness, Type, Layer
 
 string layerSetup 		= "";
 string copperThickness 	= "";
@@ -36,6 +42,7 @@ int 	LAYERS_MAX 		= 16;
 int 	viaLayerStart[];
 int 	viaLayerStop[];
 int 	layers[];
+string 	layerNames[];
 string 	layerThicknesses[];
 int 	isolationType[];
 string 	isolationThicknesses[]; 
@@ -52,19 +59,18 @@ void analyzeDru(){
 	copperThickness 	= drcGetRule("mtCopper");
 	isolateThickness 	= drcGetRule("mtIsolate");
 
-
 	//dlgMessageBox(layerSetup);
 	//dlgMessageBox(copperThickness);
 	//dlgMessageBox(isolateThickness);
-
 
 	//Reset all values
 	for(int i = 0; i < LAYERS_MAX; i++){
 		layers[i]				= 0;
 		layerThicknesses[i]		= "";
 		isolationThicknesses[i]	= "";
+		viaLayerStart[i]		= -1;
+		viaLayerStop[i]			= -1;
 	}
-
 
 	//Start analyzing the layer setup in the
 	//eagle DRC
@@ -75,6 +81,7 @@ void analyzeDru(){
 
 	//String in Eagle are zero terminated
 	for(i = 0; layerSetup[i]; i++){
+		//dlgMessageBox("S: " + layerSetup[i]);
 		if(layerSetup[i] == '('){			//Via start
 			viaLayerStart[viaLayerStartCurrent++]	= layerCurrent;
 		} else if (layerSetup[i] == '('){	//Via ends
@@ -89,17 +96,13 @@ void analyzeDru(){
 			isolationType[isolationCurrent++]	= 0;			
 		} else {							//A normal layer
 			//Check if we have a 2 digit layer or not
-			//dlgMessageBox(strsub(layerSetup, i, 2));
-			//dlgMessageBox(strsub(layerSetup, i, 1));
-			int layer = strtol(strsub(layerSetup, i, 2));
-			if(layer == 0){
-				layer = strtol(strsub(layerSetup, i, 1));
-			} else {
+			int layer = 0;
+			if(layerSetup[i+1] >= '0' && layerSetup[i+1] <= '9'){
+				layer = strtol(strsub(layerSetup, i, 2));
 				i++;
+			} else{				
+				layer = strtol(strsub(layerSetup, i, 1));
 			}
-			//string dummy = "";
-			//sprintf(dummy, "%s %s %")
-
 			layers[layerCurrent++]	= layer;
 		}
 	}
@@ -136,6 +139,17 @@ void analyzeDru(){
 			break;
 		}
 	}
+
+	//Load layer names
+	for(i = 0; i < LAYERS_MAX; i++){
+		board(B){
+			B.layers(L) {
+				if(layers[i] == L.number){
+					layerNames[i] = L.name;
+				}
+			}
+		}
+	}
 }
 
 
@@ -143,8 +157,55 @@ void analyzeDru(){
  * Draw a row of table
  */
 string drawRow(real startx, real starty, int row, int isHeadline, string cols, string text){
-	//dlgMessageBox(text);
-	return text + "\n";
+	//Column widths
+	real 	widths[];
+	string 	texts[];
+
+	//Walk through column content
+	string buffer = "";
+	int index = 0;
+	for(int i = 0; text[i]; i++) {
+		if(text[i] == ';'){
+			texts[index++] = buffer;
+			buffer = "";
+		} else {
+			buffer = buffer + text[i];
+		}
+	}
+	texts[index++] = buffer;
+
+	//Walk through all columns
+	index = 0;
+	buffer = "";
+	for(i = 0; cols[i]; i++) {
+		if(cols[i] == ';'){
+			widths[index++] = strtod(buffer);
+			buffer = "";
+		} else {
+			buffer = buffer + cols[i];
+		}
+	}
+	widths[index++] = strtod(buffer);
+
+	//Draw columns and 
+	string data = "";
+	real x = startx;
+	real y = starty - row*rowHeight;
+
+	sprintf(data, "%sCHANGE RATIO %d;\n", data, isHeadline?ratioHeadline:ratioNormal);
+	for(i = 0; i < index; i++){
+		sprintf(data, "%sWIRE (%f %f) (%f %f) (%f %f);\n", data,
+				x, 				y-rowHeight, 
+				x, 				y, 
+				x+widths[i], 	y
+		);
+		sprintf(data, "%sTEXT '%s' (%f %f);\n", data, texts[i], x+distance, y-distance);
+		x =  x + widths[i];
+	}
+	sprintf(data, "%sWIRE (%f %f) (%f %f) (%f %f);\n", data, 
+		x, y, x, y-rowHeight, startx, y-rowHeight);
+
+	return data;
 }
 
 
@@ -153,37 +214,87 @@ void run(string StopmaskColor, string SilkscreenColor, string SurfaceFinish){
 	analyzeDru();
 
 	sprintf(data, "%sOPEN %s;\n", data, LIBRARY_NAME);
+	sprintf(data, "%sSET CONFIRM YES;\n", data);
+	sprintf(data, "%sREMOVE fabriaction.pac;\n", data);
 	sprintf(data, "%sEDIT fabriaction.pac;\n", data);
+	sprintf(data, "%sLAYER 153 FabDoc1;\n", data);
+	sprintf(data, "%sCHANGE LAYER 153;\n", data);
+	sprintf(data, "%sCHANGE WIDTH %fmm;\n", data, lineWidth);
+	sprintf(data, "%sCHANGE SIZE %fmm;\n", data, textSize);
+	sprintf(data, "%sCHANGE ALIGN TOP LEFT;\n", data);
+	sprintf(data, "%sCHANGE FONT VECTOR;\n", data);
+	sprintf(data, "%sGRID mm 0.1;\n", data);
 
 	real startX = 0.0;
 	real startY = 0.0;
+	real rowY = 0.0;
+	real rowX = 0.0; 
+
 	int row = 0;
 	string buffer = "";
 
 	//Draw layer table
-	drawRow(startX, startY, row++, 1, colsMain, "Thickness,Type,Layer");
+	data = data + drawRow(startX, startY, row++, 1, colsMain, "Thickness;Type;Layer;");
+	data = data + drawRow(startX, startY, row++, 0, colsMain, ";Silkscreen;;Color: " + SilkscreenColor);
+	data = data + drawRow(startX, startY, row++, 0, colsMain, ";Stopmask;;Color: " + StopmaskColor);
 	for(int i = 0; i < LAYERS_MAX; i++){
-		sprintf(buffer, "%s, Copper, Layer %d", layerThicknesses[i], layers[i]);
+		sprintf(buffer, "%s;Copper;Layer %d;%s", layerThicknesses[i], layers[i], layerNames[i]);
 		data = data + drawRow(startX, startY, row++, 0, colsMain, buffer);
+		
+		//Build stackup
+		rowY = startY - row*rowHeight;
+		rowX = startX - stackupXOffset; 
+		sprintf(data, "%sCHANGE POUR SOLID;\n", data);		
+		sprintf(data, "%sWIRE (%f %f) (%f %f) (%f %f) (%f %f) (%f %f);\n", data, 
+			rowX, 				rowY+rowHeight, 
+			rowX, 				rowY, 
+			rowX-stackupWidth, 	rowY,
+			rowX-stackupWidth, 	rowY+rowHeight,
+			rowX, 				rowY+rowHeight);
 
+		//Break if last layer
 		if(layers[i+1] == 0){
 			break;
 		}
 
-		if(isolationType[i] == 0){
-			buffer = "Core";
-		} else{
-			buffer = "Prepreg";
-		}
-		sprintf(buffer, "%s, %s, ", isolationThicknesses[i], buffer);
+		sprintf(buffer, "%s;%s;", isolationThicknesses[i], isolationType[i]?"Prepreg":"Core");
 		data = data + drawRow(startX, startY, row++, 0, colsMain, buffer);
-	}
 
-	sprintf(data, "%sWRITE;\n", data);
-	sprintf(data, "%sCLOSE;\n", data);
+		//Build stackup
+		rowY = startY - row*rowHeight;
+		rowX = startX - stackupXOffset;
+		sprintf(data, "%sCHANGE POUR HATCH;\n", data);	
+		sprintf(data, "%sPOLYGON (%f %f) (%f %f) (%f %f) (%f %f) (%f %f);\n", data, 
+			rowX, 				rowY+rowHeight, 
+			rowX, 				rowY, 
+			rowX-stackupWidth, 	rowY,
+			rowX-stackupWidth, 	rowY+rowHeight,
+			rowX, 				rowY+rowHeight);
+	}
+	data = data + drawRow(startX, startY, row++, 0, colsMain, ";Stopmask;;Color: " + StopmaskColor);
+	data = data + drawRow(startX, startY, row++, 0, colsMain, ";Silkscreen;;Color: " + SilkscreenColor);
+/*
+	//Create vias
+	int rowStart = 3;
+	for(int i = 0; viaLayerStart[i] != -1; i++){
+		rowY = startY - rowStart*rowHeight;
+		rowX = startX - stackupXOffset;
+
+		sprintf(data, "%sCHANGE POUR SOLID;\n", data);	
+		sprintf(data, "%sPOLYGON (%f %f) (%f %f) (%f %f) (%f %f) (%f %f);\n", data, 
+			rowX, 				rowY+rowHeight, 
+			rowX, 				rowY, 
+			rowX-stackupWidth, 	rowY,
+			rowX-stackupWidth, 	rowY+rowHeight,
+			rowX, 				rowY+rowHeight);
+	}
+*/
+
+	//sprintf(data, "%sWRITE;\n", data);
+	//sprintf(data, "%sCLOSE;\n", data);
 
 	dlgMessageBox(data);
-
+	exit(data);
 }
 
 
