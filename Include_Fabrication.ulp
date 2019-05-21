@@ -18,25 +18,35 @@
 #include "Include_Dru.ulp";
 #include "Include_FastExecute.ulp";
 #include "Include_String.ulp"
+#include "Include_Boardsize.ulp"
 
 string LIBRARY_NAME 	= "fabriaction.lbr";
 
-real 	rowHeight 		= 2.5; 		//in mm
-real 	textSize  		= 1.8; 		//in mm
-real 	lineWidth 		= 0.15; 	//in mm
+real 	rowHeight 		= 2.5; 	//in mm
+real 	textSize  		= 1.778; 	//in mm
+real 	lineWidth 		= 0.1016; 	//in mm
+real 	lineWidthBorder	= 0.2032; 	//in mm
 real 	distance  		= 0.3;		//in mm, from left cell edge
-int 	ratioNormal 	= 8;		//
-int 	ratioHeadline	= 12;		//
-real 	stackupWidth	= 15; 		//in mm
+int 	ratioNormal 	= 5;		//
+int 	ratioHeadline	= 8;		//
+real 	stackupWidth	= 10; 		//in mm
 real 	stackupXOffset 	= 5;		//in mm - X offset
+real 	tableOffset 	= 15;		//in mm
 
-string 	colsMain = "15;15;15;25"; 	//Thickness, Type, Layer
+string 	colsMain 	= "15;15;20"; 		//Thickness, Type, Layer
+string 	colsInfo 	= "40;25"; 			//
+string 	colsDrills	= "10;10;15;15;15";	//Symbol
 
 string layerSetup 		= "";
 string copperThickness 	= "";
 string isolateThickness = "";
 string data 			= "";
 
+string PcbThickness 	= "";
+string MinClearance 	= "";
+string MinTrace 		= "";
+string MinDrill 		= "";
+string SurfaceFinish	= "";
 
 int 	LAYERS_MAX 		= 16;
 int 	viaLayerStart[];
@@ -46,6 +56,30 @@ string 	layerNames[];
 string 	layerThicknesses[];
 int 	isolationType[];
 string 	isolationThicknesses[]; 
+
+
+real SymbolSize 	= 1.8;
+real SymbolWidth	= 0.1;
+string Symbol[] = {
+"W 24 20,W 02 42",
+"W 04 40,W 44 00",
+"W 22 24 44 40 00 04 24",	
+"W 22 24 42 20 02 24",
+"W 04 44 00 40 04",
+"W 04 40 44 00 04",
+"W 02 42 24 20 02",
+"W 24 20 42 02 24",
+"W 04 40,W 44 00,W 24 20",
+"W 04 40,W 44 00,W 02 42",
+"W 04 44 22 04,W 22 20",
+"W 24 22 40 00 22",
+"W 02 22 44 40 22",
+"W 42 22 04 00 22",
+"W 24 20,W 02 42,C 22 42",
+"C 22 42,C 22 32,W 24 20,W 02 42",
+"W 04 24 44 42 40 20 00 02 04,W 24 20,W 02 42",
+"W 04 02 00 20 40 42 44 24 04,W 13 11 31 33 13,W 24 20,W 02 42",
+"C 22 42,W 00 44"};
 
 
 /**
@@ -152,11 +186,159 @@ void analyzeDru(){
 	}
 }
 
+real parseParameter(string value) {
+	return strtod(stringReplace(value, "mm", ""));
+}
+
+void loadInfo() {
+	real thickness = 0.0;
+	for(int i = 0; i < LAYERS_MAX; i++){
+
+		thickness += parseParameter(layerThicknesses[i]);
+		if(layers[i+1] == 0){
+			break;
+		}
+		thickness += parseParameter(isolationThicknesses[i]);
+	}
+	sprintf(PcbThickness, "%.2fmm +/-10%%", thickness);
+
+	real isolate1 = parseParameter(drcGetRule("mdWireWire"));
+	real isolate2 = parseParameter(drcGetRule("mdWirePad"));
+	real isolate3 = parseParameter(drcGetRule("mdWireVia"));
+	real minisolate = min(isolate1, min(isolate2, isolate3));
+	sprintf(MinClearance, "%.2fmm", minisolate);
+
+	real minwidth = parseParameter(drcGetRule("msWidth"));
+	sprintf(MinTrace, "%.2fmm", minwidth);
+
+	real mindrill = parseParameter(drcGetRule("msDrill"));
+	sprintf(MinDrill, "%.2fmm", mindrill);
+}
+
+int drillDiameter[];
+int drillCount[];
+int drillPlated[];
+int drillSymbol[];
+int drillIndex = 0;
+
+/**
+ * Sort the drills by value
+ */
+void drillsSort() {
+	int changed = 1;
+
+	int tmpDrillDiameter;
+	int tmpDrillCount;
+	int tmpDrillPlated;
+	int tmpDrillSymbol;
+
+	while(changed){
+		changed = 0;
+		for(int i = 0; i < drillIndex-1; i++) {
+			if( (drillDiameter[i] > drillDiameter[i+1]) || 
+				(drillDiameter[i] == drillDiameter[i+1] && drillPlated[i] > drillPlated[i+1] )){
+				changed = 1;
+
+				tmpDrillDiameter 	= drillDiameter[i];
+				tmpDrillPlated 	 	= drillPlated[i];
+				tmpDrillCount 	 	= drillCount[i];
+				tmpDrillSymbol   	= drillSymbol[i];
+				drillDiameter[i] 	= drillDiameter[i+1];
+				drillPlated[i] 	 	= drillPlated[i+1];
+				drillCount[i] 	 	= drillCount[i+1];
+				drillSymbol[i]   	= drillSymbol[i+1];				
+				drillDiameter[i+1] 	= tmpDrillDiameter;
+				drillPlated[i+1] 	= tmpDrillPlated;
+				drillCount[i+1] 	= tmpDrillCount;
+				drillSymbol[i+1]  	= tmpDrillSymbol;
+			}
+		}
+	}
+}
+
+/**
+ * Add a drill to the list
+ */
+void drillsAdd(int size, int plated, int sym) {
+	int i = 0;
+	for(i = 0; i < drillIndex; i++) {
+		if(drillDiameter[i] == size && drillPlated[i] == plated) {
+			break;
+		}
+	}
+
+	drillDiameter[i] 	= size;
+	drillPlated[i]		= plated;
+	drillSymbol[i] 		= sym;
+	drillCount[i]++;
+
+	if(i == drillIndex){
+		drillIndex = i+1;
+	}
+}
+
+/**
+ * Load the drills for the table
+ */ 
+void drillsLoad(){
+	board(B) {
+	  B.holes(H) 				drillsAdd(H.drill, 0, H.drillsymbol);
+	  B.signals(S) S.vias(V) 	drillsAdd(V.drill, 1, V.drillsymbol);
+	  B.elements(E)  {
+	    E.package.contacts(C) {
+	      if (C.pad) 			drillsAdd(C.pad.drill, 1, C.pad.drillsymbol);
+	    }
+	    E.package.holes(H) 		drillsAdd(H.drill, 0, H.drillsymbol);
+	  }
+	}
+	drillsSort();
+}
+
+string drillsDraw(int No, real Xs, real Ys) {
+	Xs = Xs - (SymbolSize/2);
+	Ys = Ys - (SymbolSize/2);
+	string a[], c[], tmps, cmd, hs;
+	int b = 0, d = 0, m, p;
+	real U = SymbolSize/4, sx, sy;
+	b = strsplit(a, Symbol[No], ',');
+	for(m=0;m<b;m++) {
+		d = strsplit(c, a[m], ' ');
+		if(c[0] == "W") {cmd = "Wire";}
+		if(c[0] == "C") {cmd = "Circle";}
+		hs=""; sprintf(hs,"%s %f",cmd,SymbolWidth); tmps += hs;
+		for(p=1;p<d;p++) {
+			sx = strtol(strsub(c[p],0,1)); sx = (sx*U) + Xs;
+			sy = strtol(strsub(c[p],1,1)); sy = (sy*U) + Ys;
+			hs=""; sprintf(hs," (%f %f)",sx,sy); tmps += hs;
+		}
+		hs=""; sprintf(hs,";\n"); tmps += hs;
+	}
+	//string buffer = "";
+	//sprintf(buffer, "%d: %s", No, tmps);	
+	//dlgMessageBox(buffer);
+	return tmps;
+}
+
+real getTotalWidth(string cols) {
+	real width = 0.0;
+	//Walk through all columns
+	string buffer = "";
+	for(int i = 0; cols[i]; i++) {
+		if(cols[i] == ';'){
+			width += strtod(buffer);
+			buffer = "";
+		} else {
+			buffer = buffer + cols[i];
+		}
+	}
+	width += strtod(buffer);
+	return width;
+}
 
 /**
  * Draw a row of table
  */
-string drawRow(real startx, real starty, int row, int isHeadline, string cols, string text){
+string drawRow(real startx, real starty, int row, int isHeadline, int align, string cols, string text){
 	//Column widths
 	real 	widths[];
 	string 	texts[];
@@ -199,8 +381,21 @@ string drawRow(real startx, real starty, int row, int isHeadline, string cols, s
 				x, 				y, 
 				x+widths[i], 	y
 		);
-		sprintf(data, "%sTEXT '%s' (%f %f);\n", data, texts[i], x+distance, y-distance);
+
+		real x2 = 0.0;
+		if(align == 0){
+			sprintf(data, "%sCHANGE ALIGN CENTER LEFT;\n", data);
+			x2 = x+distance;
+		} else if(align == 1) {
+			sprintf(data, "%sCHANGE ALIGN CENTER CENTER;\n", data);
+			x2 = x+(widths[i]/2);
+		}
+		sprintf(data, "%sTEXT '%s' (%f %f);\n", data, texts[i], x2, y-(rowHeight/2));
 		x =  x + widths[i];
+
+		if(isHeadline == 2 && i == 0) {
+			sprintf(data, "%sCHANGE RATIO %d;\n", data, ratioNormal);
+		}
 	}
 	sprintf(data, "%sWIRE (%f %f) (%f %f) (%f %f);\n", data, 
 		x, y, x, y-rowHeight, startx, y-rowHeight);
@@ -208,6 +403,37 @@ string drawRow(real startx, real starty, int row, int isHeadline, string cols, s
 	return data;
 }
 
+/**
+ * Draw the border of the table
+ */
+string drawBorder(real startx, real starty, int rows, string cols) {
+	string data = "";
+
+	real width = getTotalWidth(cols);
+	sprintf(data, "%sCHANGE WIDTH %fmm;\n", data, lineWidthBorder);
+	sprintf(data, "%sWIRE (%f %f) (%f %f) (%f %f) (%f %f) (%f %f);\n", data, 
+		startx, 		starty, 
+		startx+width, 	starty, 
+		startx+width, 	starty-rows*rowHeight, 
+		startx, 		starty-rows*rowHeight,
+		startx, 		starty
+	);	
+	sprintf(data, "%sCHANGE WIDTH %fmm;\n", data, lineWidth);
+	return data;
+}
+
+/**
+ * Draw the headline
+ */
+string drawHeadline(real startx, real starty, int row, int isHeadline, string cols, string text){
+	string data = "";	
+	real width = getTotalWidth(cols);
+
+	sprintf(data, "%sCHANGE RATIO %d;\n", data, isHeadline?ratioHeadline:ratioNormal);
+	sprintf(data, "%sCHANGE ALIGN CENTER CENTER;\n", data);
+	sprintf(data, "%sTEXT '%s' (%f %f);\n", data, text, startx+(width/2), starty-(row*rowHeight)-(rowHeight/2) );
+	return data;
+}
 
 
 void run(string StopmaskColor, string SilkscreenColor, string SurfaceFinish){
@@ -229,17 +455,56 @@ void run(string StopmaskColor, string SilkscreenColor, string SurfaceFinish){
 	real startY = 0.0;
 	real rowY = 0.0;
 	real rowX = 0.0; 
-
 	int row = 0;
 	string buffer = "";
+	int i = 0;
+
+
+	//Draw a general information table
+	startX = 0;
+	loadInfo();
+	data += drawHeadline(startX, startY, row++, 1,colsInfo, "PCB specification");
+	data += drawRow(startX, startY, row++, 2, 0, colsInfo, "PCB thickness;" + PcbThickness); 
+	data += drawRow(startX, startY, row++, 2, 0, colsInfo, "Minimum clearance;" + MinClearance); 
+	data += drawRow(startX, startY, row++, 2, 0, colsInfo, "Minimum trace;" + MinTrace); 
+	data += drawRow(startX, startY, row++, 2, 0, colsInfo, "Minimum drill;" + MinDrill);
+	data += drawRow(startX, startY, row++, 2, 0, colsInfo, "Stopmask color;" + StopmaskColor); 
+	data += drawRow(startX, startY, row++, 2, 0, colsInfo, "Silkscreen color;" + SilkscreenColor);
+	data += drawRow(startX, startY, row++, 2, 0, colsInfo, "Trim silkscreen;yes");
+	data += drawRow(startX, startY, row++, 2, 0, colsInfo, "Surface finish;" + SurfaceFinish);
+	data += drawRow(startX, startY, row++, 2, 0, colsInfo, "Electrical test;100%");
+	data += drawBorder(startX, startY, row, colsInfo);
+
+	/// Draw drill chart
+	startY = startY - (row+1)*rowHeight;
+	row = 0;
+
+	drillsLoad();
+	data += drawHeadline(startX, startY, row++, 1, colsDrills, "Drill chart");
+	data += drawRow(startX, startY, row++, 1, 1, colsDrills, "Sym;ID;Diameter;Quantity;Plated");
+
+	for(i = 0; i < drillIndex; i++) {
+		sprintf(buffer, ";%d;%.2f;%d;%s", i+1, u2mm(drillDiameter[i]), drillCount[i], drillPlated[i]?"YES":"NO");
+		data += drawRow(startX, startY, row++, 0, 1, colsDrills, buffer);
+		data += drillsDraw(drillSymbol[i], startX+5, startY-(row*rowHeight)+rowHeight/2);
+
+	}
+	data += drawBorder(startX, startY, row, colsDrills);
+
+
+	///Draw stackup table
+	startX = stackupXOffset + stackupWidth;
+	startY = startY - (row+1)*rowHeight;
+	row = 0;
 
 	//Draw layer table
-	data = data + drawRow(startX, startY, row++, 1, colsMain, "Thickness;Type;Layer;");
-	data = data + drawRow(startX, startY, row++, 0, colsMain, ";Silkscreen;;Color: " + SilkscreenColor);
-	data = data + drawRow(startX, startY, row++, 0, colsMain, ";Stopmask;;Color: " + StopmaskColor);
-	for(int i = 0; i < LAYERS_MAX; i++){
-		sprintf(buffer, "%s;Copper;Layer %d;%s", layerThicknesses[i], layers[i], layerNames[i]);
-		data = data + drawRow(startX, startY, row++, 0, colsMain, buffer);
+	data += drawHeadline(startX, startY, row++, 1, colsMain, "Layer stackup");
+	data += drawRow(startX, startY, row++, 1, 1, colsMain, "Thickness;Type;Layer");
+	data += drawRow(startX, startY, row++, 0, 0, colsMain, ";Silkscreen;;");
+	data += drawRow(startX, startY, row++, 0, 0, colsMain, ";Stopmask;;");
+	for(i = 0; i < LAYERS_MAX; i++){
+		sprintf(buffer, "%s;Copper;L%d: %s", layerThicknesses[i], layers[i], layerNames[i]);
+		data += drawRow(startX, startY, row++, 0, 0, colsMain, buffer);
 		
 		//Build stackup
 		rowY = startY - row*rowHeight;
@@ -258,7 +523,7 @@ void run(string StopmaskColor, string SilkscreenColor, string SurfaceFinish){
 		}
 
 		sprintf(buffer, "%s;%s;", isolationThicknesses[i], isolationType[i]?"Prepreg":"Core");
-		data = data + drawRow(startX, startY, row++, 0, colsMain, buffer);
+		data += drawRow(startX, startY, row++, 0, 0, colsMain, buffer);
 
 		//Build stackup
 		rowY = startY - row*rowHeight;
@@ -271,8 +536,9 @@ void run(string StopmaskColor, string SilkscreenColor, string SurfaceFinish){
 			rowX-stackupWidth, 	rowY+rowHeight,
 			rowX, 				rowY+rowHeight);
 	}
-	data = data + drawRow(startX, startY, row++, 0, colsMain, ";Stopmask;;Color: " + StopmaskColor);
-	data = data + drawRow(startX, startY, row++, 0, colsMain, ";Silkscreen;;Color: " + SilkscreenColor);
+	data += drawRow(startX, startY, row++, 0, 0, colsMain, ";Stopmask;;");
+	data += drawRow(startX, startY, row++, 0, 0, colsMain, ";Silkscreen;;");
+	data += drawBorder(startX, startY, row, colsMain);
 /*
 	//Create vias
 	int rowStart = 3;
@@ -290,11 +556,39 @@ void run(string StopmaskColor, string SilkscreenColor, string SurfaceFinish){
 	}
 */
 
-	//sprintf(data, "%sWRITE;\n", data);
-	//sprintf(data, "%sCLOSE;\n", data);
 
-	dlgMessageBox(data);
-	exit(data);
+
+	//Clean up and display
+	sprintf(data, "%sWRITE %s;\n", data, LIBRARY_NAME);
+	sprintf(data, "%sCLOSE %s;\n", data, LIBRARY_NAME);
+	sprintf(data, "%sGRID mm 0.1 1 mm;\n", data);
+	sprintf(data, "%sUSE %s;\n", data, LIBRARY_NAME);
+
+
+	int replace = 0;
+	board(B) {
+		B.elements(E) {
+			if(E.name == "FABRICATION"){
+				replace = 1;
+			}
+		}
+	 }
+	 if(replace){
+		sprintf(data, "%sUPDATE %s;\n", data, LIBRARY_NAME);
+	 } else {
+	 	getBoardSize();
+	 	int width = getTotalWidth(colsInfo);
+	 	sprintf(data, "%sADD 'fabriaction' FABRICATION R0 (%.3f %.3f);\n", data, 
+	 		u2mm((min_x+max_x)/2) - width/2, 
+	 		u2mm(min_y) - tableOffset
+	 	);
+	 }
+
+	sprintf(data, "%sGRID LAST;\n", data);
+
+	//dlgMessageBox(data);
+	//exit(data);
+	executeAndExit(data);
 }
 
 
