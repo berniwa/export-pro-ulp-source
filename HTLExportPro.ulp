@@ -458,12 +458,13 @@ void export()
 		system("mkdir \"" + output_folder + "\""); //Make new folder
 	}
 
-	string image_folder = "", gerber_folder = "", eagle_folder = "", cad_folder = "", ecpanel_folder = "", pnp_folder = "";
+	string image_folder = "", pdf_folder = "", gerber_folder = "", eagle_folder = "", cad_folder = "", ecpanel_folder = "", pnp_folder = "";
 
 	if(output_date_folder)	//If a date folder and subfolders should be created
 	{
 		string date_folder 	= t2string(time(), "yyyy-MM-dd") + "/";
 		image_folder 		= "images";
+		pdf_folder 			= "pdf";
 		gerber_folder 		= "gerber";
 		eagle_folder 		= "eagle";
 		cad_folder 			= "cad";
@@ -479,6 +480,10 @@ void export()
 		if(fileglob(tmp, output_folder + image_folder) <= 0)
 		{
 			system("mkdir \"" + output_folder + image_folder + "\""); 
+		}
+		if(fileglob(tmp, output_folder + pdf_folder) <= 0)
+		{
+			system("mkdir \"" + output_folder + pdf_folder + "\""); 
 		}
 		if(gerber_export == 1 && fileglob(tmp, output_folder + gerber_folder) <= 0)
 		{
@@ -513,37 +518,22 @@ void export()
 	
 
 	//Output files to image directory
-	string	output_file = output_folder + image_folder + boardname;
-	/*if(OS_SIGNATURE == "Windows_7" || OS_SIGNATURE == "Windows_8" || OS_SIGNATURE == "Linux")		//DONE: OS_SIGNATURE-Abfrage entworfen, Unterscheidung .png & bmp = Windows & Linux
-	{*/
-		output_file_lb = getFilename(output_file, "-layout-bot.png");
-		output_file_lt = getFilename(output_file, "-layout-top.png");	
-		output_file_li = getFilename(output_file, "-layout-layer"); 
-		output_file_extension = ".png";
-		output_file_pb = getFilename(output_file, "-parts-bot.png");
-		output_file_pt = getFilename(output_file, "-parts-top.png");
-		output_file_cs = getFilename(output_file, "-construction.png");
-		output_file_ref = getFilename(output_file, "-reference.png");
-		output_file_drl = getFilename(output_file, "-fabrication.png");
-		output_file_pcbt = getFilename(output_file, "-pcb-top.png");
-		output_file_pcbb = getFilename(output_file, "-pcb-bot.png");
-	/*}
-	else
-	{
-		output_file_lb = getFilename(output_file, "-layout-bot.bmp");
-		output_file_lt = getFilename(output_file, "-layout-top.bmp");	
-		output_file_li = getFilename(output_file, "-layout-layer"); 
-		output_file_extension = ".bmp";
-		output_file_pb = getFilename(output_file, "-parts-bot.bmp");
-		output_file_pt = getFilename(output_file, "-parts-top.bmp");
-		output_file_cs = getFilename(output_file, "-construction.bmp");
-		output_file_drl = getFilename(output_file, "-drills.bmp");
-		output_file_pcbt = getFilename(output_file, "-pcb-top.bmp");
-		output_file_pcbb = getFilename(output_file, "-pcb-bot.bmp");
-	}*/
+	string output_folder_image 	= output_folder + image_folder + getFilename(boardname, "");
+	string output_folder_pdf    = output_folder + pdf_folder   + getFilename(boardname, "");
+
+	output_file_lb 		= "-layout-bot";
+	output_file_lt 		= "-layout-top";	
+	output_file_li 		= "-layout-layer"; 
+	output_file_pb 		= "-parts-bot";
+	output_file_pt 		= "-parts-top";
+	output_file_cs 		= "-construction";
+	output_file_ref 	= "-reference";
+	output_file_drl 	= "-fabrication";
+	output_file_pcbt 	= "-pcb-top";
+	output_file_pcbb 	= "-pcb-bot";
 	
 
-	output_file = output_folder + gerber_folder + boardname;
+	string output_file = output_folder + gerber_folder + boardname;
 	if(gerber_format == 0){				//Standard EAGLE file naming
 		//Output files to gerber directory
 		output_file_gerber_copper_top 		= getFilename(output_file, ".cmp");
@@ -709,119 +699,123 @@ void export()
 		cmd += "SET CONFIRM YES;";
 	}
 
-	if(enable_export && layout_bot)
+	if(enable_export)
 	{
-		cmd += "DISPLAY NONE;DISPLAY 16 17 18 20 " + measure_layer_bottom + "; RATSNEST;EXPORT IMAGE '" + output_file_lb + "' MONOCHROME 600;";
-	}
-	if(enable_export && layout_top)
-	{
-		cmd += "DISPLAY NONE;DISPLAY 1 17 18 20 " + measure_layer_top + "; RATSNEST; EXPORT IMAGE '" + output_file_lt + "' MONOCHROME 600;";
-	}
-	if(enable_export && layout_inner_layer)
-	{
-		for(int i = 1; i < 15; i++)
-		{
-			if(board_layer[i] == 1)
-			{
-				sprintf(cmd, "%s DISPLAY NONE;DISPLAY %d 17 18 20 " + measure_layer_top + "; SET FILL_LAYER %d SOLID; RATSNEST;EXPORT IMAGE '%s%d%s' MONOCHROME 600; SET FILL_LAYER %d %s; RATSNEST;", cmd, i+1, i+1, output_file_li, i+1,output_file_extension, i+1, layer_fill[i+1]);
-			}
-		}
-	}
-	if(enable_export && parts_top)
-	{
-		string lx = "";
-		if(parts_top_docu){lx = "51 ";}
-		cmd += "DISPLAY NONE;DISPLAY " + lx + "121 123 " + measure_layer_top + ";EXPORT IMAGE '" + output_file_pt + "' MONOCHROME 600;";
-	}
-	if(enable_export && parts_bot)
-	{	
-		string lx = "";
-		if(parts_bot_docu){lx = "52 ";}
-		cmd += "DISPLAY NONE;DISPLAY " + lx + "122 123 " + measure_layer_bottom + ";EXPORT IMAGE '" + output_file_pb + "' MONOCHROME 600;";
-	}
-	if(enable_export && drills)
-	{
-		cmd += "DISPLAY NONE;DISPLAY 44 45 20 153 " + measure_layer_top + ";EXPORT IMAGE '" + output_file_drl + "' MONOCHROME 600;";
-	}
-	if(enable_export && construction)
-	{
-		cmd += "DISPLAY NONE;DISPLAY 111 20;EXPORT IMAGE '" + output_file_cs + "' MONOCHROME 600;";		
-	}
-	if(enable_export && reference)
-	{
-		cmd += "DISPLAY NONE;DISPLAY 111 49;EXPORT IMAGE '" + output_file_ref + "' MONOCHROME 600;";		
-	}
-	if(EAGLE_VERSION > 5 || (EAGLE_VERSION == 5 && EAGLE_RELEASE >= 11) ) //Support for SET CONFIRM form Eagle 5.11 on
-	{
-		cmd += "SET CONFIRM NO;";
-	}
 
-
-	if(enable_export && crop_all)
-	{
 		if(layout_bot)
 		{
-			cmd += "RUN "  + include_path + "Crop.ulp '" + output_file_lb + "';";
+			cmd += "DISPLAY NONE;DISPLAY 16 17 18 20 " + measure_layer_bottom + "; RATSNEST;EXPORT IMAGE '" + output_folder_image + output_file_lb + ".png' MONOCHROME 600;";
 		}
 		if(layout_top)
 		{
-			cmd += "RUN "  + include_path + "Crop.ulp '" + output_file_lt + "';";
+			cmd += "DISPLAY NONE;DISPLAY 1 17 18 20 " + measure_layer_top + "; RATSNEST; EXPORT IMAGE '" + output_folder_image + output_file_lt + ".png' MONOCHROME 600;";
 		}
 		if(layout_inner_layer)
 		{
 			for(int i = 1; i < 15; i++)
 			{
 				if(board_layer[i] == 1)
-				{	
-					string tfname = "";
-					sprintf(tfname, "%s%d%s", output_file_li, i+1, output_file_extension); 		
-					cmd += "RUN "  + include_path + "Crop.ulp '" + tfname + "';";
+				{
+					sprintf(cmd, "%s DISPLAY NONE;DISPLAY %d 17 18 20 " + measure_layer_top + "; SET FILL_LAYER %d SOLID; RATSNEST;EXPORT IMAGE '%s%d%s' MONOCHROME 600; SET FILL_LAYER %d %s; RATSNEST;", cmd, i+1, i+1, output_folder_image + output_file_li, i+1, ".png", i+1, layer_fill[i+1]);
 				}
 			}
 		}
 		if(parts_top)
 		{
-			cmd += "RUN "  + include_path + "Crop.ulp '" + output_file_pt + "';";
+			string lx = "";
+			if(parts_top_docu){lx = "51 ";}
+			cmd += "DISPLAY NONE;DISPLAY " + lx + "121 123 " + measure_layer_top + ";EXPORT IMAGE '" + output_folder_image + output_file_pt + ".png' MONOCHROME 600;";
 		}
 		if(parts_bot)
-		{
-			cmd += "RUN "  + include_path + "Crop.ulp '" + output_file_pb + "';";
+		{	
+			string lx = "";
+			if(parts_bot_docu){lx = "52 ";}
+			cmd += "DISPLAY NONE;DISPLAY " + lx + "122 123 " + measure_layer_bottom + ";EXPORT IMAGE '" + output_folder_image + output_file_pb + ".png' MONOCHROME 600;";
 		}
 		if(drills)
 		{
-			cmd += "RUN "  + include_path + "Crop.ulp '" + output_file_drl + "';";
+			cmd += "DISPLAY NONE;DISPLAY 44 45 20 153 " + measure_layer_top + ";EXPORT IMAGE '" + output_folder_image + output_file_drl + ".png' MONOCHROME 600;";
 		}
 		if(construction)
 		{
-			cmd += "RUN "  + include_path + "Crop.ulp '" + output_file_cs + "';";
-		}	
+			cmd += "DISPLAY NONE;DISPLAY 111 20;EXPORT IMAGE '" + output_folder_image + output_file_cs + ".png' MONOCHROME 600;";		
+		}
 		if(reference)
 		{
-			cmd += "RUN "  + include_path + "Crop.ulp '" + output_file_ref + "';";
+			cmd += "DISPLAY NONE;DISPLAY 111 49;EXPORT IMAGE '" + output_folder_image + output_file_ref + ".png' MONOCHROME 600;";		
+		}
+		/*
+		if(EAGLE_VERSION > 5 || (EAGLE_VERSION == 5 && EAGLE_RELEASE >= 11) ) //Support for SET CONFIRM form Eagle 5.11 on
+		{
+			cmd += "SET CONFIRM NO;";
+		}*/
+
+
+		if(crop_all)
+		{
+			if(layout_bot)
+			{
+				cmd += "RUN "  + include_path + "Crop.ulp '" + output_folder_image + output_file_lb + ".png';";
+			}
+			if(layout_top)
+			{
+				cmd += "RUN "  + include_path + "Crop.ulp '" + output_folder_image + output_file_lt + ".png';";
+			}
+			if(layout_inner_layer)
+			{
+				for(int i = 1; i < 15; i++)
+				{
+					if(board_layer[i] == 1)
+					{	
+						string tfname = "";
+						sprintf(tfname, "%s%d%s", output_folder_image + output_file_li, i+1); 		
+						cmd += "RUN "  + include_path + "Crop.ulp '" + tfname + ".png';";
+					}
+				}
+			}
+			if(parts_top)
+			{
+				cmd += "RUN "  + include_path + "Crop.ulp '" + output_folder_image + output_file_pt + ".png';";
+			}
+			if(parts_bot)
+			{
+				cmd += "RUN "  + include_path + "Crop.ulp '" + output_folder_image + output_file_pb + ".png';";
+			}
+			if(drills)
+			{
+				cmd += "RUN "  + include_path + "Crop.ulp '" + output_folder_image + output_file_drl + ".png';";
+			}
+			if(construction)
+			{
+				cmd += "RUN "  + include_path + "Crop.ulp '" + output_folder_image + output_file_cs + ".png';";
+			}	
+			if(reference)
+			{
+				cmd += "RUN "  + include_path + "Crop.ulp '" + output_folder_image + output_file_ref + ".png';";
+			}
 		}	
-	}	
-	if(enable_export && mirror_bot)
-	{
-		if(layout_bot)
+		if(mirror_bot)
 		{
-			cmd += "RUN "  + include_path + "Mirror.ulp '" + output_file_lb + "';";
+			if(layout_bot)
+			{
+				cmd += "RUN "  + include_path + "Mirror.ulp '" + output_folder_image + output_file_lb + ".png';";
+			}
+			if(parts_bot)
+			{
+				cmd += "RUN "  + include_path + "Mirror.ulp '" + output_folder_image + output_file_pb + ".png';";
+			}
 		}
-		if(parts_bot)
-		{
-			cmd += "RUN "  + include_path + "Mirror.ulp '" + output_file_pb + "';";
-		}
-	}
-	if(enable_export)
-	{
+
 		cmd += "DISPLAY NONE; DISPLAY " + layers + ";";
 		cmd += "SET PALETTE " + palette_name + ";";
 		cmd += "RATSNEST;";
+
+		if(pcbimage_top || pcbimage_bottom)
+		{
+			sprintf(cmd, "%s RUN "  + include_path + "ImageExport.ulp '%s' %d '%s' %d %d %d %d %s %s %s %s;", cmd, output_folder_image + output_file_pcbb + ".png", pcbimage_bottom, output_folder_image + output_file_pcbt + ".png", pcbimage_top, pcbImageResolutions[pcbimage_resolution], pcbimage_crop, pcbimage_mirror, pcbImagePcbColors[pcbimage_color],pcbImageCopperColors[pcbimage_color], pcbImageSilkscreenColors[pcbimage_silkscreen_color], pcbImagePlating[pcbimage_plating]);
+		}		
 	}
 
-	if(enable_export && (pcbimage_top || pcbimage_bottom))
-	{
-		sprintf(cmd, "%s RUN "  + include_path + "ImageExport.ulp '%s' %d '%s' %d %d %d %d %s %s %s %s;", cmd, output_file_pcbb, pcbimage_bottom, output_file_pcbt, pcbimage_top, pcbImageResolutions[pcbimage_resolution], pcbimage_crop, pcbimage_mirror, pcbImagePcbColors[pcbimage_color],pcbImageCopperColors[pcbimage_color], pcbImageSilkscreenColors[pcbimage_silkscreen_color], pcbImagePlating[pcbimage_plating]);
-	}
 
 	if(idf_export)
 	{
