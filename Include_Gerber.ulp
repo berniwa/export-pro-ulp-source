@@ -167,6 +167,15 @@ else if(type == 6)
 	sprintf(cmd, "%s -X -dGERBER_RS274X %s -o \"%s\" \"%s\" %d ", eagle_binary, option, outputfile, inputfile, layer);
 	system(cmd);		
 }
+else if(type == 7)
+{
+	status("Processing fabrication layer");
+	string layers = "20 48 153 154 155";
+
+	string cmd = "";
+	sprintf(cmd, "%s -X -dGERBER_RS274X %s -o \"%s\" \"%s\" %s ", eagle_binary, option, outputfile, inputfile, layers);
+	system(cmd);		
+}
 
 
 

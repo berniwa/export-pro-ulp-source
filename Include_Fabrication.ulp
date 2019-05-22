@@ -22,6 +22,9 @@
 
 string LIBRARY_NAME 	= "fabriaction.lbr";
 
+int  outputLayer 		= 154;
+string outputLayerName	= "FabDoc2";
+
 real 	rowHeight 		= 2.5; 	//in mm
 real 	textSize  		= 1.778; 	//in mm
 real 	lineWidth 		= 0.1016; 	//in mm
@@ -449,8 +452,8 @@ void run(int info, int drilltable, int stackup, string PcbMaterial, string Stopm
 	sprintf(data, "%sSET CONFIRM YES;\n", data);
 	sprintf(data, "%sREMOVE fabriaction.pac;\n", data);
 	sprintf(data, "%sEDIT fabriaction.pac;\n", data);
-	sprintf(data, "%sLAYER 153 FabDoc1;\n", data);
-	sprintf(data, "%sCHANGE LAYER 153;\n", data);
+	sprintf(data, "%sLAYER %s %d;\n", data, outputLayerName, outputLayer);
+	sprintf(data, "%sCHANGE LAYER %d;\n", data, outputLayer);
 	sprintf(data, "%sCHANGE WIDTH %fmm;\n", data, lineWidth);
 	sprintf(data, "%sCHANGE SIZE %fmm;\n", data, textSize);
 	sprintf(data, "%sCHANGE ALIGN TOP LEFT;\n", data);
