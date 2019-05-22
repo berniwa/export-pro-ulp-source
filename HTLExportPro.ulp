@@ -72,7 +72,8 @@ gerber_pls = 1, gerber_crc = 1, gerber_crs = 1, gerber_drd = 1, gerber_otl = 1,
 gerber_ref = 0, parts_top_docu = 1, parts_bot_docu = 1,
 board_thickness = 0, board_copper_thickness = 0, board_type = 0,
 eagle_export, ec_export, gerber_format = 0,
-pnp_export = 0, pnp_top = 0, pnp_bot = 0, pnp_flip = 0, pnp_auto_offset = 0
+pnp_export = 0, pnp_top = 1, pnp_bot = 1, pnp_flip = 0, pnp_auto_offset = 0,
+fabrication = 1, stackup = 1
 ;
 
 
@@ -302,6 +303,9 @@ void loadUsersettings()
 		pnp_offset_x	= strtod(data[97]);
 		pnp_offset_y	= strtod(data[98]);
 
+		fabrication		= strtol(data[99]);
+		stackup			= strtol(data[100]);
+
 		if(format_revision == 0)	
 		//If the format revision was not set, the version is < 7
 		{
@@ -435,7 +439,8 @@ void saveUsersettings()
 		printf("%f\n", pnp_offset_x);
 		printf("%f\n", pnp_offset_y);
 
-
+		printf("%d\n", fabrication);
+		printf("%d\n", stackup);
 	}
 }
 
@@ -519,7 +524,7 @@ void export()
 		output_file_pt = getFilename(output_file, "-parts-top.png");
 		output_file_cs = getFilename(output_file, "-construction.png");
 		output_file_ref = getFilename(output_file, "-reference.png");
-		output_file_drl = getFilename(output_file, "-drills.png");
+		output_file_drl = getFilename(output_file, "-fabrication.png");
 		output_file_pcbt = getFilename(output_file, "-pcb-top.png");
 		output_file_pcbb = getFilename(output_file, "-pcb-bot.png");
 	/*}
@@ -684,10 +689,15 @@ void export()
 	{
 		cmd += "RUN "  + include_path + "Measure.ulp;";
 	}
-	if(drilltable)
+	
+	if(drilltable || fabrication || stackup)
 	{
-		cmd += "RUN " + include_path + "DrillTable.ulp;";
+		//The drilltable ulp has been repalced with the new
+		//fabrication ULP
+		sprintf(cmd, "%s RUN %sFabrication.ulp %d %d %d %s %s %s %s;", cmd, include_path, fabrication, drilltable, stackup, PcbType[board_type], pcbSpecColor[pcbimage_color], pcbSpecSilkscreenColor[pcbimage_silkscreen_color], pcbSpecPlating[pcbimage_plating]);
+		//cmd += "RUN " + include_path + "DrillTable.ulp;";
 	}
+
 	if(silkscreen_enable)
 	{
 		sprintf(cmd, "%s RUN "  + include_path + "SilkGen.ulp %d %d %d %d %d %d %d %d %d;", cmd, silkscreen_width, silkscreen_top, silkscreen_tnames, silkscreen_tvalues, silkscreen_tdocu, silkscreen_bottom, silkscreen_bnames, silkscreen_bvalues, silkscreen_bdocu);
@@ -731,7 +741,7 @@ void export()
 	}
 	if(enable_export && drills)
 	{
-		cmd += "DISPLAY NONE;DISPLAY 44 45 20 " + measure_layer_top + ";EXPORT IMAGE '" + output_file_drl + "' MONOCHROME 600;";
+		cmd += "DISPLAY NONE;DISPLAY 44 45 20 153 " + measure_layer_top + ";EXPORT IMAGE '" + output_file_drl + "' MONOCHROME 600;";
 	}
 	if(enable_export && construction)
 	{
@@ -1210,7 +1220,6 @@ void main(){
 	} else {
 		drcLoadRules(getSystemFilename(drc_file), 1);		
 	}
-	dlgMessageBox(drcGetRule("layerSetup"));
 
 	//In Eagle Version > 7, we need to have a fixed
 	//an absolute Path to our ULPs as Eagle otherwhise
@@ -1231,7 +1240,9 @@ void main(){
 		{
 			dlgHBoxLayout {dlgCheckBox("Bauteile neu nummerieren", renumber); dlgStretch(1);}
 			dlgHBoxLayout {dlgCheckBox("Bemaßung erstellen", measure);  dlgStretch(1); };
-			dlgHBoxLayout {dlgCheckBox("Bohrertabelle erstellen", drilltable); dlgStretch(1); };
+			dlgHBoxLayout {dlgCheckBox("Bohrertabelle hinzufügen", drilltable); dlgStretch(1); };
+			dlgHBoxLayout {dlgCheckBox("Board-Info hinzufügen", fabrication); dlgStretch(1); };
+			dlgHBoxLayout {dlgCheckBox("Stackup-Info hinzufügen", stackup); dlgStretch(1); };
 			dlgHBoxLayout {dlgCheckBox("Bestückungsdruck erstellen", silkscreen_enable); dlgPushButton("Einstellungen"){dialogSilkscreenSettings();}; };
 			dlgHBoxLayout {dlgCheckBox("Bilder exportieren", enable_export); dlgPushButton("Einstellungen"){dialogImageSettings();}; };
 			dlgHBoxLayout {dlgCheckBox("Preise abfragen", pricing); dlgStretch(1); };
