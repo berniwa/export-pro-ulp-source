@@ -21,6 +21,8 @@
 "</p>"
 "<author>Author: marc.battistello@gmail.com</author>"
 
+"Version: 2.41 - draw real arcs - 18.04.2019 - cwin"
+
 #require 5.1000
 string version = "2.4";  //ulp version
 
@@ -1018,7 +1020,7 @@ string SetUsedFlag(string pt) {
      string fields[];
      int fieldCount = strsplit(fields, pt, '\t');
 
-     return fields[0] + "\t" + fields[1] + "\t" + fields[2] + "\t" + fields[3]
+     return fields[0] + "\t" + fields[1] + "\t" + fields[2] + "\t" + fields[3] + "\t" + fields[4]
                + "\ty\n";
 }
 
@@ -1026,7 +1028,7 @@ int IsUsedPoint(string pt) {
      string fields[];
      int fieldCount = strsplit(fields, pt, '\t');
 
-     if (fields[4] == "n\n")
+     if (fields[5] == "n\n")
           return 0;
      else
           return 1;
@@ -1036,18 +1038,11 @@ string IsUsedPointDebug(string pt) {
      string fields[];
      int fieldCount = strsplit(fields, pt, '\t');
 
-     return fields[4];
+     return fields[5];
 
 }
 
-string FlipPoints(string line) {
-     string fields[];
 
-     int fieldCount = strsplit(fields, line, '\t');
-
-     return fields[2] + "\t" + fields[3] + "\t" + fields[0] + "\t" + fields[1]
-               + "\t" + fields[4];
-}
 
 string GetFieldFromPtString(string ptString, int index) {
      string fields[];
@@ -1078,6 +1073,31 @@ real GetX2FromPtString(string ptString) {
 real GetY2FromPtString(string ptString) {
      return strtod(GetFieldFromPtString(ptString, 3));
 } //end sub
+
+real GetArcFromPtString(string ptString) {
+     return strtod(GetFieldFromPtString(ptString, 4));
+} //end sub
+
+
+string FlipPoints(string line) {
+     string fields[];
+
+     int fieldCount = strsplit(fields, line, '\t');
+     string tmp;
+
+     real arc = GetArcFromPtString(line);
+     if (arc != 0){
+          arc = arc*-1;
+     sprintf(tmp, "%f", arc);
+     } else {
+          tmp = "0";
+     }
+     
+     // todo: why? do i need to invert angle for arc?
+     return fields[2] + "\t" + fields[3] + "\t" + fields[0] + "\t" + fields[1]
+               + "\t" + tmp + "\t" + fields[5];
+}
+
 
 int LayerNumInUse(int layerNum) {
      //returns true=1 if layer Is being used. returns 0 if layer Is not used.
@@ -1311,91 +1331,45 @@ string GetEmnBoardOutline() {
                     //get wire start and end points
 
                     //get x/y for start and end.
-                    bx1 = GetDimInBoardUnits(W.x1), by1 = GetDimInBoardUnits(W.y1), bx2 =
-                              GetDimInBoardUnits(W.x2), by2 = GetDimInBoardUnits(W.y2);
+                    bx1 = GetDimInBoardUnits(W.x1);
+                    by1 = GetDimInBoardUnits(W.y1);
+                    bx2 = GetDimInBoardUnits(W.x2);
+                    by2 = GetDimInBoardUnits(W.y2);
 
                     //handle arcs and lines differently
                     if (W.arc) {
+                                                               
+                         real angle1 = W.arc.angle1;
+                         real angle2 = W.arc.angle2;
+                         real centerx = GetDimInBoardUnits(W.arc.xc);
+                         real centery = GetDimInBoardUnits(W.arc.yc);
 
-                         //for arc Get data to generate points
-                         real angle1 = W.arc.angle1, angle2 = W.arc.angle2, centerx =
-                                   GetDimInBoardUnits(W.arc.xc), centery =
-                                   GetDimInBoardUnits(W.arc.yc);
+                         // todo not useable? why? cant distinguish between counterClock vs clockwise
+                         real arcAngle  = angle2 - angle1;
+                         if (arcAngle < 0){
+                              arcAngle += 360;
+                         } 
+                         
+                         // determine which direction to draw arc by Getting x/y points based on angle2
+                         incx = (cos(deg2rad * (angle1)) * GetDimInBoardUnits( W.arc.radius)) + centerx;
+                         incy = (sin(deg2rad * (angle1)) * GetDimInBoardUnits(  W.arc.radius))  + centery;
 
-                         real endx = bx2, endy = by2; //store arc end points to close arc.
+                       // string foo;
+                       //  sprintf(foo, "%f   %f   \n%f   %f", incx, incy, bx1, by1);
+                       //  dlgMessageBox(foo);
 
-                         //reset current angle value
-                         currentAngle = incrementAngle;
+                         if (!(CompareReals(incx, bx1) && CompareReals(incy, by1))){
+                              arcAngle = arcAngle * -1;
+                         }
 
-                         //determine which direction to draw arc by Getting x/y points based on angle1
-                         incx = (cos(deg2rad * (angle1))
-                                   * GetDimInBoardUnits(W.arc.radius)) + centerx;
-                         incy = (sin(deg2rad * (angle1))
-                                   * GetDimInBoardUnits(W.arc.radius)) + centery;
-
-                         //check if arc start points match calculated start points using angle1. if they do then its a counter clockwise drawn arc
-                         if (CompareReals(incx, bx1) && CompareReals(incy, by1)) {
-
-                              ///loop thru 5 deg increments
-                              //arc defined counter clockwise so you need to subtract the increment
-                              while ((angle1 + currentAngle) < angle2) {
-
-                                   incx = (cos(deg2rad * (angle1 + currentAngle))
-                                             * GetDimInBoardUnits(W.arc.radius))
-                                             + centerx;
-                                   incy = (sin(deg2rad * (angle1 + currentAngle))
-                                             * GetDimInBoardUnits(W.arc.radius))
-                                             + centery;
-
-                                   sprintf(temp, "%f\t%f\t%f\t%f\tn\n", bx1, by1, incx, incy);
-
-                                   outlinePoints[wireCount] = temp;
-
-                                   currentAngle += incrementAngle;
-
-                                   wireCount++;
-
-                                   //update beginning x/y values
-                                   bx1 = incx;
-                                   by1 = incy;
-                              }  //end while
-
-                         } else {
-                              ///loop thru 5 deg increments
-                              //arc defined counter clockwise so you need to subtract the increment
-                              while ((angle2 - currentAngle) > angle1) {
-
-                                   incx = (cos(deg2rad * (angle2 - currentAngle))
-                                             * GetDimInBoardUnits(W.arc.radius))
-                                             + centerx;
-                                   incy = (sin(deg2rad * (angle2 - currentAngle))
-                                             * GetDimInBoardUnits(W.arc.radius))
-                                             + centery;
-
-                                   sprintf(temp, "%f\t%f\t%f\t%f\tn\n", bx1, by1, incx,
-                                             incy);
-
-                                   outlinePoints[wireCount] = temp;
-
-                                   currentAngle += incrementAngle;
-
-                                   wireCount++;
-
-                                   //update beginning x/y values
-                                   bx1 = incx;
-                                   by1 = incy;
-                              }  //end while
-                         }  //end if/else for check on direction of arc
-
-                         //close arc
-                         sprintf(temp, "%f\t%f\t%f\t%f\tn\n", bx1, by1, endx, endy);
+                         sprintf(temp, "%f\t%f\t%f\t%f\t%f\tn\n", bx1, by1, bx2, by2, arcAngle);
 
                          outlinePoints[wireCount] = temp;
-
                          wireCount++;
+                
                     } else {
                          //process lines
-                         sprintf(temp, "%f\t%f\t%f\t%f\tn\n", bx1, by1, bx2, by2);
+                         sprintf(temp, "%f\t%f\t%f\t%f\t%d\tn\n", bx1, by1, bx2, by2, 0);
 
                          outlinePoints[wireCount] = temp;
 
@@ -1416,7 +1390,7 @@ string GetEmnBoardOutline() {
 
                          real angle1 = 0;
                          real angle2 = 360;
-
+                         
                          real currentAngle = 0;
 
                          real radius = GetDimInBoardUnits(C.radius);
@@ -1425,6 +1399,22 @@ string GetEmnBoardOutline() {
                          real bx1 = centerx + radius;
                          real by1 = centery;
 
+
+                          real bx2 = centerx - radius;
+                        
+                         /*   **  NEW ** */
+
+                         sprintf(temp, "%f\t%f\t%f\t%f\t%d\tn\n", bx1, by1, bx2,by1, 180);
+
+                         outlinePoints[wireCount] = temp;
+                         wireCount++;
+
+                         sprintf(temp, "%f\t%f\t%f\t%f\t%d\tn\n", bx2, by1, bx1, by1, 180);
+
+                         outlinePoints[wireCount] = temp;
+                         wireCount++;
+
+                         /*
                          while ((angle1 + currentAngle) <= angle2) {
 
                               //handle first point where angle = 0
@@ -1436,8 +1426,8 @@ string GetEmnBoardOutline() {
                                    incx = (cos(deg2rad * (angle1 + currentAngle)) * radius) + centerx;
                                    incy = (sin(deg2rad * (angle1 + currentAngle)) * radius) + centery;
                                    }  //end if-else for current angle = 0
-
-                              sprintf(temp, "%f\t%f\t%f\t%f\tn\n", bx1, by1, incx,incy);
+                              // CWIN: TODO
+                              sprintf(temp, "%f\t%f\t%f\t%f\t%d\tn\n", bx1, by1, incx,incy, 0);
 
                               outlinePoints[wireCount] = temp;
 
@@ -1449,6 +1439,7 @@ string GetEmnBoardOutline() {
                               bx1 = incx;
                               by1 = incy;
                               }  //end while
+                         */
 
                          }  //end if for layer check
 
@@ -1520,9 +1511,8 @@ string GetEmnBoardOutline() {
           //boardOutlineSection += itos( outlineNum ) + pad +
           //                              rtos( GetX1FromPtString( outlinePoints[ i ] ) ) + pad +
           //                              rtos( GetY1FromPtString( outlinePoints[ i ] ) ) + pad + "0\n";
-
+          
           outlinePoints[i] = SetUsedFlag(outlinePoints[i]);
-
           //get line end points
           bx2 = GetX2FromPtString(outlinePoints[i]);
           by2 = GetY2FromPtString(outlinePoints[i]);
@@ -1534,8 +1524,8 @@ string GetEmnBoardOutline() {
 
                boardOutlineSection += itos(outlineNum) + pad
                          + rtos(GetX1FromPtString(outlinePoints[i])) + pad
-                         + rtos(GetY1FromPtString(outlinePoints[i])) + pad + "0\n";
-
+                         + rtos(GetY1FromPtString(outlinePoints[i])) + pad
+                         + rtos(GetArcFromPtString(outlinePoints[i])) + "\n";
                newOutline = 0;
           }
           else if (newOutline) {
@@ -1544,8 +1534,8 @@ string GetEmnBoardOutline() {
 
                boardOutlineSection += itos(outlineNum) + pad
                          + rtos(GetX1FromPtString(outlinePoints[i])) + pad
-                         + rtos(GetY1FromPtString(outlinePoints[i])) + pad + "0\n";
-
+                         + rtos(GetY1FromPtString(outlinePoints[i])) + pad
+                         + rtos(GetArcFromPtString(outlinePoints[i])) + "\n";
                newOutline = 0;
           }
           //check if point closes outline
@@ -1554,34 +1544,32 @@ string GetEmnBoardOutline() {
                     GetY2FromPtString(outlinePoints[i])) == 0) {
                boardOutlineSection += itos(outlineNum) + pad
                          + rtos(GetX2FromPtString(outlinePoints[i])) + pad
-                         + rtos(GetY2FromPtString(outlinePoints[i])) + pad + "0\n";
-
+                         + rtos(GetY2FromPtString(outlinePoints[i])) + pad
+                         + rtos(GetArcFromPtString(outlinePoints[i])) + "\n";
                outlineNum++;
-
+               
                newOutline = 1;
-
                continue;
           }  //end if
           else if (GetDistBetweenPts(startX, startY,
                     GetX2FromPtString(outlinePoints[i]),
                     GetY2FromPtString(outlinePoints[i])) <= Tolerance) {
                boardOutlineSection += itos(outlineNum) + pad + rtos(startX) + pad
-                         + rtos(startY) + pad + "0\n";
+                         + rtos(startY) + pad
+                         + rtos(GetArcFromPtString(outlinePoints[i])) + "\n";
 
                outlineNum++;
-
                newOutline = 1;
-
                continue;
           }  //end if
-
+          
           matchFound = 0;
-
+               
           //inner loop thru points to find matching line
           for (int j = 0; j < wireCount; j++) {
 
                //boardOutlineSectionDebug += "Checking points for i=" + itos( i ) + " and j=" + itos( j ) + ".\n";
-
+              
                //check if line Is already used. if it Is then skip it
                if (!IsUsedPoint(outlinePoints[j])) {
 
@@ -1597,7 +1585,7 @@ string GetEmnBoardOutline() {
                          boardOutlineSection += itos(outlineNum) + pad
                                    + rtos(GetX1FromPtString(outlinePoints[j])) + pad
                                    + rtos(GetY1FromPtString(outlinePoints[j])) + pad
-                                   + "0\n";
+                                   + rtos(GetArcFromPtString(outlinePoints[i])) + "\n";
 
                          //flag points as used
                          outlinePoints[j] = SetUsedFlag(outlinePoints[j]);
@@ -1627,7 +1615,7 @@ string GetEmnBoardOutline() {
                          boardOutlineSection += itos(outlineNum) + pad
                                    + rtos(GetX2FromPtString(outlinePoints[j])) + pad
                                    + rtos(GetY2FromPtString(outlinePoints[j])) + pad
-                                   + "0\n";
+                                   + rtos(GetArcFromPtString(outlinePoints[i])) + "\n";
 
                          //flag point as used
                          outlinePoints[j] = SetUsedFlag(outlinePoints[j]);
@@ -1773,7 +1761,7 @@ string GetEmnBoardOutline() {
                }  //end if/else
 
           }  //end j loop
-
+          
           //check to make sure a matching point was found. if not notify user and mark on board.
           if (!matchFound) {
                boardOutlineSectionDebug += "No match for i=" + itos(i) + ".\n";
