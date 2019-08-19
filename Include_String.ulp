@@ -85,6 +85,12 @@ string stringFromReal(real value)
 	return tmp;
 }
 
+string stringFromInt(int value)
+{
+	string tmp;
+	sprintf(tmp, "%d", value);
+	return tmp;
+}
 
 int stringAdvancedMatch(string needle, string haystack)
 {
