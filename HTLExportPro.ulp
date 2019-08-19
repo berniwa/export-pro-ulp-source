@@ -974,6 +974,8 @@ void export(){
 	}
 
 	if(pnp_export) {
+
+		cmd += "EDIT .brd;";
 		sprintf(cmd, "%s RUN "  + include_path + "PickAndPlace.ulp '%s' %d %d %d %d %f %f;", cmd, ouput_file_pnp + "-cpl.csv", pnp_top, pnp_bot, pnp_auto_offset, pnp_flip, pnp_offset_x, pnp_offset_y); 		
 		sprintf(cmd, "%s RUN "  + include_path + "BOM.ulp '%s' -pnp ;", cmd, ouput_file_pnp);
 	}
@@ -982,8 +984,8 @@ void export(){
 
 	if(eagle_export) {
 
-		sprintf(cmd, "%s RUN "  + include_path + "Eagle.ulp '%s' '%s' '%s';", cmd, bname, getSystemFilename(".brd"), output_folder_eagle);
-		sprintf(cmd, "%s RUN "  + include_path + "Eagle.ulp '%s' '%s' '%s';", cmd, bname, getSystemFilename(".sch"), output_folder_eagle);
+		sprintf(cmd, "%s RUN "  + include_path + "Eagle.ulp '%s' '%s';", cmd, getSystemFilename(".brd"), output_folder_eagle);
+		sprintf(cmd, "%s RUN "  + include_path + "Eagle.ulp '%s' '%s';", cmd, getSystemFilename(".sch"), output_folder_eagle);
 
 		//Count all used layers
 		int count = 0;
