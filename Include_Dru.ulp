@@ -20,15 +20,14 @@ string drcGetDefaultFilename(){
 void drcLoadRules(string drc, int reload)
 {
 	string data[];
-	if(filesize(drc))
-	{
+	if(filesize(drc)){
 		//Load DRC file
 		drcLines = fileread(drcContent, drc);
 	}
 	else
 	{
 		//Export DRC file and re-run ULP
-		exit("DRC SAVE " + drc + "; RUN " + getUlpDir("HTLExportPro.ulp") + " drcLoaded");
+		exit("DRC SAVE \'" + drc + "\'; RUN " + getUlpDir("HTLExportPro.ulp") + " drcLoaded");
 	}
 }
 
