@@ -13,4 +13,4 @@
 
 #usage ""
 
-system("cmd.exe /c cp \"" + argv[1] + "\" \"" +  argv[2] + "\" ");
+system("CMD.EXE /C W: && cd \"" + argv[1] + "\" && copy \"" + argv[2] + "\" \"" +  argv[3] + "\" ");

@@ -41,6 +41,13 @@
 #include "Include_Misc.ulp";
 #include "Include_Dru.ulp";
 
+void debugMsg(string msg){
+	//to prevent debug messages to apear in releace
+	dlgMessageBox(msg);
+}
+
+
+
 string include_path = "Include_";
 
 
@@ -585,8 +592,7 @@ void export(){
 
 	string tmp[];
 
-	if(fileglob(tmp, output_folder) == 0) //Empty folder - ulp never run before
-	{
+	if(fileglob(tmp, output_folder) == 0) { //Empty folder - ulp never run before
 		system("CMD.EXE /C mkdir \"" + output_folder + "\""); //Make new folder
 	}
 
@@ -975,8 +981,9 @@ void export(){
 	cmd += "WRITE;";
 
 	if(eagle_export) {
-		sprintf(cmd, "%s RUN "  + include_path + "Eagle.ulp '%s' '%s';", cmd,  getSystemFilename(".brd"), output_folder_eagle);
-		sprintf(cmd, "%s RUN "  + include_path + "Eagle.ulp '%s' '%s';", cmd,  getSystemFilename(".sch"), output_folder_eagle);
+
+		sprintf(cmd, "%s RUN "  + include_path + "Eagle.ulp '%s' '%s' '%s';", cmd, bname, getSystemFilename(".brd"), output_folder_eagle);
+		sprintf(cmd, "%s RUN "  + include_path + "Eagle.ulp '%s' '%s' '%s';", cmd, bname, getSystemFilename(".sch"), output_folder_eagle);
 
 		//Count all used layers
 		int count = 0;
@@ -1004,7 +1011,7 @@ void export(){
 	}	
 	
 	cmd += "EDIT " + filepath + boardname + ".brd" + ";";
-	
+
 	exit(cmd);
 }
 
@@ -1321,8 +1328,7 @@ void main(){
 				saveUsersettings();
 				export();
 			};
-			dlgPushButton("Abbrechen") 
-			{
+			dlgPushButton("Abbrechen") {
 				exit(EXIT_SUCCESS);
 			};
 			dlgStretch(1); 
