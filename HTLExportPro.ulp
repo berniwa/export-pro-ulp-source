@@ -605,59 +605,26 @@ void export(){
 		
 		output_folder = output_folder + date_folder;
 			
-<<<<<<< HTLExportPro.ulp
-		if(fileglob(tmp, output_folder) <= 0)
-		{
+		if(fileglob(tmp, output_folder) <= 0){
 			system("CMD.EXE /C mkdir \"" + output_folder + "\""); //Make new folder
 		}
-		if(fileglob(tmp, output_folder + image_folder) <= 0)
-		{
+		if(fileglob(tmp, output_folder + image_folder) <= 0){
 			system("CMD.EXE /C mkdir \"" + output_folder + image_folder + "\""); 
 		}
-		if(gerber_export == 1 && fileglob(tmp, output_folder + gerber_folder) <= 0)
-		{
+		if(gerber_export == 1 && fileglob(tmp, output_folder + gerber_folder) <= 0)	{
 			system("CMD.EXE /C mkdir \"" + output_folder + gerber_folder + "\""); 
 		}
-		if(eagle_export == 1 && fileglob(tmp, output_folder + eagle_folder) <= 0)
-		{
+		if(eagle_export == 1 && fileglob(tmp, output_folder + eagle_folder) <= 0) {
 			system("CMD.EXE /C mkdir \"" + output_folder + eagle_folder + "\""); 
 		}
-		if(idf_export == 1 && fileglob(tmp, output_folder + cad_folder) <= 0)
-		{
+		if(idf_export == 1 && fileglob(tmp, output_folder + cad_folder) <= 0) {
 			system("CMD.EXE /C mkdir \"" + output_folder + cad_folder + "\""); 
 		}
-		if(ec_export == 1 && fileglob(tmp, output_folder + ecpanel_folder) <= 0)
-		{
+		if(ec_export == 1 && fileglob(tmp, output_folder + ecpanel_folder) <= 0) {
 			system("CMD.EXE /C mkdir \"" + output_folder + ecpanel_folder + "\"");
 		}
-		if(pnp_export == 1 && fileglob(tmp, output_folder + pnp_folder) <= 0)
-		{
+		if(pnp_export == 1 && fileglob(tmp, output_folder + pnp_folder) <= 0) {
 			system("CMD.EXE /C mkdir \"" + output_folder + pnp_folder + "\"");
-=======
-		if(fileglob(tmp, output_folder) <= 0){
-			system("mkdir \"" + output_folder + "\""); //Make new folder
-		}
-		if(fileglob(tmp, output_folder + image_folder) <= 0){
-			system("mkdir \"" + output_folder + image_folder + "\""); 
-		}
-		if(fileglob(tmp, output_folder + pdf_folder) <= 0){
-			system("mkdir \"" + output_folder + pdf_folder + "\""); 
-		}
-		if(gerber_export == 1 && fileglob(tmp, output_folder + gerber_folder) <= 0){
-			system("mkdir \"" + output_folder + gerber_folder + "\""); 
-		}
-		if(eagle_export == 1 && fileglob(tmp, output_folder + eagle_folder) <= 0){
-			system("mkdir \"" + output_folder + eagle_folder + "\""); 
-		}
-		if(idf_export == 1 && fileglob(tmp, output_folder + cad_folder) <= 0){
-			system("mkdir \"" + output_folder + cad_folder + "\""); 
-		}
-		if(ec_export == 1 && fileglob(tmp, output_folder + ecpanel_folder) <= 0){
-			system("mkdir \"" + output_folder + ecpanel_folder + "\"");
-		}
-		if(pnp_export == 1 && fileglob(tmp, output_folder + pnp_folder) <= 0){
-			system("mkdir \"" + output_folder + pnp_folder + "\"");
->>>>>>> HTLExportPro.ulp
 		}
 
 		image_folder 		+= "/";
