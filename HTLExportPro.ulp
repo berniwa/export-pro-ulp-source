@@ -751,8 +751,8 @@ void export(){
 	cmd += "EDIT .brd;";
 	
 	if(ec_export) {
-		sprintf(cmd, "%s WRITE " + output_folder + ecpanel_folder + boardname + "_ec.brd;", cmd);
-		sprintf(cmd, "%s EDIT " +  output_folder + ecpanel_folder + boardname + "_ec.brd;", cmd);
+		sprintf(cmd, "%s WRITE \'" + output_folder + ecpanel_folder + boardname + "_ec.brd\';", cmd);
+		sprintf(cmd, "%s EDIT \'" +  output_folder + ecpanel_folder + boardname + "_ec.brd\';", cmd);
 		sprintf(cmd, "%s RUN " + include_path + "EcPanel.ulp;", cmd);
 		
 		ecpanel_path = output_folder + ecpanel_folder + boardname;
@@ -1012,7 +1012,7 @@ void export(){
 		sprintf(cmd, "%s RUN "  + include_path + "Specification.ulp '%s' '%s' '%s' %d '%s' '%s' '%s' '%s' '%s' '%s';", cmd, output_file_eagle_spec, PcbThickness[board_thickness], PcbType[board_type], count, PcbCopperThickness[board_copper_thickness], pcbSpecColor[pcbimage_color], pcbSpecSilkscreenColor[pcbimage_silkscreen_color], pcbSpecPlating[pcbimage_plating], tsilk_layers, bsilk_layers); 		
 	}	
 	
-	cmd += "EDIT " + filepath + boardname + ".brd" + ";";
+	cmd += "EDIT \'" + filepath + boardname + ".brd\'" + ";";
 
 	exit(cmd);
 }
