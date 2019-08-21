@@ -920,7 +920,6 @@ void export(){
 		}		
 	}
 
-
 	if(idf_export) {
 		cmd += "RUN "  + include_path + "IDF.ulp '" + output_folder_idf + "';";
 	}

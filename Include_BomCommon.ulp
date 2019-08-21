@@ -21,9 +21,16 @@ string
 
 int 	category[], pages[];
 
-int partcount;
+int partcount, partNr;
 
 void bomLoadSchematic(UL_PART P, int s, string prefix){
+	
+	for(int i = 0;i<partcount;i++){		//to prevent parts to get listed multiple times
+		if(names[i]==(prefix + P.name)){
+			return;
+		}
+	}
+
 	if(P.device.package) {
 		names[partcount] 		= prefix + P.name;
 		values[partcount]		= P.value;
@@ -165,6 +172,10 @@ int bomMatchModuleName(string partname, string name, string prefix){
 string bomChangeSchematics(UL_PART P, string mysheet, string myprefix){
 	string execute = "";
 
+	if(names[partNr]!=(myprefix + P.name)) {	//toprvent multiparts from being set multipe times
+		return execute;
+	}
+
 	//Match the first module instance
 	string match_name = P.name;
 	string part_name = P.name;
@@ -196,6 +207,7 @@ string bomChangeSchematics(UL_PART P, string mysheet, string myprefix){
 			}
 		}
 	}
+	partNr++;
 	return execute;
 }
 
@@ -204,8 +216,11 @@ string bomUpdateChanges()
 {
 	string execute = "";
 	sprintf(execute, "CHANGE DISPLAY OFF;\n");
+	sprintf(execute, "SET CONFIRM YES;\n");
 
 	string mysheet = "";
+
+	partNr=0;
 
 	schematic(SCH){
 		SCH.sheets(S){	
@@ -216,11 +231,12 @@ string bomUpdateChanges()
 		}
 		SCH.modules(M) {
 			M.parts(P){
-				sprintf(mysheet, "%s.mod", M.name);
+				sprintf(mysheet, "%s.mod", M.name + ":");
 				execute += bomChangeSchematics(P, mysheet, M.name);
 			}
 		}
 	}
+
 	return execute;
 }
 
