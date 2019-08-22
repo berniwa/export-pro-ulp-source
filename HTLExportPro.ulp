@@ -307,6 +307,9 @@ void loadUsersettings(){
 		stackup			= strtol(data[100]);
 		gerber_fab		= strtol(data[101]);
 
+		enable_export_pdf = strtol(data[102]);
+		pdf_keep_frame	= strtol(data[103]);
+
 		if(format_revision == 0)	
 		//If the format revision was not set, the version is < 7
 		{
@@ -441,6 +444,10 @@ void saveUsersettings(){
 		printf("%d\n", fabrication);
 		printf("%d\n", stackup);
 		printf("%d\n", gerber_fab);
+
+		printf("%d\n", enable_export_pdf);
+		printf("%d\n", pdf_keep_frame);
+
 	}
 }
 
