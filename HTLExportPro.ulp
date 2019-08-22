@@ -627,7 +627,7 @@ void export(){
 		if(fileglob(tmp, output_folder) <= 0){
 			system("CMD.EXE /C mkdir \"" + output_folder + "\""); //Make new folder
 		}
-		if(fileglob(tmp, output_folder + image_folder) <= 0){
+		if(enable_export_image == 1 && fileglob(tmp, output_folder + image_folder) <= 0){
 			system("CMD.EXE /C mkdir \"" + output_folder + image_folder + "\""); 
 		}
 		if(gerber_export == 1 && fileglob(tmp, output_folder + gerber_folder) <= 0)	{
@@ -644,6 +644,9 @@ void export(){
 		}
 		if(pnp_export == 1 && fileglob(tmp, output_folder + pnp_folder) <= 0) {
 			system("CMD.EXE /C mkdir \"" + output_folder + pnp_folder + "\"");
+		}
+		if(enable_export_pdf == 1 && fileglob(tmp, output_folder + pdf_folder) <= 0) {
+			system("CMD.EXE /C mkdir \"" + output_folder + pdf_folder + "\"");
 		}
 
 		image_folder 		+= "/";
