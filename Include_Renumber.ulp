@@ -202,10 +202,10 @@ void GenerateNames(void)	//Modified from original by NJA
   return;
 }
 
-void Rename(int x, int y, string New)
+void Rename(string Old, string New)
 {
   // Generates the EAGLE command necessary to change element name Old to New
-  sprintf(c, "Name '%s' (%d %d);\n", New, x, y);
+  sprintf(c, "Name %s %s;\n",Old, New);
   cmd += c;
   return;
 }
@@ -219,47 +219,28 @@ void GenerateScript(string mod)
   // use a ScratchName wherever this is necessary.
 
   // If there is nothing to do, the resulting script file will be empty.
-  string prefix = ".s";
+  string prefix = ".s1";
   if(mod != ""){
-    prefix = mod + ".m";
+    prefix = mod + ".m1";
   }
-
+  sprintf(c, "Edit %s;\n", prefix);
+  cmd += c;
 
   int ScratchIndex = 0;
   string ScratchName;
-  int sch = 0;
   for (int n = 0; n < nrNames; ++n) {
-     if (sh[i[n]] != sch) {
-        sch = sh[i[n]];              // *** change sheet
-        sprintf(c, "Edit %s%d;\n", prefix, sch);
-        cmd += c;
-        }
      if (OldNames[i[n]] != NewNames[i[n]]) {
         for (int k = n + 1; k < nrNames; ++k) {
            if (OldNames[i[k]] == NewNames[i[n]]) {
-              sprintf(ScratchName, "$%0*d", ELEMENT_NAME_LENGTH - 1, ++ScratchIndex);
+              sprintf(ScratchName, "xDev%0*d", ELEMENT_NAME_LENGTH - 1, ++ScratchIndex);
 
-              if (sh[i[k]] != sch) {
-                 sch = sh[i[k]];              // *** change sheet
-                 sprintf(c, "Edit %s%d;\n", prefix, sch);
-                 cmd += c;
-                 }
-              Rename(x[i[k]],y[i[k]], ScratchName);
-
-              if (sh[i[n]] != sch) {
-                 sch = sh[i[n]];              // *** change sheet
-                 sprintf(c, "Edit %s%d;\n", prefix, sch);
-                 cmd += c;
-                 }
+              Rename(OldNames[i[k]], ScratchName);
 
               OldNames[i[k]] = ScratchName;
               break;
               }
            }
-        if (sh[i[n]] != sch) {
-           sch = sh[i[n]];              // *** change sheet
-           }
-        Rename(x[i[n]],y[i[n]], NewNames[i[n]]);
+        Rename(OldNames[i[n]], NewNames[i[n]]);
         }
      }
   return;
@@ -336,6 +317,8 @@ void visible(UL_SCHEMATIC S) {
 /**
  * This function processes all parts in a sheet
  */
+
+/*
 void processSheet(UL_SHEET SH){
   SH.parts(P) {
     int n = GetNumberIndex(P.name);
@@ -399,6 +382,131 @@ void processSheet(UL_SHEET SH){
       }
     }
 }
+*/
+
+void processSchematic(UL_SCHEMATIC S){
+  S.parts(P) {
+    int n = GetNumberIndex(P.name);
+    if (n > 0) {
+
+      if (P.device.package) {    // **** only Devices with Package
+                                 // **** without Supply symbol Frames ect...
+         DevPrefix[Dnr] = prefix(P.name);
+         DevName[Dnr] = P.name;
+         ++Dnr;
+         P.instances(I) {
+
+           int found = -1;
+           for (int fn = 0; fn < nrNames; fn++) {
+             if (OldNames[fn] == P.name) {
+                found = fn;
+                break;
+                }
+             }
+           if (found < 0) {
+
+             x[nrNames] = u2mil(I.x);    // cannot use E.x/y directly because of
+             y[nrNames] = u2mil(I.y);    // sort() problem with integers > 32767
+             OldNames[nrNames] = P.name; // in version 3.50
+
+             if ((useRectangle == 1) && ((I.sheet != rectSheet) || (u2mm(I.x) < rectX1) || (u2mm(I.x) > rectX2) || (u2mm(I.y) < rectY1) || (u2mm(I.y) > rectY2)))
+                 NewNames[nrNames] = OldNames[nrNames];
+             else
+                 NewNames[nrNames] = strsub(P.name, 0, n);
+             sh[nrNames] = I.sheet;
+             ++nrNames;
+             }
+
+           else {
+              if (sh[fn] == I.sheet) {
+                if ( u2mil(I.x) < x[fn] || u2mil(I.y) > y[fn] ) {
+                    // tausche wenn x kleiner oder y groesser
+                    x[fn] > u2mil(I.x);
+                    y[fn] > u2mil(I.y);
+                    }
+                }
+             }
+           }
+         }
+
+          // Only Symbol (Supply, Port, Frame...)
+          else {  // *** check PartName on Symbols Supply, Port, Frame ... ***
+             SymPrefix[Snr] = prefix(P.name);
+             SymDevName[Snr] = P.name;
+             P.instances(I) {
+                SymNames[Snr] = P.name;     // Device-Name of Symbol
+                sx[Snr] = u2mil(I.x);       // cannot use E.x/y directly because of
+                sy[Snr] = u2mil(I.y);       // sort() problem with integers > 32767
+                symsh[Snr] = I.sheet;
+                ++Snr;
+                break;
+             }
+          }
+      }
+    }
+}
+
+void processModule(UL_MODULE M){
+  M.parts(P) {
+    int n = GetNumberIndex(P.name);
+    if (n > 0) {
+
+      if (P.device.package) {    // **** only Devices with Package
+                                 // **** without Supply symbol Frames ect...
+         DevPrefix[Dnr] = prefix(P.name);
+         DevName[Dnr] = P.name;
+         ++Dnr;
+         P.instances(I) {
+
+           int found = -1;
+           for (int fn = 0; fn < nrNames; fn++) {
+             if (OldNames[fn] == P.name) {
+                found = fn;
+                break;
+                }
+             }
+           if (found < 0) {
+
+             x[nrNames] = u2mil(I.x);    // cannot use E.x/y directly because of
+             y[nrNames] = u2mil(I.y);    // sort() problem with integers > 32767
+             OldNames[nrNames] = P.name; // in version 3.50
+
+             if ((useRectangle == 1) && ((I.sheet != rectSheet) || (u2mm(I.x) < rectX1) || (u2mm(I.x) > rectX2) || (u2mm(I.y) < rectY1) || (u2mm(I.y) > rectY2)))
+                 NewNames[nrNames] = OldNames[nrNames];
+             else
+                 NewNames[nrNames] = strsub(P.name, 0, n);
+             sh[nrNames] = I.sheet;
+             ++nrNames;
+             }
+
+           else {
+              if (sh[fn] == I.sheet) {
+                if ( u2mil(I.x) < x[fn] || u2mil(I.y) > y[fn] ) {
+                    // tausche wenn x kleiner oder y groesser
+                    x[fn] > u2mil(I.x);
+                    y[fn] > u2mil(I.y);
+                    }
+                }
+             }
+           }
+         }
+
+          // Only Symbol (Supply, Port, Frame...)
+          else {  // *** check PartName on Symbols Supply, Port, Frame ... ***
+             SymPrefix[Snr] = prefix(P.name);
+             SymDevName[Snr] = P.name;
+             P.instances(I) {
+                SymNames[Snr] = P.name;     // Device-Name of Symbol
+                sx[Snr] = u2mil(I.x);       // cannot use E.x/y directly because of
+                sy[Snr] = u2mil(I.y);       // sort() problem with integers > 32767
+                symsh[Snr] = I.sheet;
+                ++Snr;
+                break;
+             }
+          }
+      }
+    }
+}
 
 void processScriptAndErrors(string mod){
   SortElements();
@@ -433,11 +541,7 @@ void processScriptAndErrors(string mod){
 if (schematic) {
  schematic(S) {
 
-  //Process normal sheets
-  int l = 1;
-  S.sheets(SH) {
-    processSheet(SH);
-  }
+  processSchematic(S);
   processScriptAndErrors("");
 
   //Reset everything and process modules
@@ -445,9 +549,9 @@ if (schematic) {
     Dnr = 0;
     nrNames = 0;
     Snr = 0;
-    M.sheets(SH) {
-      processSheet(SH);
-    }
+    
+    processModule(M);
+
     processScriptAndErrors(M.name);
   }
 
