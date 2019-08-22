@@ -20,7 +20,7 @@
 #include "Include_String.ulp"
 #include "Include_Boardsize.ulp"
 
-string LIBRARY_NAME 	= "fabriaction.lbr";
+string LIBRARY_NAME 	= "fabrication.lbr";
 
 int  outputLayer 		= 154;
 string outputLayerName	= "FabDoc2";
@@ -443,14 +443,15 @@ string drawHeadline(real startx, real starty, int row, int isHeadline, string co
 }
 
 
-void run(int info, int drilltable, int stackup, string PcbMaterial, string StopmaskColor, string SilkscreenColor, string SurfaceFinish){
+void run(int info, int drilltable, int stackup, string PcbMaterial, string StopmaskColor, string SilkscreenColor, string SurfaceFinish, string filepath){
+	LIBRARY_NAME=filepath+LIBRARY_NAME;
+
 	analyzeDru();
 	loadInfo();
 	drillsLoad();
 
-	sprintf(data, "%sOPEN %s;\n", data, LIBRARY_NAME);
+	sprintf(data, "%sOPEN \'%s\';\n", data, LIBRARY_NAME);
 	sprintf(data, "%sSET CONFIRM YES;\n", data);
-	sprintf(data, "%sREMOVE fabriaction.pac;\n", data);
 	sprintf(data, "%sEDIT fabriaction.pac;\n", data);
 	sprintf(data, "%sLAYER %s %d;\n", data, outputLayerName, outputLayer);
 	sprintf(data, "%sCHANGE LAYER %d;\n", data, outputLayer);
@@ -580,10 +581,10 @@ void run(int info, int drilltable, int stackup, string PcbMaterial, string Stopm
 
 
 	//Clean up and display
-	sprintf(data, "%sWRITE %s;\n", data, LIBRARY_NAME);
-	sprintf(data, "%sCLOSE %s;\n", data, LIBRARY_NAME);
+	sprintf(data, "%sWRITE '%s';\n", data, LIBRARY_NAME);
+	sprintf(data, "%sCLOSE '%s';\n", data, LIBRARY_NAME);
 	sprintf(data, "%sGRID mm 0.1 1 mm;\n", data);
-	sprintf(data, "%sUSE %s;\n", data, LIBRARY_NAME);
+	sprintf(data, "%sUSE '%s';\n", data, LIBRARY_NAME);
 
 
 	int replace = 0;
@@ -595,7 +596,7 @@ void run(int info, int drilltable, int stackup, string PcbMaterial, string Stopm
 		}
 	 }
 	 if(replace){
-		sprintf(data, "%sUPDATE %s;\n", data, LIBRARY_NAME);
+		sprintf(data, "%sUPDATE '%s';\n", data, LIBRARY_NAME);
 	 } else {
 	 	getBoardSize();
 	 	int width = getTotalWidth(colsInfo);
@@ -614,4 +615,4 @@ void run(int info, int drilltable, int stackup, string PcbMaterial, string Stopm
 
 
 
-run(strtol(argv[1]), strtol(argv[2]), strtol(argv[3]), argv[4], argv[5], argv[6], argv[7]);
+run(strtol(argv[1]), strtol(argv[2]), strtol(argv[3]), argv[4], argv[5], argv[6], argv[7], argv[8]);

@@ -589,6 +589,12 @@ string exportLayer(int export_layer, int export_png, int export_pdf, string fold
 }
 
 void export(){
+
+	if(filesize(filepath +"fabrication.lbr")>0){
+		cmd+="SET CONFIRM YES;";
+		cmd+="REMOVE \'"+filepath +"fabrication.lbr\';";
+	}
+
 	if(strstr(output_folder, "./") == 0){
 		output_folder = bname + strsub(output_folder, 2);
 	}
@@ -782,11 +788,12 @@ void export(){
 	
 	if(drilltable || fabrication || stackup) {
 		//The drilltable ulp has been repalced with the new fabrication ULP
-		sprintf(cmd, "%s RUN %sFabrication.ulp %d %d %d %s %s %s %s;", cmd, include_path, 
+		sprintf(cmd, "%s RUN %sFabrication.ulp %d %d %d \'%s\' \'%s\' \'%s\' \'%s\' \'%s\';", cmd, include_path, 
 			fabrication, drilltable, stackup, 
 			PcbType[board_type], pcbSpecColor[pcbimage_color], 
 			pcbSpecSilkscreenColor[pcbimage_silkscreen_color], 
-			pcbSpecPlating[pcbimage_plating]
+			pcbSpecPlating[pcbimage_plating],
+			bname
 		);
 	}
 

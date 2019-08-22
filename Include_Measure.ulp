@@ -59,7 +59,6 @@ int drill_count = 0;
 
 int initialized = 0;
 int update = 0;
-int lib_exists = 0;
 
 string scr_name, prj_path;
 
@@ -412,11 +411,7 @@ void writeScr()
 
 	output(scr_name)
 	{
-		printf("OPEN '%smeasure.lbr';\n", prj_path);
-		if(lib_exists)
-		{
-			printf("RENAME measure.pac %d;\n", time());
-		}
+		printf("OPEN \'%sfabrication.lbr\';\n", prj_path);
 		printf("EDIT measure.pac;\n");
 		printf("GRID mil FINEST;\n");
 		printf("CHANGE layer 48;\n");
@@ -448,12 +443,12 @@ void writeScr()
 			printf(generateDiameter(drills_x[i], drills_y[i], drills_radius[i]));
 		}
 		
-		printf("WRITE '%smeasure.lbr';\n", prj_path);
-		printf("CLOSE '%smeasure.lbr';\n", prj_path);
-		printf("USE '%smeasure.lbr';\n", prj_path);
+		printf("WRITE '%sfabrication.lbr';\n", prj_path);
+		printf("CLOSE '%sfabrication.lbr';\n", prj_path);
+		printf("USE '%sfabrication.lbr';\n", prj_path);
 		if(update)
 		{
-			printf("UPDATE '%smeasure.lbr';\n", prj_path);
+			printf("UPDATE '%sfabrication.lbr';\n", prj_path);
 		}
 		else
 		{
@@ -549,11 +544,6 @@ board(B)
 
 
 	
-}
-
-if(filesize(prj_path + "measure.lbr") > 0)
-{
-	lib_exists = 1;
 }
 
 
