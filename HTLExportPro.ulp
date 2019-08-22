@@ -806,7 +806,10 @@ void export(){
 		if(parts_bot_docu) {lbx = "52 ";}
 
 		string layer_pdf = "", layer_image = "";
-		if(pdf_keep_frame) {layer_pdf += "153 ";}
+		if(pdf_keep_frame) {
+			cmd += "LAYER 153 FabDoc1;";
+			layer_pdf += "153 ";
+		}
 		//Quick fix, to get correct dimensions, for non mirrored views
 		layer_pdf += "-" + mb + " " + mt;
 
