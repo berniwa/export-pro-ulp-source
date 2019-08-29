@@ -595,6 +595,7 @@ void export(){
 		cmd+="REMOVE \'"+filepath +"fabrication.lbr\';";
 	}
 
+
 	if(strstr(output_folder, "./") == 0){
 		output_folder = bname + strsub(output_folder, 2);
 	}
@@ -767,6 +768,7 @@ void export(){
 	cmd += "EDIT .brd;";
 	
 	if(ec_export) {
+		cmd += "SET CONFIRM YES;";
 		sprintf(cmd, "%s WRITE \'" + output_folder + ecpanel_folder + boardname + "_ec.brd\';", cmd);
 		sprintf(cmd, "%s EDIT \'" +  output_folder + ecpanel_folder + boardname + "_ec.brd\';", cmd);
 		sprintf(cmd, "%s RUN " + include_path + "EcPanel.ulp;", cmd);
@@ -1032,6 +1034,8 @@ void export(){
 	}	
 	
 	cmd += "EDIT \'" + filepath + boardname + ".brd\'" + ";";
+
+	cmd += "USE -* '"+ filepath +"fabrication.lbr';";
 
 	exit(cmd);
 }
