@@ -106,8 +106,8 @@ void bmpConvert(string ifilename)
 
 
 	string mstatus = "";
-	sprintf(mstatus, "Cropping image: %s - Calculating cropping areas", ifilename);
-	status(mstatus);
+	//sprintf(mstatus, "Cropping image: %s - Calculating cropping areas", ifilename);
+	//status(mstatus);
 
 	int lastline_mask = (pow(2, (bmpWidth % 8)) - 1);
 	int used_blocks = bmpWidth / 8;	
@@ -214,8 +214,8 @@ void bmpConvert(string ifilename)
 	output(ifilename, "wb")
 	{	
   		string mstatus = "";
-  		sprintf(mstatus, "Cropping image: %s - Loading image information", ifilename);
-  		status(mstatus);
+  		//sprintf(mstatus, "Cropping image: %s - Loading image information", ifilename);
+  		//status(mstatus);
 
   	
   		/*
@@ -236,8 +236,8 @@ void bmpConvert(string ifilename)
 			}	
   		}
   	
-  		sprintf(mstatus, "Cropping image: %s - Copying image data", ifilename);
-  		status(mstatus);
+  		//sprintf(mstatus, "Cropping image: %s - Copying image data", ifilename);
+  		//status(mstatus);
   
   		/*
   			Walk thru - line by line
@@ -246,8 +246,8 @@ void bmpConvert(string ifilename)
   		{
   			int offset = bmpOffset+line*bmpBlockSize;
   	
-  			sprintf(mstatus, "Cropping image: %s - Finished %.0f%%", ifilename, (line*1.0/bmpHeight*100.0));
-  			status(mstatus);
+  			//sprintf(mstatus, "Cropping image: %s - Finished %.0f%%", ifilename, (line*1.0/bmpHeight*100.0));
+  			//status(mstatus);
   	
   			for(int byte = 0; byte < bmpNewBlockSize; byte++)
   			{
@@ -260,6 +260,7 @@ void bmpConvert(string ifilename)
 
 }
 
+/*
 if(OS_SIGNATURE == "Windows_7" || OS_SIGNATURE == "Windows_8" || OS_SIGNATURE == "Windows_10")	
 {	
 	string WinProgPath = getUlpDir("PNGMirrorCrop.exe");
@@ -283,3 +284,4 @@ else
 {
 	bmpConvert(argv[1]);
 }
+*/

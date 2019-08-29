@@ -55,8 +55,8 @@ void bmpWriteInt(int bmpInt)
 void bmpConvert(string ifilename)
 {
 	string mstatus = "";
-	sprintf(mstatus, "Mirroring image: %s - Gathering information ", ifilename);
-	status(mstatus);
+	//sprintf(mstatus, "Mirroring image: %s - Gathering information ", ifilename);
+	//status(mstatus);
 
 
 	int nBytes = fileread(bmpData, ifilename);
@@ -79,8 +79,8 @@ void bmpConvert(string ifilename)
 	output(ifilename, "wb")
 	{	
   		string mstatus = "";
-  		sprintf(mstatus, "Mirroring image: %s - Loading image information", ifilename);
-  		status(mstatus);
+  		//sprintf(mstatus, "Mirroring image: %s - Loading image information", ifilename);
+  		//status(mstatus);
   		
   		//Copy header
   		for(int i = 0; i < bmpOffset; i++)
@@ -88,16 +88,16 @@ void bmpConvert(string ifilename)
   			printf("%c", bmpData[i]);	
   		}
   	
-  		sprintf(mstatus, "Mirroring image: %s - Copying image data", ifilename);
-  		status(mstatus);
+  		//sprintf(mstatus, "Mirroring image: %s - Copying image data", ifilename);
+  		//status(mstatus);
   
   		
   		//Walk thru - line by line
   		
   		for(int line = 0; line < bmpHeight; line++)
   		{  	
-  			sprintf(mstatus, "Mirroring image: %s - Finished %.0f%%", ifilename, (line*1.0/bmpHeight*100.0));
-  			status(mstatus);
+  			//sprintf(mstatus, "Mirroring image: %s - Finished %.0f%%", ifilename, (line*1.0/bmpHeight*100.0));
+  			//status(mstatus);
   			
 			int offset = bmpOffset+line*bmpBlockSize;
 
@@ -119,7 +119,7 @@ void bmpConvert(string ifilename)
 	}
 }
 
-
+/*
 if(OS_SIGNATURE == "Windows_7" || OS_SIGNATURE == "Windows_8" || OS_SIGNATURE == "Windows_10")	
 {	
 	string WinProgPath = getUlpDir("PNGMirrorCrop.exe");
@@ -143,3 +143,4 @@ else
 {
 	bmpConvert(argv[1]);
 }
+*/
