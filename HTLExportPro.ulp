@@ -928,7 +928,7 @@ void export(){
 		cmd += "RATSNEST;";
 
 		//Export colored images
-		if(pcbimage_top || pcbimage_bottom) {
+		if((pcbimage_top || pcbimage_bottom) && enable_export_image) {
 			sprintf(cmd, "%s RUN "  + include_path + "ImageExport.ulp '%s' %d '%s' %d %d %d %d %s %s %s %s;", cmd, 
 				output_file_pcbb, pcbimage_bottom, 
 				output_file_pcbt, pcbimage_top, 
@@ -940,6 +940,10 @@ void export(){
 				pcbImagePlating[pcbimage_plating]
 			);
 		}		
+	}
+
+	if(enable_export_pdf){
+		cmd += "RUN "  + include_path + "MergePDF.ulp '" + output_folder_pdf + "';";
 	}
 
 	if(idf_export) {
@@ -1034,8 +1038,6 @@ void export(){
 	}	
 	
 	cmd += "EDIT \'" + filepath + boardname + ".brd\'" + ";";
-
-	cmd += "USE -* '"+ filepath +"fabrication.lbr';";
 
 	exit(cmd);
 }
