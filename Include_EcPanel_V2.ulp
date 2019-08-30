@@ -18,7 +18,7 @@ int wireCount=0;
 int clockwise=0;
 
 int gapWidth = 2; //distance between board and panel inline in mm
-int panelMinWidthX = 7, panelMinWidthY = 6; //min distance between board and panel outline in mm 
+int panelWidthX = 5, panelWidthY = 5; //min distance between panel inline and panel outline in mm 
 
 int infinety = 1000000000;	//since the max board size is 338 x 238, 1000000000 is aproximatly infinety
 
@@ -259,10 +259,10 @@ void main(){
 	sprintf(cmd, "%s SET WIRE_BEND 2;\n", cmd);
 
 	//crearing the panel-outline
-	real x_min_outline = minX-panelMinWidthX;
-	real x_max_outline = maxX+panelMinWidthX;
-	real y_min_outline = minY-panelMinWidthY;
-	real y_max_outline = maxY+panelMinWidthY;
+	real x_min_outline = minX-(panelWidthX+gapWidth);
+	real x_max_outline = maxX+(panelWidthX+gapWidth);
+	real y_min_outline = minY-(panelWidthY+gapWidth);
+	real y_max_outline = maxY+(panelWidthY+gapWidth);
 
 	sprintf(cmd, "%s WIRE 'outline_panel' (%fmm %fmm) (%fmm %fmm) (%fmm %fmm) (%fmm %fmm) (%fmm %fmm);\n", cmd, x_min_outline, y_min_outline, x_max_outline, y_min_outline, x_max_outline, y_max_outline, x_min_outline, y_max_outline, x_min_outline, y_min_outline);
 
@@ -313,7 +313,7 @@ void main(){
 					}
 				}
 				else{
-					if(wireRad[n]>0){
+					if(wireRad[n]<0){
 						if((wireX1[n]>wireX2[n])&&(wireY1[n]>wireY2[n])){
 							drawX+=gapWidth;
 						}
@@ -350,10 +350,10 @@ void main(){
 				//to prvent a dividing by 0 error
 				if(tmpX==0){
 					drawX=0;
-					drawY=(clockwise*gapWidth)*(tmpY/abs(tmpY));
+					drawY=(gapWidth)*(tmpY/abs(tmpY));
 				}
 				else if (tmpY==0) {
-					drawX=(clockwise*gapWidth)*(tmpX/abs(tmpX));
+					drawX=(gapWidth)*(tmpX/abs(tmpX));
 					drawY=0;
 				} 
 				else{
@@ -431,7 +431,7 @@ void main(){
 				}
 			}
 			else{
-				if (wireRad[n]>0) {
+				if (wireRad[n]<0) {
 					if((wireX1[n]>wireX2[n])&&(wireY1[n]>wireY2[n])){
 						//dbgMsg("x- y- c!:",n);
 						drawY-=gapWidth;
@@ -476,10 +476,10 @@ void main(){
 			//to prvent a dividing by 0 error
 			if(tmpX==0){
 				drawX=0;
-				drawY=(clockwise*gapWidth)*(tmpY/abs(tmpY));
+				drawY=(gapWidth)*(tmpY/abs(tmpY));
 			}
 			else if (tmpY==0) {
-				drawX=(clockwise*gapWidth)*(tmpX/abs(tmpX));
+				drawX=(gapWidth)*(tmpX/abs(tmpX));
 				drawY=0;
 			} 
 			else{
@@ -494,20 +494,20 @@ void main(){
 			drawX+=wireX2[n];
 			drawY+=wireY2[n];
 
-
-			if(!wireRad[n+1]){
+			//to calculate corners									//does not work smoothly with angles other than 90°*x
+			if(!wireRad[(n+1)%wireCount]){
 				//calculating the next line within polarform
 				real drawX1=0, drawY1=0, tmpX1=0, tmpY1=0;
 
-				tmpX1 = clockwise*(wireY2[n+1]-wireY1[n+1]);
-				tmpY1 = (-1)*clockwise*(wireX2[n+1]-wireX1[n+1]);
+				tmpX1 = clockwise*(wireY2[(n+1)%wireCount]-wireY1[(n+1)%wireCount]);
+				tmpY1 = (-1)*clockwise*(wireX2[(n+1)%wireCount]-wireX1[(n+1)%wireCount]);
 				//to prvent a dividing by 0 error
 				if(tmpX1==0){
 					drawX1=0;
-					drawY1=(clockwise*gapWidth)*(tmpY1/abs(tmpY1));
+					drawY1=(gapWidth)*(tmpY1/abs(tmpY1));
 				}
 				else if (tmpY1==0) {
-					drawX1=(clockwise*gapWidth)*(tmpX1/abs(tmpX1));
+					drawX1=(gapWidth)*(tmpX1/abs(tmpX1));
 					drawY1=0;
 				} 
 				else{
@@ -519,21 +519,21 @@ void main(){
 					drawY1*=tmpY/abs(tmpY1);
 				}
 				//ading the normal vector to the position vector
-				drawX1+=wireX1[n+1];
-				drawY1+=wireY1[n+1];
+				drawX1+=wireX1[(n+1)%wireCount];
+				drawY1+=wireY1[(n+1)%wireCount];
 
 				tmpX = (wireX2[n]-wireX1[n]);
 				tmpY = (wireY2[n]-wireY1[n]);
-				tmpX1 = (wireX2[n+1]-wireX1[n+1]);
-				tmpY1 = (wireY2[n+1]-wireY1[n+1]);
+				tmpX1 = (wireX2[(n+1)%wireCount]-wireX1[(n+1)%wireCount]);
+				tmpY1 = (wireY2[(n+1)%wireCount]-wireY1[(n+1)%wireCount]);
 
 				//converting the polarforms into linear functions (y=k*x+d)
 				//from here on out tmpX==k, tmpY==d, tmpX1==k1 & tmpY1==d1
 
 				//calculating k & k1
 				if((tmpX==0) && (tmpX1==0)){
-					tmpX=infinety;		
-					tmpX1=infinety;
+					//boath lines go in the same direction so wire[n] can be skipped
+					continue;
 				} 
 				else if(tmpX==0) {
 					tmpX=infinety;
@@ -548,10 +548,14 @@ void main(){
 					tmpX1=tmpY1/tmpX1;
 				}
 
+				if(tmpX==tmpX1){
+					//boath lines go in the same direction so wire[n] can be skipped
+					continue;
+				}
+
 				//calculating d & d1
 				tmpY=drawY-(drawX*tmpX);
 				tmpY1=drawY1-(drawX1*tmpX1);
-
 				//calculating the point of interception
 				drawX=(tmpY1-tmpY)/(tmpX-tmpX1);
 				drawY=tmpX*drawX+tmpY;
@@ -565,7 +569,7 @@ void main(){
 	//to close the ring and to end the wire comand
 	sprintf(cmd,"%s (%f %f);\n",cmd,oriX,oriY);
 	
-
+/*
 	//Creating a Bridg package
 	cmd+="OPEN fabrication.lbr;\n";
 	cmd+="SET CONFIRM YES;\n";
@@ -591,6 +595,124 @@ void main(){
 	cmd+="USE 'fabrication.lbr';\n";
 
 	//TODO: Adding bridges
+*/
+
+
+
+
+
+	// ===================				//puts Fiducials in all 4 corners of the panel
+	//        Fiducials
+	// ===================
+
+	real x_fiducial_left = minX - gapWidth - (panelWidthX/2);
+	real x_fiducial_left_max = x_fiducial_left + 0.75;
+	real y_fiducial_top = maxX + gapWidth + (panelWidthX/2);
+	real y_fiducial_bot = minX - gapWidth - (panelWidthX/2);
+	real x_fiducial_right = maxX + gapWidth + (panelWidthX/2);
+	real x_fiducial_right_max = x_fiducial_right +0.75;
+
+	real x_fiducial_stop_left = x_fiducial_left - 1.5;
+	real x_fiducial_stop_right = x_fiducial_right +1.5;
+
+	// ===================
+	//        Top Fiducials
+	// ===================
+
+	sprintf(cmd, "%s LAYER TOP;\n", cmd);
+	sprintf(cmd, "%s CHANGE WIDTH 0mm;\n", cmd);
+
+	sprintf(cmd, "%s CIRCLE (%fmm %fmm) (%fmm %fmm);\n", cmd, x_fiducial_left, y_fiducial_top, x_fiducial_left_max, y_fiducial_top);
+	sprintf(cmd, "%s CIRCLE (%fmm %fmm) (%fmm %fmm);\n", cmd, x_fiducial_left, y_fiducial_bot, x_fiducial_left_max, y_fiducial_bot);
+	sprintf(cmd, "%s CIRCLE (%fmm %fmm) (%fmm %fmm);\n", cmd, x_fiducial_right, y_fiducial_top, x_fiducial_right_max, y_fiducial_top);
+	sprintf(cmd, "%s CIRCLE (%fmm %fmm) (%fmm %fmm);\n", cmd, x_fiducial_right, y_fiducial_bot, x_fiducial_right_max, y_fiducial_bot);
+
+	sprintf(cmd, "%s LAYER TSTOP;\n", cmd);
+	sprintf(cmd, "%s CHANGE WIDTH 0mm;\n", cmd);
+
+	sprintf(cmd, "%s CIRCLE (%fmm %fmm) (%fmm %fmm);\n", cmd, x_fiducial_left, y_fiducial_top, x_fiducial_stop_left, y_fiducial_top);
+	sprintf(cmd, "%s CIRCLE (%fmm %fmm) (%fmm %fmm);\n", cmd, x_fiducial_left, y_fiducial_bot, x_fiducial_stop_left, y_fiducial_bot);
+	sprintf(cmd, "%s CIRCLE (%fmm %fmm) (%fmm %fmm);\n", cmd, x_fiducial_right, y_fiducial_top, x_fiducial_stop_right, y_fiducial_top);
+	sprintf(cmd, "%s CIRCLE (%fmm %fmm) (%fmm %fmm);\n", cmd, x_fiducial_right, y_fiducial_bot, x_fiducial_stop_right, y_fiducial_bot);
+
+	// ===================
+	//        Bot Fiducials
+	// ===================
+
+	sprintf(cmd, "%s LAYER BOTTOM;\n", cmd);
+	sprintf(cmd, "%s CHANGE WIDTH 0mm;\n", cmd);
+
+	sprintf(cmd, "%s CIRCLE (%fmm %fmm) (%fmm %fmm);\n", cmd, x_fiducial_left, y_fiducial_top, x_fiducial_left_max, y_fiducial_top);
+	sprintf(cmd, "%s CIRCLE (%fmm %fmm) (%fmm %fmm);\n", cmd, x_fiducial_left, y_fiducial_bot, x_fiducial_left_max, y_fiducial_bot);
+	sprintf(cmd, "%s CIRCLE (%fmm %fmm) (%fmm %fmm);\n", cmd, x_fiducial_right, y_fiducial_top, x_fiducial_right_max, y_fiducial_top);
+	sprintf(cmd, "%s CIRCLE (%fmm %fmm) (%fmm %fmm);\n", cmd, x_fiducial_right, y_fiducial_bot, x_fiducial_right_max, y_fiducial_bot);
+
+	sprintf(cmd, "%s LAYER BSTOP;\n", cmd);
+	sprintf(cmd, "%s CHANGE WIDTH 0mm;\n", cmd);
+
+	sprintf(cmd, "%s CIRCLE (%fmm %fmm) (%fmm %fmm);\n", cmd, x_fiducial_left, y_fiducial_top, x_fiducial_stop_left, y_fiducial_top);
+	sprintf(cmd, "%s CIRCLE (%fmm %fmm) (%fmm %fmm);\n", cmd, x_fiducial_left, y_fiducial_bot, x_fiducial_stop_left, y_fiducial_bot);
+	sprintf(cmd, "%s CIRCLE (%fmm %fmm) (%fmm %fmm);\n", cmd, x_fiducial_right, y_fiducial_top, x_fiducial_stop_right, y_fiducial_top);
+	sprintf(cmd, "%s CIRCLE (%fmm %fmm) (%fmm %fmm);\n", cmd, x_fiducial_right, y_fiducial_bot, x_fiducial_stop_right, y_fiducial_bot);
+
+	// =======================================
+	//             Drills Board
+	// =======================================
+	sprintf(cmd, "%s LAYER HOLES;\n", cmd);
+
+	/*Drills Circuit Board*/
+	real circuit_drill_x = minX-4.5;
+	real circuit_drill_y_min = minY+5;
+	real circuit_drill_y_max = maxY-5;
+
+	sprintf(cmd, "%s CHANGE DRILL 3mm;\n", cmd);
+	sprintf(cmd, "%s HOLE (%fmm %fmm);\n", cmd, circuit_drill_x, circuit_drill_y_min);
+	sprintf(cmd, "%s HOLE (%fmm %fmm);\n", cmd, circuit_drill_x, circuit_drill_y_max);
+
+
+	// =================================================
+	//             Außenkonturen Stencil
+	// =================================================
+	sprintf(cmd, "%s CHANGE WIDTH 0;\n", cmd);
+
+	real x_min_stencil = circuit_drill_x - 49;
+	real x_max_stencil = x_max_outline + 48.5;
+	real y_min_stencil = y_min_outline -20;
+	real y_max_stencil = y_max_outline +20;
+
+	sprintf(cmd, "%s LAYER TCREAM;\n", cmd);
+	sprintf(cmd, "%s WIRE (%fmm %fmm) (%fmm %fmm) (%fmm %fmm) (%fmm %fmm) (%fmm %fmm);\n", cmd, x_min_stencil, y_min_stencil, x_max_stencil, y_min_stencil, x_max_stencil, y_max_stencil, x_min_stencil, y_max_stencil, x_min_stencil, y_min_stencil);
+
+	sprintf(cmd, "%s LAYER BCREAM;\n", cmd);
+	sprintf(cmd, "%s WIRE (%fmm %fmm) (%fmm %fmm) (%fmm %fmm) (%fmm %fmm) (%fmm %fmm);\n", cmd, x_min_stencil, y_min_stencil, x_max_stencil, y_min_stencil, x_max_stencil, y_max_stencil, x_min_stencil, y_max_stencil, x_min_stencil, y_min_stencil);
+
+	// ========================================
+	//             Drills Stencil
+	// ========================================
+	/*
+	Drills als Circles auf tcream- und bcream-Layer
+	sonst vom Hersteller nicht berücksichtigt
+	tcream, bcream -> für Stencil
+	*/
+	sprintf(cmd, "%s LAYER TCREAM;\n", cmd);
+	sprintf(cmd, "%s GRID mm 1;\n", cmd);
+	sprintf(cmd, "%s CHANGE WIDTH 0;\n", cmd);
+
+	real stencil_drill_x_min =circuit_drill_x-30;
+	real stencil_drill_x_max = stencil_drill_x_min+2.65;
+
+	sprintf(cmd, "%s CIRCLE (%fmm %fmm) (%fmm %fmm);\n", cmd, stencil_drill_x_min, circuit_drill_y_min, stencil_drill_x_max, circuit_drill_y_min);
+	sprintf(cmd, "%s CIRCLE (%fmm %fmm) (%fmm %fmm);\n", cmd, stencil_drill_x_min, circuit_drill_y_max, stencil_drill_x_max, circuit_drill_y_max);
+
+	sprintf(cmd, "%s LAYER BCREAM;\n", cmd);
+
+	sprintf(cmd, "%s CIRCLE (%fmm %fmm) (%fmm %fmm);\n", cmd, stencil_drill_x_min, circuit_drill_y_min, stencil_drill_x_max, circuit_drill_y_min);
+	sprintf(cmd, "%s CIRCLE (%fmm %fmm) (%fmm %fmm);\n", cmd, stencil_drill_x_min, circuit_drill_y_max, stencil_drill_x_max, circuit_drill_y_max);
+
+	sprintf(cmd, "%s WRITE;\n", cmd);
+
+
+
 	output("W:/Tobias/tmp/tmp.scr"){
 		printf("%s",cmd);
 	}
