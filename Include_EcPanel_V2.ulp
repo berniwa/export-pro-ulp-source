@@ -8,6 +8,7 @@ void dbgMsg(string msg,real val){
 	dlgMessageBox(tmp);
 }
 
+
 real wireX1[];
 real wireY1[];
 real wireX2[];
@@ -23,6 +24,8 @@ int panelWidthX = 5, panelWidthY = 5; //min distance between panel inline and pa
 int infinety = 1000000000;	//since the max board size is 338 x 238, 1000000000 is aproximatly infinety
 
 string cmd = "";
+string lib = "";
+string brd = "";
 
 void reverseDirection(int index){
 	wireX2[index] = wireX2[index] + wireX1[index];
@@ -60,7 +63,17 @@ void swopPlaces(int index1, int index2){
 	wireRad[index2] = tmp;
 }
 
+void deletWirePart(real startX, real startY, real endX, real endY){
+	sprintf(cmd,"%sCHANGE WIDTH 0.5mm;\n",cmd);
+	sprintf(cmd,"%sWIRE (%fmm %fmm) (%fmm %fmm);\n",cmd,startX,startY,endX,endY);
+	sprintf(cmd,"%sDELETE (%fmm %fmm);\n",cmd,startX,startY);
+	sprintf(cmd,"%sCHANGE WIDTH 0.15mm;\n",cmd);
+}
+
 void main(){
+
+	
+
 	getBoardSize();
 
 	real maxX = u2mm(max_x);
@@ -87,6 +100,9 @@ void main(){
 
 	//saving the board-dimensions within an array
 	board(B){
+		brd=B.name;
+		lib=filedir(B.name)+"fabrication.lbr";
+
 		int i=0;
 		B.wires(W){
 			if(W.layer == 20){
@@ -569,9 +585,9 @@ void main(){
 	//to close the ring and to end the wire comand
 	sprintf(cmd,"%s (%f %f);\n",cmd,oriX,oriY);
 	
-/*
+
 	//Creating a Bridg package
-	cmd+="OPEN fabrication.lbr;\n";
+	cmd+="OPEN "+lib+";\n";
 	cmd+="SET CONFIRM YES;\n";
 	cmd+="EDIT bridg.pac;\n";
 	cmd+="CHANGE WIDTH 0.15mm;\n";
@@ -580,8 +596,8 @@ void main(){
 	cmd+="SET WIRE_BEND 2;\n";
 
 	//Drawing the bridge
-	cmd+="arc cw (1.5mm 0mm) (1.5mm 2mm) (1.5mm 2mm);\n";
-	cmd+="arc ccw (-1.5mm 0mm) (-1.5mm 2mm) (-1.5mm 2mm);\n";
+	sprintf(cmd,"%sARC CW (%fmm 0mm) (%fmm %dmm) (%fmm %dmm);\n",cmd,((gapWidth+1.0)/2),((gapWidth+1.0)/2),gapWidth,((gapWidth+1.0)/2),gapWidth);
+	sprintf(cmd,"%sARC CCW (%fmm 0mm) (%fmm %dmm) (%fmm %dmm);\n",cmd,((gapWidth+1.0)/(-2)),((gapWidth+1.0)/(-2)),gapWidth,((gapWidth+1.0)/(-2)),gapWidth);
 
 	//Drill holes
 	cmd+="CHANGE DRILL 0.35mm;\n";
@@ -590,16 +606,85 @@ void main(){
 		sprintf(cmd,"%sHOLE (%fmm 0mm);\n",cmd,d);
 	}
 	//saving library 
-	cmd+="WRITE 'fabrication.lbr';\n";
-	cmd+="CLOSE 'fabrication.lbr';\n"; //WHY DOES THIS NOT WORK!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-	cmd+="USE 'fabrication.lbr';\n";
+	cmd+="WRITE '"+lib+"';\n";
+	//cmd+="CLOSE;\n";//THIS DOES NOT WORK
+	cmd+="EDIT '"+brd+"';\n";
+	cmd+="USE '"+lib+"';\n";
 
-	//TODO: Adding bridges
-*/
+	int minlengthBridgeX = 20;	
+	int minlengthBridgeY = 20;
+	real bridgePosX;
+	real bridgePosY;
 
+	//Adding bridges
+	for(int l=0;l<wireCount;l++){
+		if(!wireRad[l]){
+			if(((wireX1[l]-wireX2[l])*clockwise>0)&&(wireY1[l]==wireY2[l])){
+				//upper boarder
+				if((wireY1[l]==maxY)||(abs(wireX2[l]-wireX1[l])>minlengthBridgeX)){
+					bridgePosY=wireY1[l];
 
+					for(int j = 0;j<=(abs(wireX2[l]-wireX1[l])/minlengthBridgeX);j++){
+						bridgePosX=((j+1)*minlengthBridgeX)/((2*minlengthBridgeX)+abs(wireX2[l]-wireX1[l]));
+						bridgePosX=wireX1[l]+((wireX2[l]-wireX1[l])*bridgePosX);
 
+						deletWirePart((bridgePosX-1.5),bridgePosY,(bridgePosX+1.5),bridgePosY);
+						deletWirePart((bridgePosX-1.5),(bridgePosY+gapWidth),(bridgePosX+1.5),(bridgePosY+gapWidth));
 
+						sprintf(cmd,"%sADD 'BRIDG' R0 (%fmm %fmm);\n",cmd,bridgePosX,bridgePosY);
+					}
+				}														
+			}
+			else if(((wireX1[l]-wireX2[l])*clockwise<0)&&(wireY1[l]==wireY2[l])){
+				//lower boarder
+				if((wireY1[l]==minY)||(abs(wireX2[l]-wireX1[l])>minlengthBridgeX)) {
+					bridgePosY=wireY1[l];
+
+					for(int j = 0;j<=(abs(wireX2[l]-wireX1[l])/minlengthBridgeX);j++){
+						bridgePosX=((j+1)*minlengthBridgeX)/((2*minlengthBridgeX)+abs(wireX2[l]-wireX1[l]));
+						bridgePosX=wireX1[l]+((wireX2[l]-wireX1[l])*bridgePosX);
+
+						deletWirePart((bridgePosX-1.5),bridgePosY,(bridgePosX+1.5),bridgePosY);
+						deletWirePart((bridgePosX-1.5),(bridgePosY-gapWidth),(bridgePosX+1.5),(bridgePosY-gapWidth));
+
+						sprintf(cmd,"%sADD 'BRIDG' R180 (%fmm %fmm);\n",cmd,bridgePosX,bridgePosY);
+					}
+				}
+			}
+			else if(((wireY1[l]-wireY2[l])*clockwise>0)&&(wireX1[l]==wireX2[l])){
+				//right boarder
+				if((wireX1[l]==minX)||(abs(wireY2[l]-wireY1[l])>minlengthBridgeY)) {
+					bridgePosX=wireX1[l];
+
+					for(int j = 0;j<=(abs(wireY2[l]-wireY1[l])/minlengthBridgeY);j++){
+						bridgePosY=((j+1)*minlengthBridgeY)/((2*minlengthBridgeY)+abs(wireY2[l]-wireY1[l]));
+						bridgePosY=wireY1[l]+((wireY2[l]-wireY1[l])*bridgePosY);
+
+						deletWirePart(bridgePosX,(bridgePosY-1.5),bridgePosX,(bridgePosY+1.5));
+						deletWirePart((bridgePosX-gapWidth),(bridgePosY-1.5),(bridgePosX-gapWidth),(bridgePosY+1.5));
+
+						sprintf(cmd,"%sADD 'BRIDG' R90 (%fmm %fmm);\n",cmd,bridgePosX,bridgePosY);
+					}
+				}
+			}
+			else {
+				//left boarder
+				if((wireX1[l]==minX)||(abs(wireY2[l]-wireY1[l])>minlengthBridgeY)) {
+					bridgePosX=wireX1[l];
+
+					for(int j = 0;j<=(abs(wireY2[l]-wireY1[l])/minlengthBridgeY);j++){
+						bridgePosY=((j+1)*minlengthBridgeY)/((2*minlengthBridgeY)+abs(wireY2[l]-wireY1[l]));
+						bridgePosY=wireY1[l]+((wireY2[l]-wireY1[l])*bridgePosY);
+
+						deletWirePart(bridgePosX,(bridgePosY-1.5),bridgePosX,(bridgePosY+1.5));
+						deletWirePart((bridgePosX+gapWidth),(bridgePosY-1.5),(bridgePosX+gapWidth),(bridgePosY+1.5));
+
+						sprintf(cmd,"%sADD 'BRIDG' R270 (%fmm %fmm);\n",cmd,bridgePosX,bridgePosY);
+					}
+				}
+			}
+		}
+	}
 
 	// ===================				//puts Fiducials in all 4 corners of the panel
 	//        Fiducials
@@ -671,7 +756,7 @@ void main(){
 
 
 	// =================================================
-	//             Außenkonturen Stencil
+	//             outline Stencil
 	// =================================================
 	sprintf(cmd, "%s CHANGE WIDTH 0;\n", cmd);
 
@@ -712,12 +797,14 @@ void main(){
 	sprintf(cmd, "%s WRITE;\n", cmd);
 
 
+	cmd+="OPEN "+lib+";\n";
+	cmd+="CLOSE;\n";
+
 
 	output("W:/Tobias/tmp/tmp.scr"){
 		printf("%s",cmd);
 	}
 
+
 	exit(cmd);
 }
-
-//main();
