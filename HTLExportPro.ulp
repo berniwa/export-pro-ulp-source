@@ -68,7 +68,7 @@ pcbimage_silkscreen_color = 0, pcbimage_plating = 0,
 silkscreen_top = 1, silkscreen_tplace = 1, silkscreen_tnames = 1, silkscreen_tvalues = 1, silkscreen_tdocu = 1,
 silkscreen_bottom = 1, silkscreen_bplace = 1, silkscreen_bnames = 1, silkscreen_bvalues = 1, silkscreen_bdocu = 1,
 silkscreen_width = 8, silkscreen_enable = 1, renumber = 1,
-output_date_folder = 0, 
+output_date_folder = 1, 
 schematic_export = 1, schematic_format = 1, schematic_bw = 1, schematic_color = 1, 
 layout_inner_layer = 1, 
 board_layer[] = {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
@@ -87,7 +87,7 @@ fabrication = 1, stackup = 1, enable_export_pdf = 1, pdf_keep_frame = 1;
 
 real bom_quantity, pnp_offset_x = 0.0, pnp_offset_y = 0.0;
 
-string output_folder = "./";
+string output_folder = "./docu/";
 
 string output_folder_idf, output_file_pcbt, 
 output_file_pcbb, output_file_schematic_bw, 
@@ -771,12 +771,12 @@ void export(){
 		cmd += "SET CONFIRM YES;";
 		sprintf(cmd, "%s WRITE \'" + output_folder + ecpanel_folder + boardname + "_ec.brd\';", cmd);
 		sprintf(cmd, "%s EDIT \'" +  output_folder + ecpanel_folder + boardname + "_ec.brd\';", cmd);
-		sprintf(cmd, "%s RUN " + include_path + "EcPanel.ulp;", cmd);
+		sprintf(cmd, "%s RUN " + include_path + "EcPanel_V2.ulp;", cmd);
 		
 		ecpanel_path = output_folder + ecpanel_folder + boardname;
 		
-		//bname = filedir(ecpanel_path);
-		//boardname = filesetext(filename(ecpanel_path), "");		
+		cmd += "WRITE;";
+		cmd += "EDIT '"+ getSystemFilename(".brd") +"';";	
 	}
 	
 	cmd += "WRITE;";
