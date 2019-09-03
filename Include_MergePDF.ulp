@@ -1,3 +1,31 @@
+string order[] = {
+	"construction",
+	"fabrication",
+	"reference",
+	"l01-top",
+	"l02",
+	"l03",
+	"l04",
+	"l05",
+	"l06",
+	"l07",
+	"l08",
+	"l09",
+	"l10",
+	"l11",
+	"l12",
+	"l13",
+	"l14",
+	"l15",
+	"l16-bot",
+	"parts-top",
+	"parts-bottom",
+	"stop-top",
+	"stop-bottom",
+	"paste-top",
+	"paste-bottom"
+};
+
 void main(){
 	string outputFile=argv[1]+".pdf";
 
@@ -8,8 +36,41 @@ void main(){
 		i = strstr(outputFile,"/",i);
 	}
 
+	if(system("CMD.EXE /C echo off && pdftk --version")){
+		dlgMessageBox(":To Mearch the pdf-files we use pdftk_server-2.02.<br>"+
+						"You can get this tool <a href=\"https://www.pdflabs.com/tools/pdftk-server/\">here</a>");
+		exit("");
+	}
+
 
 	string path = filedir(outputFile);
+	string tmpFile = path + "tmp.pdf";
 
-	system("CMD.EXE /C echo off && pdftk \"" + path + "*.pdf\" cat output \""+ outputFile+"\"");
+	string cmd = "CMD.EXE /C echo off &";
+
+	cmd += strsub(path,0,1)+": &";
+	cmd += "cd " + path + " & ";	//W:\Tobias\Projects\fpga\docu\2019-09-03\pdf
+	
+	cmd += "pdftk ";
+	for (i = 0; i < 25; i++){
+		if(filesize(filesetext(outputFile,("-"+order[i]+".pdf")))) {
+			cmd += "*" + order[i] + ".pdf ";
+		}
+	}
+	cmd += "cat output \""+ tmpFile +"\" & ";
+
+	//dlgMessageBox(filesetext(filename(outputFile),"-"));
+	cmd += "del " + filesetext(filename(outputFile),"") + "*.pdf & ";
+
+	cmd += "cd .. & ";				//W:\Tobias\Projects\fpga\docu\2019-09-03
+	cmd += "pdftk *-schematic.pdf \""+tmpFile+"\" cat output \""+ outputFile+"\" & ";
+
+	system(cmd);
+
+	if(!filesize(outputFile)){
+		system("CMD.EXE /C echo off & ren "+tmpFile+" "+filename(outputFile));
+	}
+	else{
+		system("CMD.EXE /C echo off & del "+tmpFile);
+	}
 }
