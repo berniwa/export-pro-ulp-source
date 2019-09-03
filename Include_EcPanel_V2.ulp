@@ -669,7 +669,25 @@ void main(){
 			//adding miter
 			if (potMitX[l])
 			{
-				if(0){ 				//================================================TODO=================================================================================
+				//verktors
+				real ax, ay, bx, by, cx, cy;
+				//angles
+				real ab, bc, ac;
+
+				ax = wireX2[l]-wireX1[l];
+				ay = wireY2[l]-wireY1[l];
+
+				bx = potMitX[l]-wireX2[l];
+				by = potMitY[l]-wireY2[l];
+
+				cx = wireX2[l+1]-wireX1[l+1];
+				cy = wireY2[l+1]-wireY1[l+1];
+
+				ab=acos((ax * bx + ay * by)/(sqrt(ax * ax + ay * ay) * sqrt(bx * bx + by * by)));
+				bc=acos((cx * bx + cy * by)/(sqrt(cx * cx + cy * cy) * sqrt(bx * bx + by * by)));
+				//ac=acos((ax * cx + ay * cy)/(sqrt(ax * ax + ay * ay) * sqrt(cx * cx + cy * cy)));
+
+				if(ab<bc){ 
 					sprintf(cmd, "%sMITER %d (%fmm %fmm);\n",cmd,gapWidth,potMitX[l],potMitY[l]);
 				}
 			}
@@ -790,7 +808,7 @@ void main(){
 	//cmd+="OPEN "+lib+";\n";
 	//cmd+="CLOSE;";
 
-
+	//debuging
 	output("W:/Tobias/tmp/tmp.scr"){
 		printf("%s",cmd);
 	}
