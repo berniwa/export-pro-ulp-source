@@ -83,8 +83,6 @@ pnp_export = 0, pnp_top = 1, pnp_bot = 1, pnp_flip = 0, pnp_auto_offset = 0,
 fabrication = 1, stackup = 1, enable_export_pdf = 1, pdf_keep_frame = 1;
 ;
 
-
-
 real bom_quantity, pnp_offset_x = 0.0, pnp_offset_y = 0.0;
 
 string output_folder = "./docu/";
@@ -165,6 +163,8 @@ string PcbType[]					= {"FR4", "Roggers", "Aluminium", "Polyamid"};
 string PcbCopperThickness[] 		= {"35.0um", "70.0um", "18.0um"};
 
 string ExportSetup[];
+
+string nameOption[];
 
 string getSystemFilename(string ends_with){
 	return filesetext(bname + boardname,ends_with);
@@ -451,6 +451,15 @@ void saveUsersettings(){
 	}
 }
 
+string getEAGLEconfig(int index){
+	string path=filedir(EAGLE_HOME);
+	path+="AppData/Roaming/CadSoft/EAGLE/eaglerc.usr";
+
+	string data[];
+	int lines = fileread(data, path);
+
+	return strsub(data[index],(strchr(data[index],'\"')+1),(strrchr(data[index],'\"')-(strchr(data[index],'\"')+1)));
+}
 
 
 string setLayerFill(){
@@ -589,6 +598,13 @@ string exportLayer(int export_layer, int export_png, int export_pdf, string fold
 }
 
 void export(){
+
+	//read EAGLE config
+	nameOption[0] = getEAGLEconfig(136);
+	nameOption[1] = getEAGLEconfig(143);
+
+	cmd+="SET Option.SignalNames 0;";
+	cmd+="SET Option.PadNames 0;";
 
 	if(filesize(filepath +"fabrication.lbr")>0){
 		cmd+="SET CONFIRM YES;";
@@ -1038,6 +1054,10 @@ void export(){
 	}	
 	
 	cmd += "EDIT \'" + filepath + boardname + ".brd\'" + ";";
+
+
+	cmd+="SET Option.PadNames "+nameOption[0]+";";
+	cmd+="SET Option.SignalNames "+nameOption[1]+";";
 
 	exit(cmd);
 }
