@@ -1057,7 +1057,7 @@ void export(){
 
 
 	cmd+="SET Option.PadNames "+nameOption[0]+";";
-	cmd+="SET Option.SignalNames "+nameOption[1]+";";
+	cmd+="SET Option.SignalNames "+nameOption[]+";";
 
 	exit(cmd);
 }
