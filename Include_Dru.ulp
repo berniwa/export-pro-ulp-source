@@ -19,8 +19,8 @@ string drcGetDefaultFilename(){
  */
 void drcLoadRules(string drc, int reload)
 {
-	string data[];
-	if(filesize(drc)){
+	//string data[];
+	if(reload){
 		//Load DRC file
 		drcLines = fileread(drcContent, drc);
 	}
