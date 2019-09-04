@@ -40,6 +40,7 @@
 
 #include "Include_Misc.ulp";
 #include "Include_Dru.ulp";
+#include "Include_Language.ulp";
 
 void debugMsg(string msg){
 	//to prevent debug messages to apear in releace
@@ -1250,63 +1251,63 @@ void dialogSchematicSettings(){
 
 void dialogBoardSettings(){
 
-	dlgDialog("Board Einstellungen"){
-		dlgGroup("Verwendete Kupferlagen:") 
+	dlgDialog(lanGetText("headline.settings")){
+		dlgGroup(lanGetText("headline.usedCopper")) 
 		{
 			dlgHBoxLayout {
-				dlgCheckBox("Kupfer Top", board_layer[0]);
-				dlgCheckBox("Kupfer Layer 2", board_layer[1]);
-				dlgCheckBox("Kupfer Layer 3", board_layer[2]);
-				dlgCheckBox("Kupfer Layer 4", board_layer[3]);
+				dlgCheckBox(lanGetText("general.copper") + " Top", board_layer[0]);
+				dlgCheckBox(lanGetText("general.copper") + " Layer 2", board_layer[1]);
+				dlgCheckBox(lanGetText("general.copper") + " Layer 3", board_layer[2]);
+				dlgCheckBox(lanGetText("general.copper") + " Layer 4", board_layer[3]);
 			}
 			dlgHBoxLayout {
-				dlgCheckBox("Kupfer Layer 5", board_layer[4]);
-				dlgCheckBox("Kupfer Layer 6", board_layer[5]);
-				dlgCheckBox("Kupfer Layer 7", board_layer[6]);
-				dlgCheckBox("Kupfer Layer 8", board_layer[7]);
+				dlgCheckBox(lanGetText("general.copper") + " Layer 5", board_layer[4]);
+				dlgCheckBox(lanGetText("general.copper") + " Layer 6", board_layer[5]);
+				dlgCheckBox(lanGetText("general.copper") + " Layer 7", board_layer[6]);
+				dlgCheckBox(lanGetText("general.copper") + " Layer 8", board_layer[7]);
 			}
 			dlgHBoxLayout {
-				dlgCheckBox("Kupfer Layer 9", board_layer[8]);
-				dlgCheckBox("Kupfer Layer 10", board_layer[9]);
-				dlgCheckBox("Kupfer Layer 11", board_layer[10]);
-				dlgCheckBox("Kupfer Layer 12", board_layer[11]);
+				dlgCheckBox(lanGetText("general.copper") + " Layer 9", board_layer[8]);
+				dlgCheckBox(lanGetText("general.copper") + " Layer 10", board_layer[9]);
+				dlgCheckBox(lanGetText("general.copper") + " Layer 11", board_layer[10]);
+				dlgCheckBox(lanGetText("general.copper") + " Layer 12", board_layer[11]);
 			}
 			dlgHBoxLayout {
-				dlgCheckBox("Kupfer Layer 13", board_layer[12]);
-				dlgCheckBox("Kupfer Layer 14", board_layer[13]);
-				dlgCheckBox("Kupfer Layer 15", board_layer[14]);
-				dlgCheckBox("Kupfer Bottom", board_layer[15]);
+				dlgCheckBox(lanGetText("general.copper") + " Layer 13", board_layer[12]);
+				dlgCheckBox(lanGetText("general.copper") + " Layer 14", board_layer[13]);
+				dlgCheckBox(lanGetText("general.copper") + " Layer 15", board_layer[14]);
+				dlgCheckBox(lanGetText("general.copper") + " Bottom", board_layer[15]);
 			}	
 		}
-		dlgGroup("Lagen für Top Bestückungsdruck:") 
+		dlgGroup(lanGetText("headline.silkscreenTop")) 
 		{		
 			dlgHBoxLayout {
-				dlgCheckBox("Markierung anzeigen", silkscreen_tplace);
-				dlgCheckBox("Name anzeigen", silkscreen_tnames);
- 				dlgCheckBox("Werte anzeigen", silkscreen_tvalues);
- 				dlgCheckBox("Doc anzeigen", silkscreen_tdocu);
+				dlgCheckBox(lanGetText("settings.silkscreenPlace"), silkscreen_tplace);
+				dlgCheckBox(lanGetText("settings.silkscreenNames"), silkscreen_tnames);
+ 				dlgCheckBox(lanGetText("settings.silkscreenValues"), silkscreen_tvalues);
+ 				dlgCheckBox(lanGetText("settings.silkscreenDoku"), silkscreen_tdocu);
 			};
 		}
-		dlgGroup("Lagen für Bottom Bestückungsdruck:") 
+		dlgGroup(lanGetText("headline.silkscreenBot")) 
 		{
 			dlgHBoxLayout {
-				dlgCheckBox("Markierung anzeigen", silkscreen_bplace);
-				dlgCheckBox("Name anzeigen", silkscreen_bnames);
- 				dlgCheckBox("Werte anzeigen", silkscreen_bvalues);
- 				dlgCheckBox("Doc anzeigen", silkscreen_bdocu);
+				dlgCheckBox(lanGetText("settings.silkscreenPlace"), silkscreen_bplace);
+				dlgCheckBox(lanGetText("settings.silkscreenNames"), silkscreen_bnames);
+ 				dlgCheckBox(lanGetText("settings.silkscreenValues"), silkscreen_bvalues);
+ 				dlgCheckBox(lanGetText("settings.silkscreenDoku"), silkscreen_bdocu);
 			};			
 		}
-		dlgGroup("Ausführung:") 
+		dlgGroup(lanGetText("headline.execution")) 
 		{
-			dlgHBoxLayout 	{ dlgLabel("Dicke der Leiterplatte (mm): ");  	dlgComboBox(PcbThickness, board_thickness);};
-			dlgHBoxLayout 	{ dlgLabel("Basismaterial: ");  			dlgComboBox(PcbType, board_type);};
-			dlgHBoxLayout 	{ dlgLabel("Dicke der Kupferschicht (um): ");  	dlgComboBox(PcbCopperThickness, board_copper_thickness);};
-			dlgHBoxLayout 	{ dlgLabel("Farbe der PCB: ");  			dlgComboBox(PcbColor, pcbimage_color);};
-			dlgHBoxLayout 	{ dlgLabel("Farbe des Bestückungsdrucks: ");  	dlgComboBox(PcbSilkscreenColor, pcbimage_silkscreen_color);};
-			dlgHBoxLayout 	{ dlgLabel("Oberfläche: ");  				dlgComboBox(PcbPlating, pcbimage_plating);};								
+			dlgHBoxLayout 	{ dlgLabel(lanGetText("settings.pcbThickness"));  	dlgComboBox(PcbThickness, board_thickness);};
+			dlgHBoxLayout 	{ dlgLabel(lanGetText("settings.boardMaterial"));  	dlgComboBox(PcbType, board_type);};
+			dlgHBoxLayout 	{ dlgLabel(lanGetText("settings.copperThickness")); dlgComboBox(PcbCopperThickness, board_copper_thickness);};
+			dlgHBoxLayout 	{ dlgLabel(lanGetText("settings.pcbColor"));  		dlgComboBox(PcbColor, pcbimage_color);};
+			dlgHBoxLayout 	{ dlgLabel(lanGetText("settings.silkscreenColor")); dlgComboBox(PcbSilkscreenColor, pcbimage_silkscreen_color);};
+			dlgHBoxLayout 	{ dlgLabel(lanGetText("settings.surface"));  		dlgComboBox(PcbPlating, pcbimage_plating);};								
 		}		
 
-		dlgPushButton("OK") {
+		dlgPushButton(lanGetText("button.ok")) {
 			dlgAccept();
 		};
 	};	
@@ -1411,52 +1412,53 @@ void main(){
 	loadUsersettings();
 
 	loadDRCSettings();
+	lanLoadText();
 
 	//Create the main dialog
 	int dialog = dlgDialog(ULP_VERSION){
-		dlgGroup("Board Einstellungen"){
-			dlgHBoxLayout {dlgLabel("Allgemeine Einstellungen"); dlgPushButton("Einstellungen"){dialogBoardSettings();}; };
+		dlgGroup(lanGetText("headline.settings")){
+			dlgHBoxLayout {dlgLabel(lanGetText("settings.general")); dlgPushButton(lanGetText("button.settings")){dialogBoardSettings();}; };
 		}
-		dlgGroup("Schritte"){
-			dlgHBoxLayout {dlgCheckBox("Bauteile neu nummerieren", renumber); dlgStretch(1);}
-			dlgHBoxLayout {dlgCheckBox("Bemaßung erstellen", measure);  dlgStretch(1); };
-			dlgHBoxLayout {dlgCheckBox("Bohrertabelle hinzufügen", drilltable); dlgStretch(1); };
-			dlgHBoxLayout {dlgCheckBox("Board-Info hinzufügen", fabrication); dlgStretch(1); };
-			dlgHBoxLayout {dlgCheckBox("Stackup-Info hinzufügen", stackup); dlgStretch(1); };
-			dlgHBoxLayout {dlgCheckBox("Bestückungsdruck erstellen", silkscreen_enable); dlgPushButton("Einstellungen"){dialogSilkscreenSettings();}; };
-			dlgHBoxLayout {dlgCheckBox("Bilder exportieren", enable_export_image); dlgPushButton("Einstellungen"){dialogImageSettings();}; };
-			dlgHBoxLayout {dlgCheckBox("PDF exportieren", enable_export_pdf); dlgPushButton("Einstellungen"){dialogPdfSettings();}; };
-			dlgHBoxLayout {dlgCheckBox("Preise abfragen", pricing); dlgStretch(1); };
-			dlgHBoxLayout {dlgCheckBox("Stückliste exportieren", bom); dlgPushButton("Einstellungen"){dialogBomSettings();}; };
-			dlgHBoxLayout {dlgCheckBox("Cad Dateien exportieren", idf_export); dlgStretch(1); };
-			dlgHBoxLayout {dlgCheckBox("Stromlaufplan exportieren", schematic_export); dlgPushButton("Einstellungen"){dialogSchematicSettings();}; };
-			dlgHBoxLayout {dlgCheckBox("Gerber Dateien exportieren", gerber_export); dlgPushButton("Einstellungen"){dialogGerberSettings();}; };
-			dlgHBoxLayout {dlgCheckBox("Pick&Place Dateien exportieren", pnp_export); dlgPushButton("Einstellungen"){dialogPnpSettings();}; };		
-			dlgHBoxLayout {dlgCheckBox("Eagle Dateien exportieren", eagle_export); dlgStretch(1); };
-			dlgHBoxLayout {dlgCheckBox("Eurocircuits-Panel erstellen und exportieren", ec_export); dlgStretch(1); };
+		dlgGroup(lanGetText("headline.staps")){
+			dlgHBoxLayout {dlgCheckBox(lanGetText("settings.renumber"), renumber); dlgStretch(1);}
+			dlgHBoxLayout {dlgCheckBox(lanGetText("settings.measure"),measure);  dlgStretch(1); };
+			dlgHBoxLayout {dlgCheckBox(lanGetText("settings.drilltable"),drilltable); dlgStretch(1); };
+			dlgHBoxLayout {dlgCheckBox(lanGetText("settings.fabrication"),fabrication); dlgStretch(1); };
+			dlgHBoxLayout {dlgCheckBox(lanGetText("settings.stackup"),stackup); dlgStretch(1); };
+			dlgHBoxLayout {dlgCheckBox(lanGetText("settings.silkscreen"),silkscreen_enable); dlgPushButton(lanGetText("button.settings")){dialogSilkscreenSettings();}; };
+			dlgHBoxLayout {dlgCheckBox(lanGetText("settings.image"),enable_export_image); dlgPushButton(lanGetText("button.settings")){dialogImageSettings();}; };
+			dlgHBoxLayout {dlgCheckBox(lanGetText("settings.pdf"),enable_export_pdf); dlgPushButton(lanGetText("button.settings")){dialogPdfSettings();}; };
+			dlgHBoxLayout {dlgCheckBox(lanGetText("settings.pricing"),pricing); dlgStretch(1); };
+			dlgHBoxLayout {dlgCheckBox(lanGetText("settings.bom"),bom); dlgPushButton(lanGetText("button.settings")){dialogBomSettings();}; };
+			dlgHBoxLayout {dlgCheckBox(lanGetText("settings.idf"),idf_export); dlgStretch(1); };
+			dlgHBoxLayout {dlgCheckBox(lanGetText("settings.schematic"),schematic_export); dlgPushButton(lanGetText("button.settings")){dialogSchematicSettings();}; };
+			dlgHBoxLayout {dlgCheckBox(lanGetText("settings.gerber"),gerber_export); dlgPushButton(lanGetText("button.settings")){dialogGerberSettings();}; };
+			dlgHBoxLayout {dlgCheckBox(lanGetText("settings.pnp"),pnp_export); dlgPushButton(lanGetText("button.settings")){dialogPnpSettings();}; };		
+			dlgHBoxLayout {dlgCheckBox(lanGetText("settings.eagle"),eagle_export); dlgStretch(1); };
+			dlgHBoxLayout {dlgCheckBox(lanGetText("settings.panel"),ec_export); dlgStretch(1); };
 		}
-		dlgGroup("Ausgabeordner"){
+		dlgGroup(lanGetText("headline.output")){
 			dlgHBoxLayout {
-	 			dlgLabel("Ausgabeordner");
+	 			dlgLabel(lanGetText("settings.output"));
 	  			dlgStringEdit(output_folder);
-				dlgPushButton("Auswählen"){
+				dlgPushButton(lanGetText("button.select")){
 					if(output_folder == "./"){
 						output_folder = bname;
 					}
-					output_folder = dlgDirectory("Ausgabeordner wählen", output_folder);
+					output_folder = dlgDirectory(lanGetText("headline.selectOutput"), output_folder);
 					output_folder += "/";
 				}
 	  		}
-			dlgHBoxLayout {dlgCheckBox("Unterordner mit aktuellem Datum, sowie Einzelordner erstellen", output_date_folder); dlgStretch(1);}		
+			dlgHBoxLayout {dlgCheckBox(lanGetText("settings.DateFolder"), output_date_folder); dlgStretch(1);}		
 		}
 		dlgHBoxLayout {
 			dlgStretch(1); 
-			dlgPushButton("OK") {
+			dlgPushButton(lanGetText("button.ok")) {
 				saveUsersettings();
 
 				exit("DRC; RUN " + getUlpDir("HTLExportPro.ulp") + " execute;");
 			};
-			dlgPushButton("Abbrechen") {
+			dlgPushButton(lanGetText("button.cancel")) {
 				exit(EXIT_SUCCESS);
 			};
 			dlgStretch(1); 
