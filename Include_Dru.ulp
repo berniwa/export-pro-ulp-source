@@ -17,17 +17,17 @@ string drcGetDefaultFilename(){
 /**
  * Load Design rules
  */
-void drcLoadRules(string drc, int reload)
+void drcLoadRules(string drc, int load)
 {
 	//string data[];
-	if(reload){
+	if(!load){
 		//Load DRC file
 		drcLines = fileread(drcContent, drc);
 	}
 	else
 	{
 		//Export DRC file and re-run ULP
-		exit("DRC SAVE \'" + drc + "\'; RUN " + getUlpDir("HTLExportPro.ulp") + " drcLoaded");
+		exit("DRC SAVE \'" + drc + "\'; RUN " + getUlpDir("HTLExportPro.ulp") + " drcLoaded;");
 	}
 }
 

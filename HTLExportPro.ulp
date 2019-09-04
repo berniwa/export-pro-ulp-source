@@ -1368,7 +1368,35 @@ void main(){
 	//Load/Reload DRC rule files
 	if(argc > 1 && argv[1] == "drcLoaded"){
 		drcLoadRules(getSystemFilename(drc_file), 0);
-	} else {
+	} 
+	else if(argc > 1 && argv[1] == "execute"){
+		//Load the users project settings
+		loadUsersettings();
+
+		drcLoadRules(getSystemFilename(drc_file), 0);
+
+		int error=0;
+
+		board(B){
+			B.errors(ER){
+				if((ER.state!=ERROR_STATE_APPROVED) && (ER.type!=ERROR_TYPE_NONE)) {
+					error++;
+				}
+			}
+		}
+
+		if(error!=0){
+			string tmp = "";
+			sprintf(tmp,":Unable to export: You still have %d DRC errors\n"+
+				"Pleace either fix or approve them before exporting",error);
+			dlgMessageBox(tmp);
+			exit("");
+		}
+		else{
+			export();
+		}
+	}
+	else {
 		drcLoadRules(getSystemFilename(drc_file), 1);		
 	}
 
@@ -1423,7 +1451,8 @@ void main(){
 			dlgStretch(1); 
 			dlgPushButton("OK") {
 				saveUsersettings();
-				export();
+
+				exit("DRC; RUN " + getUlpDir("HTLExportPro.ulp") + " execute;");
 			};
 			dlgPushButton("Abbrechen") {
 				exit(EXIT_SUCCESS);
