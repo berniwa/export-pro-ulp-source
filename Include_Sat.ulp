@@ -345,6 +345,6 @@ if (board) board(B)
 }
 else 
 {
-	dlgMessageBox("ACIS-SAT must be started from a board.", "OK");
+	dlgMessageBox(":ACIS-SAT must be started from a board.", "OK");
 	exit (1);
 }

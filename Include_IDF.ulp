@@ -1451,11 +1451,11 @@ string GetEmnBoardOutline() {
 
      /*   Step 3 - Verify wires found   */
      if (wireCount == 0) {
-          dlgMessageBox("No wires were found on layer 20.\nUnable to detect board outline. Exiting.");
+          dlgMessageBox(":No wires were found on layer 20.\nUnable to detect board outline. Exiting.");
 
 
           //add in check if user wants to use a component as the board outline
-          if ( dlgMessageBox("No outlines were found on layer 20.\n\nWould you like to select a component to use as outline?\n\nIf you select No then the program will exit.", "&Yes", "&No") == 0) {
+          if ( dlgMessageBox(":No outlines were found on layer 20.\n\nWould you like to select a component to use as outline?\n\nIf you select No then the program will exit.", "&Yes", "&No") == 0) {
                //call function to get from component and then assign to ouline array
                //outlinePoints = getComponentOutlinePoints();
                }
@@ -1786,7 +1786,7 @@ string GetEmnBoardOutline() {
                //     "Defects will be shown on layer " + debugLayerNum + " with red circles." );
 
                dlgMessageBox(
-                         "An error was found in your board outline that cannot be automatically repaired.  Outlines must be enclosed loops.\n"
+                         ":An error was found in your board outline that cannot be automatically repaired.  Outlines must be enclosed loops.\n"
                                    + "Defects will be shown on layer " + debugLayerNum
                                    + " with red circles.");
 
@@ -2136,7 +2136,7 @@ void main() {
 	     if (!board) {
 	          dlgMessageBox(
 	                    usage
-	                              + "<hr><b>ERROR: No board!</b><p>\nThis program can only work in the layout editor.</p>");
+	                              + ":<hr><b>ERROR: No board!</b><p>\nThis program can only work in the layout editor.</p>");
 	          exit(-1);
 	     }
 
@@ -2145,6 +2145,6 @@ void main() {
 		 
 	    GenerateEmnEmpFiles(argv[1]);
 	} else {
-		dlgMessageBox("No output folder defined!");
+		dlgMessageBox(":No output folder defined!");
 	}
 }  //end main

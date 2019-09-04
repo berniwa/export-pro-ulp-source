@@ -565,6 +565,6 @@ if (schematic) {
 }
 
 else {
-   dlgMessageBox("\n    Start this ULP in a Schematic    \n");
+   dlgMessageBox(":\n    Start this ULP in a Schematic    \n");
    exit (0);
 }

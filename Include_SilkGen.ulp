@@ -966,4 +966,4 @@ if(board) {
 
   run_script(); // Doesn't return.
 
-} else dlgMessageBox("Error: this ULP only works on board layouts.");
+} else dlgMessageBox(":Error: this ULP only works on board layouts.");

@@ -306,7 +306,7 @@ void loadBoardInformation() {
 }
 
 if (!board) {
-  dlgMessageBox("\n    Start this ULP in a Board    \n");
+  dlgMessageBox(":\n    Start this ULP in a Board    \n");
   exit (0);  
 } else {
   useAutomaticOffset  = strtol(argv[4]);

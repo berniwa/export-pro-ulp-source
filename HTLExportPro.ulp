@@ -566,7 +566,7 @@ string updateFrameInformation(string drawing){
 string exportSetup(string index) {
 	int i = exportSetupLookup(index);
 	if(i == -1){
-		dlgMessageBox("Unable to find index " + index);
+		dlgMessageBox(":Unable to find index " + index);
 		return "";
 	}
 
@@ -584,7 +584,7 @@ string exportSetup(string index) {
 string pngExport(string folder, string index){
 	int i = exportSetupLookup(index);
 	if(i == -1){
-		dlgMessageBox("Unable to find index " + index);
+		dlgMessageBox(":Unable to find index " + index);
 		return "";
 	}
 
@@ -599,7 +599,7 @@ string pngExport(string folder, string index){
 string pngCrop(string folder, string index){
 	int i = exportSetupLookup(index);
 	if(i == -1){
-		dlgMessageBox("Unable to find index " + index);
+		dlgMessageBox(":Unable to find index " + index);
 		return "";
 	}
 	
@@ -611,7 +611,7 @@ string pngCrop(string folder, string index){
 string pngMirror(string folder, string index){	
 	int i = exportSetupLookup(index);
 	if(i == -1){
-		dlgMessageBox("Unable to find index " + index);
+		dlgMessageBox(":Unable to find index " + index);
 		return "";
 	}
 	
@@ -623,7 +623,7 @@ string pngMirror(string folder, string index){
 string pdfExport(string folder, string index){
 	int i = exportSetupLookup(index);
 	if(i == -1){
-		dlgMessageBox("Unable to find index " + index);
+		dlgMessageBox(":Unable to find index " + index);
 		return "";
 	}
 

@@ -20,7 +20,7 @@
 /************************************************************/
 
 if (!board) {
-   dlgMessageBox( "This program requires the board editor.");
+   dlgMessageBox( ":This program requires the board editor.");
    exit(1);
 }
 

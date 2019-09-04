@@ -480,7 +480,7 @@ void run(int info, int drilltable, int stackup, string PcbMaterial, string Stopm
 			data += drawRow(startX, startY, row++, 0, 1, colsDrills, buffer);
 			if(drillSymbol[i] == 0){
 				string bx = "";
-				sprintf(bx, "No drill symbol for %.2fmm diameter. \n\nPlease assign drill symbol in EAGLE menu!\r\n", u2mm(drillDiameter[i]));
+				sprintf(bx, ":No drill symbol for %.2fmm diameter. \n\nPlease assign drill symbol in EAGLE menu!\r\n", u2mm(drillDiameter[i]));
 				dlgMessageBox(bx);
 			} else {
 				data += drillsDraw(drillSymbol[i]-1, startX+5, startY-(row*rowHeight)+rowHeight/2);

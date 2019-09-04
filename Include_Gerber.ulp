@@ -39,7 +39,7 @@ else if(schematic)
 }
 else
 {
-	dlgMessageBox("Please start in schematic or board editor only!");
+	dlgMessageBox(":Please start in schematic or board editor only!");
 }
 
 temporary_file = working_directory + "/path.tmp";

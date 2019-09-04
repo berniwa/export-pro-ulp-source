@@ -234,7 +234,7 @@ void main(){
 		clockwise=-1;
 	}
 	else{
-		dlgMessageBox("Unable to produce a panel");
+		dlgMessageBox(":Unable to produce a panel");
 		exit("");
 	}
 
