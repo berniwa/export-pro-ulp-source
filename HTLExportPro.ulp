@@ -1388,13 +1388,15 @@ void main(){
 		if(error!=0){
 			string tmp = "";
 			sprintf(tmp,":Unable to export: You still have %d DRC errors\n"+
-				"Pleace either fix or approve them before exporting",error);
-			dlgMessageBox(tmp);
-			exit("");
+				"Pleace either fix or approve them before exporting.\n\n"+
+				"Do you want to continue exporting anyway?",error);
+			int opt=dlgMessageBox(tmp,"&Yes","&No");
+			if(opt){
+				exit("");
+			}
 		}
-		else{
-			export();
-		}
+		
+		export();
 	}
 	else {
 		drcLoadRules(getSystemFilename(drc_file), 1);		
