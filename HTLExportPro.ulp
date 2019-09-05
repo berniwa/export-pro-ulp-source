@@ -1126,7 +1126,7 @@ void dialogImageSettings(){
 				dlgCheckBox(lanGetText("general.layout")+" Bot.", layout_bot);
 				dlgCheckBox(lanGetText("general.layout")+" Top", layout_top);
 			};
-			dlgCheckBox(lanGetText("settings.innerLayer"), layout_inner_layer);
+			dlgCheckBox(lanGetText("settings.imag.innerLayer"), layout_inner_layer);
 
 			dlgHBoxLayout
 			{
@@ -1148,8 +1148,8 @@ void dialogImageSettings(){
 			dlgCheckBox(lanGetText("settings.imag.mirror"), mirror_bot);
 			dlgCheckBox(lanGetText("settings.imag.crop"), crop_all);
 			dlgCheckBox(lanGetText("settings.imag.noMeasures"), no_measures);	
-			dlgCheckBox("tDocu "+lanGetText("settings.imag.alwaysExp"), parts_top_docu);
-			dlgCheckBox("bsDocu "+lanGetText("settings.imag.alwaysExp"), parts_bot_docu);
+			dlgCheckBox(lanGetText("settings.imag.alwaysExpT"), parts_top_docu);
+			dlgCheckBox(lanGetText("settings.imag.alwaysExpB"), parts_bot_docu);
 			dlgLabel(lanGetText("dlg.imag.footnote"));
 		};
 		dlgGroup(lanGetText("headline.boardView")){
@@ -1427,7 +1427,7 @@ void main(){
 			dlgHBoxLayout {dlgCheckBox(lanGetText("settings.eagle"),eagle_export); dlgStretch(1); };
 			dlgHBoxLayout {dlgCheckBox(lanGetText("settings.panel"),ec_export); dlgStretch(1); };
 		}
-		dlgGroup(lanGetText("headline.output")){
+		dlgGroup(lanGetText("settings.output")){
 			dlgHBoxLayout {
 	 			dlgLabel(lanGetText("settings.output"));
 	  			dlgStringEdit(output_folder);
