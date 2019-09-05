@@ -105,25 +105,11 @@ string layer_fill[];
 
 string boardname = "output";
 
-string Resolutions[] = {
-	"600dpi - normale Auflösung", 
-	"1200dpi - hohe Auflösung",
-	"2400dpi - extrem hohe Auflösung"
-};
-
 int pcbImageResolutions[]			= {600, 1200, 2400};
 string pcbImagePcbColors[] 			= {"0xFF007800", "0xFF660000", "0xFF010101", "0xFFF5F5F5", "0xFFCC6600"};
 string pcbImageCopperColors[] 		= {"0xFF00CA00", "0xFF990000", "0xFF111111", "0xFFFFFFFF", "0xFFFF8C1A"};
 string pcbImageSilkscreenColors[] 	= {"0xFFFFFFFF", "0xFFFFFF00", "0xFFAA0000", "0xFF000000"};
 string pcbImagePlating[] 			= {"0xFFC0C0C0", "0xFFC0C0C0", "0xFFE4CA41"};
-
-string PcbColor[] = {
-	"Grüne PCB",
-	"Rote PCB", 
-	"Schwarze PCB", 
-	"Weiße PCB",
-	"Polyimid"
-};
 
 string pcbSpecColor[] = {
 	"green",
@@ -133,24 +119,11 @@ string pcbSpecColor[] = {
 	"polyimid"
 };
 
-string PcbSilkscreenColor[] = {
-	"Weißer Bestückungsdruck",
-	"Gelber Bestückungsdruck", 
-	"Roter Bestückungsdruck", 
-	"Schwarzer Bestückungsdruck"
-};
-
 string pcbSpecSilkscreenColor[] = {
 	"white",
 	"yellow", 
 	"red", 
 	"black"
-};
-	
-string PcbPlating[] = {
-	"Verzinnt (bleifrei)",
-	"Verzinnt (jedes)",
-	"Vergoldet"
 };
 
 string pcbSpecPlating[] = {
@@ -159,9 +132,11 @@ string pcbSpecPlating[] = {
 	"ENIG"
 };
 
-string PcbThickness[]				= {"1.6mm", "1mm", "0.8mm", "0.2mm", "0.1mm"};	
+string PcbThickness[]				= {"1.6mm", "1mm", "0.8mm", "0.2mm", "0.1mm"};
 string PcbType[]					= {"FR4", "Roggers", "Aluminium", "Polyamid"};	
 string PcbCopperThickness[] 		= {"35.0um", "70.0um", "18.0um"};
+
+string comboBox[];
 
 string ExportSetup[];
 
@@ -190,6 +165,11 @@ project.board(B){
 }
 
 string filepath = bname;
+
+void loadComboBox(string name){
+//	comboBox = {"",""};
+	strsplit(comboBox, lanGetText(name), ';');
+}
 
 void loadDRCSettings(){
 	string layerSetup=drcGetRule("layerSetup");
@@ -510,7 +490,6 @@ string getEAGLEconfig(int index){
 	return strsub(data[index],(strchr(data[index],'\"')+1),(strrchr(data[index],'\"')-(strchr(data[index],'\"')+1)));
 }
 
-
 string setLayerFill(){
 	string cmd = "";
 	for(int i = 1; i < 52;i++){
@@ -539,6 +518,7 @@ int exportSetupLookup(string index){
 	}
 	return -1;
 }
+
 string updateFrameInformation(string drawing){
 	string name = "";
 
@@ -841,7 +821,8 @@ void export(){
 		ecpanel_path = output_folder + ecpanel_folder + boardname;
 		
 		cmd += "WRITE;";
-		cmd += "EDIT '"+ getSystemFilename(".brd") +"';";	
+		cmd += "SET CONFIRM YES;";	
+		cmd += "EDIT '"+ getSystemFilename(".brd") +"';";
 	}
 	
 	cmd += "WRITE;";
@@ -1112,92 +1093,92 @@ void export(){
 }
 
 void dialogSilkscreenSettings(){
-	dlgDialog("Bestückungsdruck Einstellungen"){
-		dlgGroup("Bestückungsdruck Top:") 
+	dlgDialog(lanGetText("headline.exportDlg")){
+		dlgGroup(lanGetText("general.sisc")+" Top:") 
 		{
-			dlgCheckBox("Top Bestückungsdruck", silkscreen_top);
+			dlgCheckBox("Top "+lanGetText("general.sisc"), silkscreen_top);
 		};
-		dlgGroup("Bestückungsdruck Bottom:") 
+		dlgGroup(lanGetText("general.sisc")+" Bottom:") 
 		{
-			dlgCheckBox("Bottom Bestückungsdruck", silkscreen_bottom);
+			dlgCheckBox("Bottom "+lanGetText("general.sisc"), silkscreen_bottom);
 		};
 		dlgHBoxLayout
 		{
-			dlgLabel("Minimale Breite (mil):");
+			dlgLabel(lanGetText("settings.sisc.with"));
 			dlgIntEdit(silkscreen_width, 1, 20);
 		};
-		dlgGroup("Info") 
+		dlgGroup(lanGetText("general.info")) 
 		{
-			dlgLabel("Beim Erstellen des Bestückungsdrucks werden alle auf die \nLayer 121 (Top), 122 (Bottom) und 123 (Dimension) kopiert, \ndies erleichtert den späteren Export und ermöglicht das einfachere \nErstellen eines Mehrfachnutzen. Das Ratio des kopierten \nTextes wird wenn möglich so bearbeitet um die erfoderliche\n minimale Breite zu erreichen");
+			dlgLabel(lanGetText("dlg.sisc.info"));
 		}
-		dlgPushButton("OK") {
+		dlgPushButton(lanGetText("button.ok")) {
 			dlgAccept();
 		};
 	};
 }
 
 void dialogImageSettings(){
-	dlgDialog("Export Einstellungen"){
-		dlgGroup("Ansichten:") 
+	dlgDialog(lanGetText("headline.exportDlg")){
+		dlgGroup(lanGetText("general.view")) 
 		{
 			dlgHBoxLayout
 			{
-				dlgCheckBox("Layout Bot.", layout_bot);
-				dlgCheckBox("Layout Top", layout_top);
+				dlgCheckBox(lanGetText("general.layout")+" Bot.", layout_bot);
+				dlgCheckBox(lanGetText("general.layout")+" Top", layout_top);
 			};
-			dlgCheckBox("Layout innerer Lagen (2 - 15)", layout_inner_layer);
+			dlgCheckBox(lanGetText("settings.innerLayer"), layout_inner_layer);
 
 			dlgHBoxLayout
 			{
-				dlgCheckBox("Bestückung Top", parts_top);
- 				dlgCheckBox("Bestückung Bot.", parts_bot);
+				dlgCheckBox(lanGetText("settings.gerber.plc"), parts_top);
+ 				dlgCheckBox(lanGetText("settings.gerber.pls"), parts_bot);
 			};
 
 			dlgHBoxLayout
 			{
-	 			dlgCheckBox("Bohrungen", drills);
-				dlgCheckBox("Konstruktion", construction);
+	 			dlgCheckBox(lanGetText("settings.gerber.drill"), drills);
+				dlgCheckBox(lanGetText("general.construction"), construction);
 			};		
 			dlgHBoxLayout
 			{
-				dlgCheckBox("Reference", reference);
+				dlgCheckBox(lanGetText("settings.gerber.ref"), reference);
 			};	
 		};
-		dlgGroup("Erweitert:"){			
-			dlgCheckBox("Ansichten spiegeln* (Layout Bottom, Bestückung Bottom)", mirror_bot);
-			dlgCheckBox("Bilder beschneiden* (entfernen des weißen Randes)", crop_all);
-			dlgCheckBox("Keine Bemassungen (außer Leiterplattenkonstruktion)", no_measures);	
-			dlgLabel("* Dies kann je nach Boardgröße einige Zeit \n(bis zu mehreren Minuten) dauern.");
-			dlgCheckBox("tDocu bei Bestückungsdruck immer exportieren", parts_top_docu);
-			dlgCheckBox("bsDocu bei Bestückungsdruck immer exportieren", parts_bot_docu);
+		dlgGroup(lanGetText("headline.advancedSettings")){			
+			dlgCheckBox(lanGetText("settings.imag.mirror"), mirror_bot);
+			dlgCheckBox(lanGetText("settings.imag.crop"), crop_all);
+			dlgCheckBox(lanGetText("settings.imag.noMeasures"), no_measures);	
+			dlgCheckBox("tDocu "+lanGetText("settings.imag.alwaysExp"), parts_top_docu);
+			dlgCheckBox("bsDocu "+lanGetText("settings.imag.alwaysExp"), parts_bot_docu);
+			dlgLabel(lanGetText("dlg.imag.footnote"));
 		};
-		dlgGroup("Leiterplatten Ansicht: "){
-			dlgHBoxLayout
-			{
-				dlgCheckBox("Top Ansicht", pcbimage_top);
-				dlgCheckBox("Bottom Ansicht", pcbimage_bottom);
+		dlgGroup(lanGetText("headline.boardView")){
+			dlgHBoxLayout{
+				dlgCheckBox("Top "+lanGetText("general.view"), pcbimage_top);
+				dlgCheckBox("Bottom "+lanGetText("general.view"), pcbimage_bottom);
 			}
 
-			dlgComboBox(Resolutions, pcbimage_resolution);
+			loadComboBox("comb.res");
+			dlgComboBox(comboBox, pcbimage_resolution);
 
-			dlgGroup("Nachbearbeitung"){
-				dlgCheckBox("Ansicht beschneiden", pcbimage_crop);
-				dlgCheckBox("Ansicht spiegeln", pcbimage_mirror);
+			dlgGroup(lanGetText("headline.postprocessing")){
+				dlgCheckBox(lanGetText("settings.imag.vCrop"), pcbimage_crop);
+				dlgCheckBox(lanGetText("settings.imag.vMirror"), pcbimage_mirror);
 			}
 		}
-		dlgPushButton("OK") {
+		dlgPushButton(lanGetText("button.ok")) {
 			dlgAccept();
 		};
 	};		
 }
 
 void dialogBomSettings(){
-	dlgDialog("Stücklisten Einstellungen"){
-		dlgGroup("Stückliste:"){
+	dlgDialog(lanGetText("headline.exportDlg")){
+		dlgGroup(lanGetText("general.bom")){
 			
-			dlgCheckBox("Stückliste exportieren", bom);
-			dlgGroup("Dateitypen:") 
-			{
+			dlgCheckBox(lanGetText("settings.bom"), bom);
+
+			dlgGroup(lanGetText("general.filetype")) {
 				dlgHBoxLayout {
 					dlgCheckBox("XLS", bom_xls);
 					dlgCheckBox("XLSX", bom_xlsx);
@@ -1210,40 +1191,36 @@ void dialogBomSettings(){
 					dlgCheckBox("Farnell Bom", bom_farnell);
 				}
 			}
-			dlgGroup("Optionen:") 
-			{
+			dlgGroup(lanGetText("general.options")) {
 				dlgHBoxLayout {
 					dlgCheckBox("R1,R2,R3,R4 -> R1-4", bom_shorten_names);
 					dlgCheckBox("SMD 0805 -> 0805", bom_display_package_type);
 				}
 				dlgHBoxLayout {
-					dlgLabel("Order Quantity");
+					dlgLabel(lanGetText("settings.bom.quantity"));
 					dlgRealEdit(bom_quantity);
 				}
-
-				
-					
 			}		
 		};
-		dlgPushButton("OK") {
+		dlgPushButton(lanGetText("button.ok")) {
 			dlgAccept();
 		};
 	};
 }
 
 void dialogSchematicSettings(){
-	dlgDialog("Stromlaufplan Einstellungen"){
-		dlgGroup("Stromlaufplan Einstellungen:"){
-			dlgGroup("Format:") {
+	dlgDialog(lanGetText("headline.exportDlg")){
+		dlgGroup(lanGetText("headline.exportDlg")){
+			dlgGroup(lanGetText("general.format")) {
 				dlgRadioButton("A4", schematic_format);
 				dlgRadioButton("A3", schematic_format);
 			}
-			dlgGroup("Optionen:") {
-				dlgCheckBox("In Schwarz - Weiß exportieren", schematic_bw);	
-				dlgCheckBox("In Farbe exportieren", schematic_color);		
+			dlgGroup(lanGetText("general.options")) {
+				dlgCheckBox(lanGetText("settings.schematic.bw"), schematic_bw);	
+				dlgCheckBox(lanGetText("settings.schematic.color"), schematic_color);		
 			}		
 		};
-		dlgPushButton("OK") {
+		dlgPushButton(lanGetText("button.ok")) {
 			dlgAccept();
 		};
 	};
@@ -1252,8 +1229,7 @@ void dialogSchematicSettings(){
 void dialogBoardSettings(){
 
 	dlgDialog(lanGetText("headline.settings")){
-		dlgGroup(lanGetText("headline.usedCopper")) 
-		{
+		dlgGroup(lanGetText("headline.general.usedCopper")) {
 			dlgHBoxLayout {
 				dlgCheckBox(lanGetText("general.copper") + " Top", board_layer[0]);
 				dlgCheckBox(lanGetText("general.copper") + " Layer 2", board_layer[1]);
@@ -1279,86 +1255,103 @@ void dialogBoardSettings(){
 				dlgCheckBox(lanGetText("general.copper") + " Bottom", board_layer[15]);
 			}	
 		}
-		dlgGroup(lanGetText("headline.silkscreenTop")) 
-		{		
+		dlgGroup(lanGetText("headline.general.siscTop")) {		
 			dlgHBoxLayout {
-				dlgCheckBox(lanGetText("settings.silkscreenPlace"), silkscreen_tplace);
-				dlgCheckBox(lanGetText("settings.silkscreenNames"), silkscreen_tnames);
- 				dlgCheckBox(lanGetText("settings.silkscreenValues"), silkscreen_tvalues);
- 				dlgCheckBox(lanGetText("settings.silkscreenDoku"), silkscreen_tdocu);
+				dlgCheckBox(lanGetText("settings.general.siscPlace"), silkscreen_tplace);
+				dlgCheckBox(lanGetText("settings.general.siscNames"), silkscreen_tnames);
+ 				dlgCheckBox(lanGetText("settings.general.siscValues"), silkscreen_tvalues);
+ 				dlgCheckBox(lanGetText("settings.general.siscDoku"), silkscreen_tdocu);
 			};
 		}
-		dlgGroup(lanGetText("headline.silkscreenBot")) 
-		{
+		dlgGroup(lanGetText("headline.general.siscBot")) {
 			dlgHBoxLayout {
-				dlgCheckBox(lanGetText("settings.silkscreenPlace"), silkscreen_bplace);
-				dlgCheckBox(lanGetText("settings.silkscreenNames"), silkscreen_bnames);
- 				dlgCheckBox(lanGetText("settings.silkscreenValues"), silkscreen_bvalues);
- 				dlgCheckBox(lanGetText("settings.silkscreenDoku"), silkscreen_bdocu);
+				dlgCheckBox(lanGetText("settings.general.siscPlace"), silkscreen_bplace);
+				dlgCheckBox(lanGetText("settings.general.siscNames"), silkscreen_bnames);
+ 				dlgCheckBox(lanGetText("settings.general.siscValues"), silkscreen_bvalues);
+ 				dlgCheckBox(lanGetText("settings.general.siscDoku"), silkscreen_bdocu);
 			};			
 		}
-		dlgGroup(lanGetText("headline.execution")) 
-		{
-			dlgHBoxLayout 	{ dlgLabel(lanGetText("settings.pcbThickness"));  	dlgComboBox(PcbThickness, board_thickness);};
-			dlgHBoxLayout 	{ dlgLabel(lanGetText("settings.boardMaterial"));  	dlgComboBox(PcbType, board_type);};
-			dlgHBoxLayout 	{ dlgLabel(lanGetText("settings.copperThickness")); dlgComboBox(PcbCopperThickness, board_copper_thickness);};
-			dlgHBoxLayout 	{ dlgLabel(lanGetText("settings.pcbColor"));  		dlgComboBox(PcbColor, pcbimage_color);};
-			dlgHBoxLayout 	{ dlgLabel(lanGetText("settings.silkscreenColor")); dlgComboBox(PcbSilkscreenColor, pcbimage_silkscreen_color);};
-			dlgHBoxLayout 	{ dlgLabel(lanGetText("settings.surface"));  		dlgComboBox(PcbPlating, pcbimage_plating);};								
+		dlgGroup(lanGetText("headline.general.execution")) {
+			dlgHBoxLayout 	{ 
+				dlgLabel(lanGetText("settings.general.boardThickness"));
+				dlgComboBox(PcbThickness, board_thickness);
+			};
+			dlgHBoxLayout 	{ 
+				dlgLabel(lanGetText("settings.general.boardMaterial"));
+				dlgComboBox(PcbType, board_type);
+			};
+			dlgHBoxLayout 	{ 
+				dlgLabel(lanGetText("settings.general.copperThickness"));
+				dlgComboBox(PcbCopperThickness, board_copper_thickness);
+			};
+			dlgHBoxLayout 	{ 
+				dlgLabel(lanGetText("settings.general.pcbColor"));
+				loadComboBox("comb.pcbColor");
+				dlgComboBox(comboBox, pcbimage_color);
+			};
+			dlgHBoxLayout 	{ 
+				dlgLabel(lanGetText("settings.general.siscColor"));
+				loadComboBox("comb.pcbSiScColor"); 			
+				dlgComboBox(comboBox, pcbimage_silkscreen_color);
+			};
+			dlgHBoxLayout 	{ 
+				dlgLabel(lanGetText("settings.general.surface"));
+				loadComboBox("comb.pcbPlating");
+				dlgComboBox(comboBox, pcbimage_plating);
+			};								
 		}		
 
 		dlgPushButton(lanGetText("button.ok")) {
 			dlgAccept();
 		};
 	};	
-
 }
 
 void dialogGerberSettings(){
-	dlgDialog("Gerber Einstellungen"){
-		dlgGroup("File Naming:"){
-			dlgRadioButton("EAGLE (for Eurocircuits)",  gerber_format);
-			dlgRadioButton("Protel (for JLC) ", 		gerber_format);
+	dlgDialog(lanGetText("headline.exportDlg")){
+		dlgGroup(lanGetText("headline.gerber.naming")){
+			dlgRadioButton(lanGetText("settings.gerber.eagle"),  gerber_format);
+			dlgRadioButton(lanGetText("settings.gerber.protel"), gerber_format);
 		}
-		dlgGroup("Gerber RS274X:") {
-			dlgCheckBox("Alle Kupferlagen (.sol, .gXX, .cmp) ", 	gerber_copper);
-			dlgCheckBox("Lötstopmaske Top (.stc)", 			gerber_stc);	
-			dlgCheckBox("Lötstopmaske Bottom (.sts)", 		gerber_sts);
-			dlgCheckBox("Bestückungsdruck Top (.plc)", 		gerber_plc);	
-			dlgCheckBox("Bestückungsdruck Bottom (.pls)", 	gerber_pls);
-			dlgCheckBox("Lötpaste Top (.crc)", 				gerber_crc);	
-			dlgCheckBox("Lötpaste Bottom (.crs)", 			gerber_crs);	
-			dlgCheckBox("Dimensionen (.otl)", 				gerber_otl);		
-			dlgCheckBox("Reference Layer (.ref)",			gerber_ref);	
-			dlgCheckBox("Fabrication Layer (.fab)",			gerber_fab);				
+		dlgGroup(lanGetText("headline.gerber.RS274X")) {
+			dlgCheckBox(lanGetText("settings.gerber.copper") + " (.sol, .gXX, .cmp) ", 	gerber_copper);
+			dlgCheckBox(lanGetText("settings.gerber.stc") + " (.stc)", 					gerber_stc);	
+			dlgCheckBox(lanGetText("settings.gerber.sts") + " (.sts)", 					gerber_sts);
+			dlgCheckBox(lanGetText("settings.gerber.plc") + " (.plc)", 					gerber_plc);	
+			dlgCheckBox(lanGetText("settings.gerber.pls") + " (.pls)", 					gerber_pls);
+			dlgCheckBox(lanGetText("settings.gerber.crc") + " (.crc)", 					gerber_crc);	
+			dlgCheckBox(lanGetText("settings.gerber.crs") + " (.crs)", 					gerber_crs);	
+			dlgCheckBox(lanGetText("settings.gerber.otl") + " (.otl)", 					gerber_otl);		
+			dlgCheckBox(lanGetText("settings.gerber.ref") + " (.ref)",					gerber_ref);	
+			dlgCheckBox(lanGetText("settings.gerber.fab") + " (.fab)",					gerber_fab);				
 		}
-		dlgGroup("Excellon:") {		
-	 		dlgCheckBox("Bohrungen (.drd, .drl)", 			gerber_drd);	
+		dlgGroup(lanGetText("headline.gerber.excellon")) {		
+	 		dlgCheckBox(lanGetText("settings.gerber.drill")+" (.drd, .drl)", 			gerber_drd);	
 		};		
-		dlgPushButton("OK") {
+		dlgPushButton(lanGetText("button.ok")) {
 			dlgAccept();
 		};
 	};
 }
 
 void dialogPnpSettings(){
-	dlgDialog("PNP"){
-		dlgGroup("Side") {
+	dlgDialog(lanGetText("headline.exportDlg")){
+		dlgGroup(lanGetText("general.side")) {
 			dlgCheckBox("Top", 					pnp_top);
 			dlgCheckBox("Bottom", 				pnp_bot);			
 		};	
-		dlgPushButton("OK") {
+		dlgPushButton(lanGetText("button.ok")) {
 			dlgAccept();
 		};
 	};
 }
 
 void dialogPdfSettings() {
-	dlgDialog("PDF"){
-		dlgGroup("General") {
-			dlgCheckBox("Keep frame", 			pdf_keep_frame);		
+	dlgDialog(lanGetText("headline.exportDlg")){
+		dlgGroup(lanGetText("general.general")) {
+			dlgCheckBox(lanGetText("settings.pdfFrame"), 			pdf_keep_frame);		
 		};	
-		dlgPushButton("OK") {
+		dlgPushButton(lanGetText("button.ok")) {
 			dlgAccept();
 		};
 	};	
@@ -1373,6 +1366,7 @@ void main(){
 	else if(argc > 1 && argv[1] == "execute"){
 		//Load the users project settings
 		loadUsersettings();
+		lanLoadText();
 
 		drcLoadRules(getSystemFilename(drc_file), 0);
 
@@ -1387,11 +1381,7 @@ void main(){
 		}
 
 		if(error!=0){
-			string tmp = "";
-			sprintf(tmp,":Unable to export: You still have %d DRC errors\n"+
-				"Pleace either fix or approve them before exporting.\n\n"+
-				"Do you want to continue exporting anyway?",error);
-			int opt=dlgMessageBox(tmp,"&Yes","&No");
+			int opt=dlgMessageBox(lanGetText("dlg.drcError"),lanGetText("button.continue"),lanGetText("button.cancel"));
 			if(opt){
 				exit("");
 			}
@@ -1425,7 +1415,7 @@ void main(){
 			dlgHBoxLayout {dlgCheckBox(lanGetText("settings.drilltable"),drilltable); dlgStretch(1); };
 			dlgHBoxLayout {dlgCheckBox(lanGetText("settings.fabrication"),fabrication); dlgStretch(1); };
 			dlgHBoxLayout {dlgCheckBox(lanGetText("settings.stackup"),stackup); dlgStretch(1); };
-			dlgHBoxLayout {dlgCheckBox(lanGetText("settings.silkscreen"),silkscreen_enable); dlgPushButton(lanGetText("button.settings")){dialogSilkscreenSettings();}; };
+			dlgHBoxLayout {dlgCheckBox(lanGetText("settings.sisc"),silkscreen_enable); dlgPushButton(lanGetText("button.settings")){dialogSilkscreenSettings();}; };
 			dlgHBoxLayout {dlgCheckBox(lanGetText("settings.image"),enable_export_image); dlgPushButton(lanGetText("button.settings")){dialogImageSettings();}; };
 			dlgHBoxLayout {dlgCheckBox(lanGetText("settings.pdf"),enable_export_pdf); dlgPushButton(lanGetText("button.settings")){dialogPdfSettings();}; };
 			dlgHBoxLayout {dlgCheckBox(lanGetText("settings.pricing"),pricing); dlgStretch(1); };
