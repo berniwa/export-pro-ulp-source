@@ -195,7 +195,6 @@ void loadDRCSettings(){
 		}
 		if(l==(layer[i]-1)){
 			board_thickness += strtod(copper[l]);
-			board_copper_thickness += strtod(copper[l]);
 			board_layer[l]=1;
 			i++;
 		}
@@ -204,7 +203,7 @@ void loadDRCSettings(){
 		}
 	}
 
-	board_copper_thickness*=1000;//to get µm
+	board_copper_thickness=strtod(copper[0])*1000;//to get µm
 }
 
 void loadUsersettings(){
