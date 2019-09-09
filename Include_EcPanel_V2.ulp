@@ -3,9 +3,9 @@
 
 void dbgMsg(string msg,real val){
 	//to prevent debug messages to apear in releace
-	//string tmp="";
-	//sprintf(tmp,msg+"%f",val);
-	//dlgMessageBox(tmp);
+	string tmp="";
+	sprintf(tmp,msg+"%f",val);
+	dlgMessageBox(tmp);
 }
 
 
@@ -565,7 +565,7 @@ void main(){
 		}
 	}
 	//to close the ring and to end the wire comand
-	sprintf(cmd,"%s (%f %f);\n",cmd,oriX,oriY);
+	sprintf(cmd,"%s (%fmm %fmm);\n",cmd,oriX,oriY);
 	
 
 	//Creating a Bridg package
@@ -593,8 +593,8 @@ void main(){
 	cmd+="EDIT '"+brd+"';\n";
 	cmd+="USE '"+lib+"';\n";
 
-	int minlengthBridgeX = 20;	
-	int minlengthBridgeY = 20;
+	int minlengthBridgeX = 20.0;	
+	int minlengthBridgeY = 20.0;
 	real bridgePosX;
 	real bridgePosY;
 
@@ -607,7 +607,8 @@ void main(){
 					bridgePosY=wireY1[l];
 
 					for(int j = 0;j<=(abs(wireX2[l]-wireX1[l])/minlengthBridgeX);j++){
-						bridgePosX=((j+1)*minlengthBridgeX)/((2*minlengthBridgeX)+abs(wireX2[l]-wireX1[l]));
+						bridgePosX=(j+1)/(1+ceil(abs(wireX2[l]-wireX1[l])/minlengthBridgeX));
+						dbgMsg("x=",bridgePosX);
 						bridgePosX=wireX1[l]+((wireX2[l]-wireX1[l])*bridgePosX);
 
 						deletWirePart((bridgePosX-1.5),bridgePosY,(bridgePosX+1.5),bridgePosY);
@@ -623,7 +624,7 @@ void main(){
 					bridgePosY=wireY1[l];
 
 					for(int j = 0;j<=(abs(wireX2[l]-wireX1[l])/minlengthBridgeX);j++){
-						bridgePosX=((j+1)*minlengthBridgeX)/((2*minlengthBridgeX)+abs(wireX2[l]-wireX1[l]));
+						bridgePosX=(j+1)/(1+ceil(abs(wireX2[l]-wireX1[l])/minlengthBridgeX));
 						bridgePosX=wireX1[l]+((wireX2[l]-wireX1[l])*bridgePosX);
 
 						deletWirePart((bridgePosX-1.5),bridgePosY,(bridgePosX+1.5),bridgePosY);
@@ -639,7 +640,8 @@ void main(){
 					bridgePosX=wireX1[l];
 
 					for(int j = 0;j<=(abs(wireY2[l]-wireY1[l])/minlengthBridgeY);j++){
-						bridgePosY=((j+1)*minlengthBridgeY)/((2*minlengthBridgeY)+abs(wireY2[l]-wireY1[l]));
+						bridgePosY=(j+1)/(1+ceil(abs(wireY2[l]-wireY1[l])/minlengthBridgeY));
+						dbgMsg("Y=",bridgePosY);
 						bridgePosY=wireY1[l]+((wireY2[l]-wireY1[l])*bridgePosY);
 
 						deletWirePart(bridgePosX,(bridgePosY-1.5),bridgePosX,(bridgePosY+1.5));
@@ -655,7 +657,7 @@ void main(){
 					bridgePosX=wireX1[l];
 
 					for(int j = 0;j<=(abs(wireY2[l]-wireY1[l])/minlengthBridgeY);j++){
-						bridgePosY=((j+1)*minlengthBridgeY)/((2*minlengthBridgeY)+abs(wireY2[l]-wireY1[l]));
+						bridgePosY=(j+1)/(1+ceil(abs(wireY2[l]-wireY1[l])/minlengthBridgeY));
 						bridgePosY=wireY1[l]+((wireY2[l]-wireY1[l])*bridgePosY);
 
 						deletWirePart(bridgePosX,(bridgePosY-1.5),bridgePosX,(bridgePosY+1.5));
@@ -680,8 +682,8 @@ void main(){
 				bx = potMitX[l]-wireX2[l];
 				by = potMitY[l]-wireY2[l];
 
-				cx = wireX2[l+1]-wireX1[l+1];
-				cy = wireY2[l+1]-wireY1[l+1];
+				cx = wireX2[((l+1)%wireCount)]-wireX1[((l+1)%wireCount)];
+				cy = wireY2[((l+1)%wireCount)]-wireY1[((l+1)%wireCount)];
 
 				ab=acos((ax * bx + ay * by)/(sqrt(ax * ax + ay * ay) * sqrt(bx * bx + by * by)));
 				bc=acos((cx * bx + cy * by)/(sqrt(cx * cx + cy * cy) * sqrt(bx * bx + by * by)));
@@ -700,8 +702,8 @@ void main(){
 
 	real x_fiducial_left = minX - gapWidth - (panelWidthX/2);
 	real x_fiducial_left_max = x_fiducial_left + 0.75;
-	real y_fiducial_top = maxX + gapWidth + (panelWidthX/2);
-	real y_fiducial_bot = minX - gapWidth - (panelWidthX/2);
+	real y_fiducial_top = maxY + gapWidth + (panelWidthY/2);
+	real y_fiducial_bot = minY - gapWidth - (panelWidthY/2);
 	real x_fiducial_right = maxX + gapWidth + (panelWidthX/2);
 	real x_fiducial_right_max = x_fiducial_right +0.75;
 
