@@ -573,7 +573,7 @@ string pngCrop(string folder, string index){
 	
 	string fields[];
 	int count = strsplit(fields, ExportSetup[i], ';');
-	return "RUN "  + include_path + "Crop.ulp '" + folder + stringTrim(fields[1]) + ".png';";
+	return "RUN "  + include_path + "Crop.ulp '" + folder + stringTrim(fields[1]) + ".png' '"+getSystemFilename(".bat")+"';";
 }
 
 string pngMirror(string folder, string index){	
@@ -585,7 +585,7 @@ string pngMirror(string folder, string index){
 	
 	string fields[];
 	int count = strsplit(fields, ExportSetup[i], ';');
-	return "RUN "  + include_path + "Mirror.ulp '" + folder + stringTrim(fields[1]) + ".png';";
+	return "RUN "  + include_path + "Mirror.ulp '" + folder + stringTrim(fields[1]) + ".png' '"+getSystemFilename(".bat")+"';";
 }
 
 string pdfExport(string folder, string index){
@@ -621,6 +621,10 @@ void export(){
 
 	cmd+="SET Option.SignalNames 0;";
 	cmd+="SET Option.PadNames 0;";
+
+	output(getSystemFilename(".bat"), "wt"){
+		printf("echo off\n");
+	}
 
 	if(filesize(filepath +"fabrication.lbr")>0){
 		cmd+="SET CONFIRM YES;";
@@ -852,6 +856,7 @@ void export(){
 		string ltx = "";
 		string lbx = "";
 
+
 		int stop_top = 1, stop_bot = 1, cream_top = 1, creap_bot = 1;
 
 		if(parts_top_docu) {ltx = "51 ";}
@@ -976,7 +981,7 @@ void export(){
 	}
 
 	if(enable_export_pdf){
-		cmd += "RUN "  + include_path + "MergePDF.ulp '" + output_folder_pdf + "';";
+		cmd += "RUN "  + include_path + "MergePDF.ulp '" + output_folder_pdf + "' '"+getSystemFilename(".bat")+"';\n";
 	}
 
 	if(idf_export) {
@@ -1071,6 +1076,8 @@ void export(){
 	}	
 	
 	cmd += "EDIT \'" + filepath + boardname + ".brd\'" + ";";
+
+	cmd += "RUN " + include_path + "RunBatch.ulp "+getSystemFilename(".bat");
 
 
 	cmd+="SET Option.PadNames "+nameOption[0]+";";

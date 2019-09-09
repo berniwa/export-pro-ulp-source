@@ -1,0 +1,2 @@
+string batchPath = filesetext(argv[1],".bat");//to make sure it is a batch-file
+system("CMD.EXE /C "+batchPath+"\n");

@@ -127,7 +127,11 @@ if(OS_SIGNATURE == "Windows_7" || OS_SIGNATURE == "Windows_8" || OS_SIGNATURE ==
 	string Param1 = "\"" + argv[1] + "\"";
 	string Param2 = " 0 1";		//1st Method: <name> <crop> <mirror>
 	string CallOfWinProg = WinProgPath + Space + Param1 + Param2;
-	system(CallOfWinProg);
+	
+  	//dlgMessageBox(argv[2]);
+  	output(argv[2],"at"){
+   	 	printf(CallOfWinProg+"\n");
+  	}
 }
 else if(OS_SIGNATURE == "Linux")
 {
@@ -137,7 +141,11 @@ else if(OS_SIGNATURE == "Linux")
 	string Param1 = "\"" + argv[1] + "\"";
 	string Param2 = " 0 1";		//1st Method: <name> <crop> <mirror>
 	string CallOfWinProg = WinProgPath + Space + Param1 + Param2;
-	system(CallOfWinProg);
+	
+  	//dlgMessageBox(argv[2]);
+  	output(argv[2],"at"){
+   	 	printf(CallOfWinProg+"\n");
+  	}
 }
 else
 {

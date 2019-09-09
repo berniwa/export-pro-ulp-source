@@ -118,16 +118,16 @@ void exportImages(int exportBot, string botImage, int exportTop, string topImage
 	
 	if(exportBot && crop)
 	{
-		sprintf(cmd, "%s RUN %sCropColor.ulp '%s' %d;", cmd, getUlpDir("Include_"), botImage, resolution);
+		sprintf(cmd, "%s RUN %sCropColor.ulp '%s' %d '%s';", cmd, getUlpDir("Include_"), botImage, resolution,filesetext(bname,".bat"));
 	}
 	if(exportTop && crop)
 	{
-		sprintf(cmd, "%s RUN %sCropColor.ulp '%s' %d;", cmd, getUlpDir("Include_"), topImage, resolution);
+		sprintf(cmd, "%s RUN %sCropColor.ulp '%s' %d '%s';", cmd, getUlpDir("Include_"), topImage, resolution,filesetext(bname,".bat"));
 	}
 
 	if(exportBot && mirror)
 	{
-		sprintf(cmd, "%s RUN %sMirrorColor.ulp '%s';", cmd, getUlpDir("Include_"), botImage);
+		sprintf(cmd, "%s RUN %sMirrorColor.ulp '%s' '%s';", cmd, getUlpDir("Include_"), botImage,filesetext(bname,".bat"));
 	}	
 	
 	executeAndExit(cmd);
