@@ -98,7 +98,7 @@ void main(){
 
 	   dlgMessageBox(":Error!\nUnable to export panel\nBoard Size must be within: \n\n" + "x: 38mm - 338mm" + "\n" + "y: 38mm - 238mm"); 
 
-	   exit(0);
+	   exit("");
 	}
 
 	//saving the board-dimensions within an array

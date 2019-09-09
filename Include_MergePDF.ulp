@@ -67,6 +67,7 @@ void main(){
 		printf("cd ..\n");				//W:\Tobias\Projects\fpga\docu\2019-09-03
 		printf("pdftk *-schematic.pdf \"%s\" cat output \"%s\"\n",tmpFile,outputFile);
 
-		printf("ren \"%s\" \"%s\" && del \"%s\"\n",tmpFile,filename(outputFile),tmpFile);
+		printf("ren \"%s\" \"%s\"\n",tmpFile,filename(outputFile));
+		printf("del \"%s\"\n", tmpFile);
 	}
 }

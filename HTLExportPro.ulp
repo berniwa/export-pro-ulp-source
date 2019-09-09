@@ -1077,7 +1077,7 @@ void export(){
 	
 	cmd += "EDIT \'" + filepath + boardname + ".brd\'" + ";";
 
-	cmd += "RUN " + include_path + "RunBatch.ulp "+getSystemFilename(".bat");
+	cmd += "RUN " + include_path + "RunBatch.ulp '"+getSystemFilename(".bat")+"';";
 
 
 	cmd+="SET Option.PadNames "+nameOption[0]+";";
