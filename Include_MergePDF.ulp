@@ -27,7 +27,9 @@ string order[] = {
 };
 
 void main(){
-	string outputFile=argv[1]+".pdf";
+	int dateFolder = !strtol(argv[1]);
+	string outputFile=argv[2]+".pdf";
+
 
 	int i = strstr(outputFile,"/");
 
@@ -48,26 +50,46 @@ void main(){
 
 	//dlgMessageBox(argv[2]);
 
-	output(argv[2],"at"){
+	output(argv[3],"at"){
 
 		printf("%s:\n",strsub(path,0,1));
 		printf("cd \"%s\"\n",path);//W:\Tobias\Projects\fpga\docu\2019-09-03\pdf
 		
 		printf("pdftk ");
-		for (i = 0; i < 25; i++){
+
+		if (!dateFolder){
+			printf("*schematic.pdf ");
+			tmpFile=outputFile;
+		}
+
+		for (i = 0; order[i]; i++){
 			if(filesize(filesetext(outputFile,("-"+order[i]+".pdf")))) {
 				printf("*%s.pdf ",order[i]);
 			}
 		}
+
 		printf("cat output \"%s\"\n",tmpFile);
 
-		//dlgMessageBox(filesetext(filename(outputFile),"-"));
-		printf("del \"%s*.pdf\"\n",filesetext(filename(outputFile),""));
+		if(dateFolder){
+			printf("del \"%s*.pdf\"\n",filesetext(filename(outputFile),""));
+			printf("cd ..\n");				//W:\Tobias\Projects\fpga\docu\2019-09-03
 
-		printf("cd ..\n");				//W:\Tobias\Projects\fpga\docu\2019-09-03
-		printf("pdftk *-schematic.pdf \"%s\" cat output \"%s\"\n",tmpFile,outputFile);
+			printf("pdftk *-schematic.pdf \"%s\" cat output \"%s\"\n",tmpFile,outputFile);
 
-		printf("ren \"%s\" \"%s\"\n",tmpFile,filename(outputFile));
-		printf("del \"%s\"\n", tmpFile);
+			printf("ren \"%s\" \"%s\"\n",tmpFile,filename(outputFile));
+			printf("del \"%s\"\n", tmpFile);
+
+			printf("copy \"%s\" \"%s\"\n",outputFile,filename(outputFile));
+			printf("rd /S /Q pdf\n");
+		}
+		else {
+			for(i=0; order[i]; i++){
+				if(filesize(filesetext(outputFile,("-"+order[i]+".pdf")))) {
+					printf("del *%s.pdf\n",order[i]);
+				}
+			}
+		}
+
+		printf("pause");
 	}
 }
