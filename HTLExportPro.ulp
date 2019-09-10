@@ -984,7 +984,7 @@ void export(){
 	}
 
 	if(pdf_merge){
-		cmd += "RUN "  + include_path + "MergePDF.ulp '" + output_folder_pdf + "' '"+getSystemFilename(".bat")+"';\n";
+		cmd += "RUN "  + include_path + "MergePDF.ulp "+ output_date_folder +" '" + output_folder_pdf + "' '"+getSystemFilename(".bat")+"';\n";
 	}
 
 	if(idf_export) {
@@ -1086,8 +1086,11 @@ void export(){
 	cmd+="SET Option.PadNames "+nameOption[0]+";";
 	cmd+="SET Option.SignalNames "+nameOption[1]+";";
 
-	cmd+="USE \'"+filepath+"fabrication.lbr\';";	//to prevent error messages the fabrication.lbr is loaded befor unloading
-	cmd+="USE \'-"+filepath+"fabrication.lbr\';";
+
+	if(filesize("\'"+filepath+"fabrication.lbr\'")){
+		cmd+="USE \'"+filepath+"fabrication.lbr\';";	//to prevent error messages the fabrication.lbr is loaded befor unloading
+		cmd+="USE \'-"+filepath+"fabrication.lbr\';";
+	}
 
 	exit(cmd);
 }
