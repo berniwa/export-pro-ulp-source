@@ -27,7 +27,16 @@ void drcLoadRules(string drc, int load)
 	else
 	{
 		//Export DRC file and re-run ULP
-		exit("DRC SAVE \'" + drc + "\'; RUN " + getUlpDir("HTLExportPro.ulp") + " drcLoaded;");
+		string cmd = "";
+
+		if(schematic){
+			cmd += "EDIT .brd;";
+		}
+
+		cmd += "DRC SAVE \'" + drc + "\';";
+		cmd += "RUN " + getUlpDir("HTLExportPro.ulp") + " drcLoaded;";
+
+		exit(cmd);
 	}
 }
 
