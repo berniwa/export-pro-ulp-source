@@ -62,7 +62,7 @@ void main(){
 		printf("cat output \"%s\"\n",tmpFile);
 
 		//dlgMessageBox(filesetext(filename(outputFile),"-"));
-		printf("del %s*.pdf\n",filesetext(filename(outputFile),""));
+		printf("del \"%s*.pdf\"\n",filesetext(filename(outputFile),""));
 
 		printf("cd ..\n");				//W:\Tobias\Projects\fpga\docu\2019-09-03
 		printf("pdftk *-schematic.pdf \"%s\" cat output \"%s\"\n",tmpFile,outputFile);
