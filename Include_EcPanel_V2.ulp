@@ -814,15 +814,5 @@ void main(){
 
 	sprintf(cmd, "%s WRITE;\n", cmd);
 
-
-	//cmd+="OPEN "+lib+";\n";
-	//cmd+="CLOSE;";
-
-	//debuging
-	output("W:/Tobias/tmp/tmp.scr"){
-		printf("%s",cmd);
-	}
-
-
 	exit(cmd);
 }
