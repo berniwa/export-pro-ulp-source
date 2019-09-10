@@ -1083,6 +1083,9 @@ void export(){
 	cmd+="SET Option.PadNames "+nameOption[0]+";";
 	cmd+="SET Option.SignalNames "+nameOption[1]+";";
 
+	cmd+="USE \'"+filepath+"fabrication.lbr\';";	//to prevent error messages the fabrication.lbr is loaded befor unloading
+	cmd+="USE \'-"+filepath+"fabrication.lbr\';";
+
 	exit(cmd);
 }
 
