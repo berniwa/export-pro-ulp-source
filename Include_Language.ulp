@@ -37,7 +37,7 @@ string lanGetText(string name)
 	string result = "";
 	for(int i = 0; i < lanLines; i++)
 	{
-		result = drcValue(name, lanContent);
+		result = lanWord(name, lanContent);
 		if(result != "")
 		{
 			return result;
