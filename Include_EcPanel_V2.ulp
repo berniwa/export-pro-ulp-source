@@ -19,7 +19,7 @@ real potMitX[];
 real potMitY[];
 
 int wireCount=0;
-int clockwise=0;
+int cclockwise=0;
 
 int gapWidth = 2; //distance between board and panel inline in mm
 int panelWidthX = 5, panelWidthY = 5; //min distance between panel inline and panel outline in mm 
@@ -126,13 +126,13 @@ void main(){
 		wireCount=i;
 	}
 
-	clockwise=0;
+	cclockwise=0;
 	//sorting the board-dimensions
 	for(int i=1; i<wireCount; i++){
 		if((wireX1[i]==wireX2[i-1])&&(wireY1[i]==wireY2[i-1])){
 		}
 		else if ((wireX2[i]==wireX2[i-1])&&(wireY2[i]==wireY2[i-1])){
-			//reversing the direction of the wire so every wire either gos clockwise or counterclockwise
+			//reversing the direction of the wire so every wire either gos cclockwise or countercclockwise
 			reverseDirection(i);
 		}
 		else{
@@ -144,7 +144,7 @@ void main(){
 				else if((wireX2[j]==wireX2[i-1])&&(wireY2[j]==wireY2[i-1])){
 					swopPlaces(i,j);
 
-					//reversing the direction of the wire so every wire either gos clockwise or counterclockwise
+					//reversing the direction of the wire so every wire either gos cclockwise or countercclockwise
 					reverseDirection(i);
 
 					break;
@@ -156,82 +156,82 @@ void main(){
 		if((wireX1[i]>centerX)&&(wireX2[i]>centerX)&&(wireY1[i]>centerY)&&(wireY2[i]>centerY)) {
 			//I
 			if((wireX1[i]>wireX2[i])||(wireY1[i]<wireY2[i])) {
-				clockwise++;
+				cclockwise++;
 			}
 			else {
-				clockwise--;
+				cclockwise--;
 			}
 		}
 		else if((wireX1[i]<centerX)&&(wireX2[i]<centerX)&&(wireY1[i]>centerY)&&(wireY2[i]>centerY)) {
 			//II
 			if((wireX1[i]>wireX2[i])||(wireY1[i]>wireY2[i])) {
-				clockwise++;
+				cclockwise++;
 			}
 			else {
-				clockwise--;
+				cclockwise--;
 			}
 		}
 		else if((wireX1[i]<centerX)&&(wireX2[i]<centerX)&&(wireY1[i]<centerY)&&(wireY2[i]<centerY)) {
 			//III
 			if((wireX1[i]<wireX2[i])||(wireY1[i]>wireY2[i])) {
-				clockwise++;
+				cclockwise++;
 			}
 			else {
-				clockwise--;
+				cclockwise--;
 			}
 		}
 		else if((wireX1[i]>centerX)&&(wireX2[i]>centerX)&&(wireY1[i]<centerY)&&(wireY2[i]<centerY)) {
 			//IV
 			if((wireX1[i]<wireX2[i])||(wireY1[i]<wireY2[i])) {
-				clockwise++;
+				cclockwise++;
 			}
 			else {
-				clockwise--;
+				cclockwise--;
 			}
 		}
 		else if((wireY1[i]>centerY)&&(wireY2[i]>centerY)) {
 			//I&II
 			if(wireX1[i]>wireX2[i]) {
-				clockwise++;
+				cclockwise++;
 			}
 			else {
-				clockwise--;
+				cclockwise--;
 			}
 		}
 		else if((wireX1[i]<centerX)&&(wireX2[i]<centerX)) {
 			//II&III
 			if(wireY1[i]>wireY2[i]) {
-				clockwise++;
+				cclockwise++;
 			}
 			else {
-				clockwise--;
+				cclockwise--;
 			}
 		}
 		else if((wireY1[i]<centerY)&&(wireY2[i]<centerY)) {
 			//III&IV
 			if(wireX1[i]<wireX2[i]) {
-				clockwise++;
+				cclockwise++;
 			}
 			else {
-				clockwise--;
+				cclockwise--;
 			}
 		}
 		else if((wireX1[i]>centerX)&&(wireX2[i]>centerX)) {
 			//IV&I
 			if(wireY1[i]<wireY2[i]) {
-				clockwise++;
+				cclockwise++;
 			}
 			else {
-				clockwise--;
+				cclockwise--;
 			}
 		}
 	}
 
-	if(clockwise>0){
-		clockwise=1;
+	if(cclockwise>0){
+		cclockwise=1;
 	}
-	else if(clockwise<0){
-		clockwise=-1;
+	else if(cclockwise<0){
+		cclockwise=-1;
 	}
 	else{
 		dlgMessageBox(":Unable to produce a panel");
@@ -260,7 +260,7 @@ void main(){
 	sprintf(cmd, "%s WIRE 'outline_panel' (%fmm %fmm) (%fmm %fmm) (%fmm %fmm) (%fmm %fmm) (%fmm %fmm);\n", cmd, x_min_outline, y_min_outline, x_max_outline, y_min_outline, x_max_outline, y_max_outline, x_min_outline, y_max_outline, x_min_outline, y_min_outline);
 
 	//creating the panel-inline 
-	real drawX=0, drawY=0, oriX=0, oriY=0, tmpX=0, tmpY=0, drawR=0;
+	real drawX=0.0, drawY=0.0, oriX=0.0, oriY=0.0, tmpX=0.0, tmpY=0.0, drawR=0.0;
 
 	for(int n=0;n<wireCount;n++){
 		drawR=1;
@@ -275,20 +275,18 @@ void main(){
 				drawX=wireX1[n];
 				drawY=wireY1[n];
 
-				if(clockwise>0){
+				if(cclockwise>0){
 					if(wireRad[n]>0){
 						if((wireX1[n]>wireX2[n])&&(wireY1[n]>wireY2[n])){
-							
 							drawY+=gapWidth;
 						}
 						else if((wireX1[n]>wireX2[n])&&(wireY1[n]<wireY2[n])){
 							drawX+=gapWidth;
-							
 						}
 						else if((wireX1[n]<wireX2[n])&&(wireY1[n]>wireY2[n])){
 							drawX-=gapWidth;
 						}
-						else {
+						else if((wireX1[n]<wireX2[n])&&(wireY1[n]<wireY2[n])){
 							drawY-=gapWidth;
 						}
 					}
@@ -302,7 +300,7 @@ void main(){
 						else if((wireX1[n]<wireX2[n])&&(wireY1[n]>wireY2[n])){
 							drawY-=gapWidth;
 						}
-						else {
+						else if((wireX1[n]<wireX2[n])&&(wireY1[n]<wireY2[n])){
 							drawX+=gapWidth;
 						}
 					}
@@ -318,7 +316,7 @@ void main(){
 						else if((wireX1[n]<wireX2[n])&&(wireY1[n]>wireY2[n])){
 							drawY+=gapWidth;
 						}
-						else {
+						else if((wireX1[n]<wireX2[n])&&(wireY1[n]<wireY2[n])){
 							drawX-=gapWidth;
 						}
 					}
@@ -332,7 +330,7 @@ void main(){
 						else if((wireX1[n]<wireX2[n])&&(wireY1[n]>wireY2[n])){
 							drawX+=gapWidth;
 						}
-						else {
+						else if((wireX1[n]<wireX2[n])&&(wireY1[n]<wireY2[n])){
 							drawY+=gapWidth;
 						}
 					}
@@ -340,8 +338,8 @@ void main(){
 			}
 			else{
 				//creating a normal vector and storing the signs
-				tmpX = clockwise*(wireY2[n]-wireY1[n]);
-				tmpY = (-1)*clockwise*(wireX2[n]-wireX1[n]);
+				tmpX = cclockwise*(wireY2[n]-wireY1[n]);
+				tmpY = (-1)*cclockwise*(wireX2[n]-wireX1[n]);
 				//to prvent a dividing by 0 error
 				if(tmpX==0){
 					drawX=0;
@@ -373,7 +371,7 @@ void main(){
 		if(wireRad[n]){//drawing an arc
 			//getting the radius right
 			drawR=wireRad[n];
-			drawR+=(clockwise*gapWidth);
+			drawR+=(cclockwise*gapWidth);
 
 			if(drawR<0){
 				sprintf(cmd,"%s @%f ",cmd,drawR);
@@ -387,7 +385,7 @@ void main(){
 			drawY=wireY2[n];
 
 			//Ajusting end coordinats
-			if(clockwise>0){
+			if(cclockwise>0){
 				if (wireRad[n]>0) {
 					if((wireX1[n]>wireX2[n])&&(wireY1[n]>wireY2[n])){
 						//dbgMsg("x- y- c:",n);
@@ -401,7 +399,7 @@ void main(){
 						//dbgMsg("x+ y- c:",n);
 						drawY-=gapWidth;
 					}
-					else {
+					else if((wireX1[n]<wireX2[n])&&(wireY1[n]<wireY2[n])){
 						//dbgMsg("x+ y+ c:",n);
 						drawX+=gapWidth;
 					}
@@ -419,7 +417,7 @@ void main(){
 						//dbgMsg("x+ y- c:",n);
 						drawX-=gapWidth;
 					}
-					else {
+					else if((wireX1[n]<wireX2[n])&&(wireY1[n]<wireY2[n])){
 						//dbgMsg("x+ y+ c:",n);
 						drawY-=gapWidth;
 					}
@@ -439,7 +437,7 @@ void main(){
 						//dbgMsg("x+ y- c!:",n);
 						drawX+=gapWidth;
 					}
-					else {
+					else if((wireX1[n]<wireX2[n])&&(wireY1[n]<wireY2[n])){
 						//dbgMsg("x+ y+ c!:",n);
 						drawY+=gapWidth;
 					}
@@ -457,7 +455,7 @@ void main(){
 						//dbgMsg("x+ y- c!:",n);
 						drawY+=gapWidth;
 					}
-					else {
+					else if((wireX1[n]<wireX2[n])&&(wireY1[n]<wireY2[n])){
 						//dbgMsg("x+ y+ c!:",n);
 						drawX-=gapWidth;
 					}
@@ -466,8 +464,8 @@ void main(){
 		}
 		else {//drawing lines
 			//creating a normal vector and storing the signs
-			tmpX = clockwise*(wireY2[n]-wireY1[n]);
-			tmpY = -1*clockwise*(wireX2[n]-wireX1[n]);
+			tmpX = cclockwise*(wireY2[n]-wireY1[n]);
+			tmpY = -1*cclockwise*(wireX2[n]-wireX1[n]);
 			//to prvent a dividing by 0 error
 			if(tmpX==0){
 				drawX=0;
@@ -494,8 +492,8 @@ void main(){
 				//calculating the next line within polarform
 				real drawX1=0, drawY1=0, tmpX1=0, tmpY1=0;
 
-				tmpX1 = clockwise*(wireY2[(n+1)%wireCount]-wireY1[(n+1)%wireCount]);
-				tmpY1 = (-1)*clockwise*(wireX2[(n+1)%wireCount]-wireX1[(n+1)%wireCount]);
+				tmpX1 = cclockwise*(wireY2[(n+1)%wireCount]-wireY1[(n+1)%wireCount]);
+				tmpY1 = (-1)*cclockwise*(wireX2[(n+1)%wireCount]-wireX1[(n+1)%wireCount]);
 				//to prvent a dividing by 0 error
 				if(tmpX1==0){
 					drawX1=0;
@@ -601,53 +599,60 @@ void main(){
 	//Adding bridges
 	for(int l=0;l<wireCount;l++){
 		if(!wireRad[l]){
-			if(((wireX1[l]-wireX2[l])*clockwise>0)&&(wireY1[l]==wireY2[l])){
+			if(((wireX1[l]-wireX2[l])*cclockwise>0)&&(wireY1[l]==wireY2[l])){
 				//upper boarder
 				if((wireY1[l]==maxY)||(abs(wireX2[l]-wireX1[l])>minlengthBridgeX)){
 					bridgePosY=wireY1[l];
 
 					for(int j = 0;j<=(abs(wireX2[l]-wireX1[l])/minlengthBridgeX);j++){
 						bridgePosX=(j+1)/(1+ceil(abs(wireX2[l]-wireX1[l])/minlengthBridgeX));
-						dbgMsg("x=",bridgePosX);
-						bridgePosX=wireX1[l]+((wireX2[l]-wireX1[l])*bridgePosX);
 
-						deletWirePart((bridgePosX-1.5),bridgePosY,(bridgePosX+1.5),bridgePosY);
-						deletWirePart((bridgePosX-1.5),(bridgePosY+gapWidth),(bridgePosX+1.5),(bridgePosY+gapWidth));
+						if(bridgePosX<1){
+							bridgePosX=wireX1[l]+((wireX2[l]-wireX1[l])*bridgePosX);
 
-						sprintf(cmd,"%sADD 'BRIDG' R0 (%fmm %fmm);\n",cmd,bridgePosX,bridgePosY);
+							deletWirePart((bridgePosX-1.5),bridgePosY,(bridgePosX+1.5),bridgePosY);
+							deletWirePart((bridgePosX-1.5),(bridgePosY+gapWidth),(bridgePosX+1.5),(bridgePosY+gapWidth));
+
+							sprintf(cmd,"%sADD 'BRIDG' R0 (%fmm %fmm);\n",cmd,bridgePosX,bridgePosY);
+						}
 					}
 				}														
 			}
-			else if(((wireX1[l]-wireX2[l])*clockwise<0)&&(wireY1[l]==wireY2[l])){
+			else if(((wireX1[l]-wireX2[l])*cclockwise<0)&&(wireY1[l]==wireY2[l])){
 				//lower boarder
 				if((wireY1[l]==minY)||(abs(wireX2[l]-wireX1[l])>minlengthBridgeX)) {
 					bridgePosY=wireY1[l];
 
 					for(int j = 0;j<=(abs(wireX2[l]-wireX1[l])/minlengthBridgeX);j++){
 						bridgePosX=(j+1)/(1+ceil(abs(wireX2[l]-wireX1[l])/minlengthBridgeX));
-						bridgePosX=wireX1[l]+((wireX2[l]-wireX1[l])*bridgePosX);
 
-						deletWirePart((bridgePosX-1.5),bridgePosY,(bridgePosX+1.5),bridgePosY);
-						deletWirePart((bridgePosX-1.5),(bridgePosY-gapWidth),(bridgePosX+1.5),(bridgePosY-gapWidth));
+						if(bridgePosX<1){
+							bridgePosX=wireX1[l]+((wireX2[l]-wireX1[l])*bridgePosX);
 
-						sprintf(cmd,"%sADD 'BRIDG' R180 (%fmm %fmm);\n",cmd,bridgePosX,bridgePosY);
+							deletWirePart((bridgePosX-1.5),bridgePosY,(bridgePosX+1.5),bridgePosY);
+							deletWirePart((bridgePosX-1.5),(bridgePosY-gapWidth),(bridgePosX+1.5),(bridgePosY-gapWidth));
+
+							sprintf(cmd,"%sADD 'BRIDG' R180 (%fmm %fmm);\n",cmd,bridgePosX,bridgePosY);
+						}
 					}
 				}
 			}
-			else if(((wireY1[l]-wireY2[l])*clockwise>0)&&(wireX1[l]==wireX2[l])){
+			else if(((wireY1[l]-wireY2[l])*cclockwise>0)&&(wireX1[l]==wireX2[l])){
 				//right boarder
 				if((wireX1[l]==minX)||(abs(wireY2[l]-wireY1[l])>minlengthBridgeY)) {
 					bridgePosX=wireX1[l];
 
 					for(int j = 0;j<=(abs(wireY2[l]-wireY1[l])/minlengthBridgeY);j++){
 						bridgePosY=(j+1)/(1+ceil(abs(wireY2[l]-wireY1[l])/minlengthBridgeY));
-						dbgMsg("Y=",bridgePosY);
-						bridgePosY=wireY1[l]+((wireY2[l]-wireY1[l])*bridgePosY);
 
-						deletWirePart(bridgePosX,(bridgePosY-1.5),bridgePosX,(bridgePosY+1.5));
-						deletWirePart((bridgePosX-gapWidth),(bridgePosY-1.5),(bridgePosX-gapWidth),(bridgePosY+1.5));
+						if(bridgePosY<1){
+							bridgePosY=wireY1[l]+((wireY2[l]-wireY1[l])*bridgePosY);
 
-						sprintf(cmd,"%sADD 'BRIDG' R90 (%fmm %fmm);\n",cmd,bridgePosX,bridgePosY);
+							deletWirePart(bridgePosX,(bridgePosY-1.5),bridgePosX,(bridgePosY+1.5));
+							deletWirePart((bridgePosX-gapWidth),(bridgePosY-1.5),(bridgePosX-gapWidth),(bridgePosY+1.5));
+
+							sprintf(cmd,"%sADD 'BRIDG' R90 (%fmm %fmm);\n",cmd,bridgePosX,bridgePosY);
+						}
 					}
 				}
 			}
@@ -658,12 +663,15 @@ void main(){
 
 					for(int j = 0;j<=(abs(wireY2[l]-wireY1[l])/minlengthBridgeY);j++){
 						bridgePosY=(j+1)/(1+ceil(abs(wireY2[l]-wireY1[l])/minlengthBridgeY));
-						bridgePosY=wireY1[l]+((wireY2[l]-wireY1[l])*bridgePosY);
 
-						deletWirePart(bridgePosX,(bridgePosY-1.5),bridgePosX,(bridgePosY+1.5));
-						deletWirePart((bridgePosX+gapWidth),(bridgePosY-1.5),(bridgePosX+gapWidth),(bridgePosY+1.5));
+						if(bridgePosY<1){
+							bridgePosY=wireY1[l]+((wireY2[l]-wireY1[l])*bridgePosY);
 
-						sprintf(cmd,"%sADD 'BRIDG' R270 (%fmm %fmm);\n",cmd,bridgePosX,bridgePosY);
+							deletWirePart(bridgePosX,(bridgePosY-1.5),bridgePosX,(bridgePosY+1.5));
+							deletWirePart((bridgePosX+gapWidth),(bridgePosY-1.5),(bridgePosX+gapWidth),(bridgePosY+1.5));
+
+							sprintf(cmd,"%sADD 'BRIDG' R270 (%fmm %fmm);\n",cmd,bridgePosX,bridgePosY);
+						}
 					}
 				}
 			}
