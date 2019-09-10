@@ -81,7 +81,8 @@ gerber_ref = 0, gerber_fab = 1, parts_top_docu = 1, parts_bot_docu = 1,
 board_type = 0,
 eagle_export, ec_export, gerber_format = 0,
 pnp_export = 0, pnp_top = 1, pnp_bot = 1, pnp_flip = 0, pnp_auto_offset = 0,
-fabrication = 1, stackup = 1, enable_export_pdf = 1, pdf_keep_frame = 1;
+fabrication = 1, stackup = 1, 
+enable_export_pdf = 1, pdf_keep_frame = 1, pdf_merge = 1;
 ;
 
 real board_thickness = 0.0, board_copper_thickness = 0.0,bom_quantity, pnp_offset_x = 0.0, pnp_offset_y = 0.0;
@@ -325,6 +326,7 @@ void loadUsersettings(){
 
 		enable_export_pdf = strtol(data[102]);
 		pdf_keep_frame	= strtol(data[103]);
+		pdf_merge 		= strtol(data[104]);
 
 		if(format_revision == 0)	
 		//If the format revision was not set, the version is < 7
@@ -463,6 +465,7 @@ void saveUsersettings(){
 
 		printf("%d\n", enable_export_pdf);
 		printf("%d\n", pdf_keep_frame);
+		printf("%d\n", pdf_merge);
 
 	}
 }
@@ -980,7 +983,7 @@ void export(){
 		}		
 	}
 
-	if(enable_export_pdf){
+	if(pdf_merge){
 		cmd += "RUN "  + include_path + "MergePDF.ulp '" + output_folder_pdf + "' '"+getSystemFilename(".bat")+"';\n";
 	}
 
@@ -1354,7 +1357,9 @@ void dialogPnpSettings(){
 void dialogPdfSettings() {
 	dlgDialog(lanGetText("headline.exportDlg")){
 		dlgGroup(lanGetText("general.general")) {
-			dlgCheckBox(lanGetText("settings.pdfFrame"), 			pdf_keep_frame);		
+			dlgCheckBox(lanGetText("settings.pdf.Frame"), 	pdf_keep_frame);
+			dlgCheckBox(lanGetText("settings.pdf.Merge")+"*", 	pdf_merge);
+			dlgLabel(lanGetText("dlg.pfd.footnote"));
 		};	
 		dlgPushButton(lanGetText("button.ok")) {
 			dlgAccept();

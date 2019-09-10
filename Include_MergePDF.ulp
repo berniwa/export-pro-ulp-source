@@ -37,8 +37,8 @@ void main(){
 	}
 
 	if(system("CMD.EXE /C echo off && pdftk --version")){
-		dlgMessageBox(":To Mearch the pdf-files we use pdftk_server-2.02.<br>"+
-						"You can get this tool <a href=\"https://www.pdflabs.com/tools/pdftk-server/\">here</a>");
+		dlgMessageBox(":To merge the pdf-files we use pdftk_server.<br>"+
+						"You can get this tool <a href=\"https://www.pdflabs.com/tools/pdftk-server/\">here</a>.");
 		exit("");
 	}
 
