@@ -5,7 +5,8 @@ button.cancel = Cancel
 button.continue = Continue exporting
 button.priceRequest = Update all prices
 button.save = Save
-button.request = Request
+button.request = Request Price
+nw.button.apply = Apply
 
 dlg.imag.footnote = * This may take a few minutes, depending on the size of the board
 dlg.pfd.footnote = * To merge the pdf-files we use pdftk_server. <br>You can get this tool <a href=\"https://www.pdflabs.com/tools/pdftk-server/\">here</a>.
@@ -54,6 +55,7 @@ headline.DevInfo = Device Information
 headline.populate = Populate (only for this device)
 headline.updatemode = Update Mode
 headline.newValues = New Values
+nw.headline.AutoDetect = Auto detected values
 
 settings.general = General settings
 settings.renumber = Renumbering parts
@@ -123,6 +125,8 @@ settings.newVal.QuantityMulti = Quantitty Multiplier
 settings.newVal.available = Available Quantity
 settings.newVal.perPkg = Parts per Package
 settings.newVal.datasheet = Datasheet
+nw.settings.autodetc0 = Automaticly detected Part No.
+nw.settings.autodetc1 = and Distributor
 
 comb.res = 600dpi - normal resulution;1200dpi - high resulution;2400dpi - extrem high resulution
 comb.pcbColor = green PCB;red PCB;black PCB;white PCB;Polyimid

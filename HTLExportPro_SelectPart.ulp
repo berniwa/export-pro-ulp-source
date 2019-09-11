@@ -11,16 +11,81 @@
 /************************************************************/
 
 #include "Include_Misc.ulp"
-#include "Include_FastExecute.ulp";
-#include "Include_BomConfig.ulp";
+#include "Include_FastExecute.ulp"
+#include "Include_BomConfig.ulp"
 #include "Include_String.ulp"
 #include "Include_BomCategory.ulp"
 #include "Include_BomCommon.ulp"
 #include "Include_BomPricing.ulp"
-#include "Include_Language.ulp";
+#include "Include_Language.ulp"
+#include "Include_Si.ulp"
 
 int rerun = 1, save = 1;
 string 	list[];
+
+string type[] = {
+	"0201", 
+	"0402", 
+	"0603", 
+	"0805", 
+	"1208", 
+	"1812"
+};
+
+char prefix[] = {'R', 'k', 'M', 'G', 'T'};
+
+string getOrderNo(int select){
+	if(category[select]!=0&&category[select]!=2){
+		return "";
+	}
+
+	string orderNo = "GP";
+
+	if (category[select]==0){
+		orderNo+="R";
+	}
+	else if(category[select]==2){
+		orderNo+="C";
+	}
+
+	for (int i = 0; type[i]; i++){
+		if(strstr(packages[select],type[i])>=0){
+			orderNo += type[i];
+			break;
+		}
+	}
+
+	real val;
+	val=siParseValue(values[select]);
+	if (category[select]==0){
+		val*=10;
+
+		string tmp = "";
+		sprintf(tmp,"%d",int(val));
+		dlgMessageBox(tmp);
+		val=(((strlen(tmp)+1)%3)+1);
+
+		orderNo+=strsub(tmp,0,int(val))+prefix[(strlen(tmp)-2)/3];
+
+		tmp=strsub(tmp,int(val),(strchr(tmp,'0')-int(val)));
+		dlgMessageBox(tmp);
+
+		orderNo+=tmp;
+	}
+	else if(category[select]==2){
+		val*=pow(10,12); //to get value in pF
+
+		string tmp = "";
+		sprintf(tmp,"%d",int(val));
+
+		val=strlen(tmp)-2;
+		tmp=strsub(tmp,0,2);
+
+		sprintf(orderNo,"%s%s%d",orderNo,tmp,int(val));
+	}
+
+	return orderNo;
+}
 
 void updateAttributeList(){
 	for(int i = 0; i < partcount; i++){
@@ -159,6 +224,23 @@ void editDevice(int selected){
 					dlgStringEdit(note[selected]);						
 				}
 			}			
+		}
+
+		if (category[selected]==0||category[selected]==2){
+			string orderNr = "GPC0402104";
+
+			orderNr=getOrderNo(selected);
+
+			dlgGroup(lanGetText("nw.headline.AutoDetect")){
+				dlgHBoxLayout{
+					dlgLabel(lanGetText("nw.settings.autodetc0")+" "+orderNr+" "+lanGetText("nw.settings.autodetc1")+" xDevelop.at");
+					//dlgStretch(1);
+					dlgPushButton(lanGetText("nw.button.apply")){
+						distributor[selected]="xdevelop.at";
+						order_no[selected]=orderNr;
+					}
+				}
+			}
 		}
 
 		dlgGroup(lanGetText("headline.newValues")){		
