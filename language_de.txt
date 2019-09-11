@@ -6,6 +6,7 @@ button.continue = Export fortsetzen
 button.priceRequest = Alle Preise aktualisieren
 button.save = Speichern
 button.request = Preise abfragen
+button.apply = Anwenden && Preise abfragen
 
 dlg.imag.footnote = * Dies kann je nach Boardgröße einige Zeit <br>(bis zu mehreren Minuten) dauern.
 dlg.pfd.footnote = * Um die PDF-Dateien zusammen zu führen benutzen wir pdftk_server <br>Sie können sich dieses Tool <a href=\"https://www.pdflabs.com/tools/pdftk-server/\">hier</a> heunterladen.
@@ -31,6 +32,7 @@ general.no = Nein
 general.special = Spezial
 general.name = Name
 general.custom = Andere
+general.voltage = Spannung
 
 headline.settings = Board Einstellungen
 headline.staps = Schritte
@@ -54,6 +56,7 @@ headline.DevInfo = Bauteil Information
 headline.populate = Einpflegen (nur für dieses Bauteil)
 headline.updatemode = Aktualisierungs Modus
 headline.newValues = Neue Werte
+headline.AutoDetect = Automatisch erfasste Werte
 
 settings.general = Allgemeine Einstellungen
 settings.renumber = Bauteile neu nummerieren

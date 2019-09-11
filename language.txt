@@ -6,7 +6,7 @@ button.continue = Continue exporting
 button.priceRequest = Update all prices
 button.save = Save
 button.request = Request Price
-nw.button.apply = Apply
+button.apply = Apply && request Price
 
 dlg.imag.footnote = * This may take a few minutes, depending on the size of the board
 dlg.pfd.footnote = * To merge the pdf-files we use pdftk_server. <br>You can get this tool <a href=\"https://www.pdflabs.com/tools/pdftk-server/\">here</a>.
@@ -32,7 +32,7 @@ general.no = No
 general.special = Special
 general.name = Name
 general.custom = Custom
-nw.general.voltage = Voltage
+general.voltage = Voltage
 
 headline.settings = Board settings
 headline.staps = Steps
@@ -56,7 +56,7 @@ headline.DevInfo = Device Information
 headline.populate = Populate (only for this device)
 headline.updatemode = Update Mode
 headline.newValues = New Values
-nw.headline.AutoDetect = Auto detected values
+headline.AutoDetect = Auto detected values
 
 settings.general = General settings
 settings.renumber = Renumbering parts

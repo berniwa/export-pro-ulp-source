@@ -263,12 +263,12 @@ void editDevice(int selected){
 			volt = getVoltage(selected);
 			orderNr=getOrderNo(selected);
 
-			dlgGroup(lanGetText("nw.headline.AutoDetect")){
+			dlgGroup(lanGetText("headline.AutoDetect")){
 				dlgVBoxLayout{
 					dlgGridLayout{
 						dlgCell(0, 0) dlgLabel(lanGetText("tab.value")+":");
 						dlgCell(0, 1) dlgLabel(values[selected]);
-						dlgCell(0, 2) dlgLabel(lanGetText("nw.general.voltage")+":");
+						dlgCell(0, 2) dlgLabel(lanGetText("general.voltage")+":");
 						dlgCell(0, 3) dlgLabel(volt);
 						dlgCell(1, 0) dlgLabel(lanGetText("tab.distriputor")+":");
 						dlgCell(1, 1) dlgLabel(stdDistributor);
@@ -277,7 +277,7 @@ void editDevice(int selected){
 					}
 					dlgHBoxLayout{
 						dlgStretch(1);
-						dlgPushButton(lanGetText("nw.button.apply")){
+						dlgPushButton(lanGetText("button.apply")){
 							distributor[selected]=stdDistributor;
 							order_no[selected]=orderNr;
 							manufacturer[selected]="any";
