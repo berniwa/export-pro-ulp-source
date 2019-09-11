@@ -32,6 +32,7 @@ general.no = No
 general.special = Special
 general.name = Name
 general.custom = Custom
+nw.general.voltage = Voltage
 
 headline.settings = Board settings
 headline.staps = Steps
@@ -125,8 +126,6 @@ settings.newVal.QuantityMulti = Quantitty Multiplier
 settings.newVal.available = Available Quantity
 settings.newVal.perPkg = Parts per Package
 settings.newVal.datasheet = Datasheet
-nw.settings.autodetc0 = Automaticly detected Part No.
-nw.settings.autodetc1 = and Distributor
 
 comb.res = 600dpi - normal resulution;1200dpi - high resulution;2400dpi - extrem high resulution
 comb.pcbColor = green PCB;red PCB;black PCB;white PCB;Polyimid
