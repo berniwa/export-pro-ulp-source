@@ -622,8 +622,14 @@ void export(){
 	nameOption[0] = getEAGLEconfig(136);
 	nameOption[1] = getEAGLEconfig(143);
 
-	cmd+="SET Option.SignalNames 0;";
-	cmd+="SET Option.PadNames 0;";
+	if(EAGLE_VERSION<9){
+		cmd+="SET Option.SignalNames 0;";
+		cmd+="SET Option.PadNames 0;";
+	}
+	else{
+		cmd+="SET Option.SignalNamesOnPads 0;";
+		cmd+="SET Option.SignalNamesOnTraces 0;";
+	}
 
 	output(getSystemFilename(".bat"), "wt"){
 		printf("echo off\n");
@@ -984,7 +990,7 @@ void export(){
 	}
 
 	if(pdf_merge){
-		cmd += "RUN "  + include_path + "MergePDF.ulp "+ output_date_folder +" '" + output_folder_pdf + "' '"+getSystemFilename(".bat")+"';\n";
+		sprintf(cmd,"%sRUN %sMergePDF.ulp %d '%s' '%s';\n",cmd,include_path,output_date_folder,output_folder_pdf,getSystemFilename(".bat"));
 	}
 
 	if(idf_export) {
@@ -1082,10 +1088,14 @@ void export(){
 
 	cmd += "RUN " + include_path + "RunBatch.ulp '"+getSystemFilename(".bat")+"';";
 
-
-	cmd+="SET Option.PadNames "+nameOption[0]+";";
-	cmd+="SET Option.SignalNames "+nameOption[1]+";";
-
+	if(EAGLE_VERSION<9){
+		cmd+="SET Option.SignalNames "+nameOption[0]+";";
+		cmd+="SET Option.PadNames "+nameOption[0]+";";
+	}
+	else{
+		cmd+="SET Option.SignalNamesOnPads "+nameOption[0]+";";
+		cmd+="SET Option.SignalNamesOnTraces "+nameOption[0]+";";
+	}
 
 	if(filesize("\'"+filepath+"fabrication.lbr\'")){
 		cmd+="USE \'"+filepath+"fabrication.lbr\';";	//to prevent error messages the fabrication.lbr is loaded befor unloading
@@ -1383,20 +1393,22 @@ void main(){
 
 		drcLoadRules(getSystemFilename(drc_file), 0);
 
-		int error=0;
+		if(argc==2){
+			int error=0;
 
-		board(B){
-			B.errors(ER){
-				if((ER.state!=ERROR_STATE_APPROVED) && (ER.type!=ERROR_TYPE_NONE)) {
-					error++;
+			board(B){
+				B.errors(ER){
+					if((ER.state!=ERROR_STATE_APPROVED) && (ER.type!=ERROR_TYPE_NONE)) {
+						error++;
+					}
 				}
 			}
-		}
 
-		if(error!=0){
-			int opt=dlgMessageBox(lanGetText("dlg.drcError"),lanGetText("button.continue"),lanGetText("button.cancel"));
-			if(opt){
-				exit("");
+			if(error!=0){
+				int opt=dlgMessageBox(lanGetText("dlg.drcError"),lanGetText("button.continue"),lanGetText("button.cancel"));
+				if(opt){
+					exit("");
+				}
 			}
 		}
 		
