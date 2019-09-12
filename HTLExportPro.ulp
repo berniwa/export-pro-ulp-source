@@ -1402,6 +1402,9 @@ void main(){
 		
 		export();
 	}
+	else if(argc > 1 && argv[1] == "uiLess"){
+		drcLoadRules(getSystemFilename(drc_file), 2);
+	} 
 	else {
 		drcLoadRules(getSystemFilename(drc_file), 1);		
 	}

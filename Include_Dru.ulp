@@ -20,12 +20,24 @@ string drcGetDefaultFilename(){
 void drcLoadRules(string drc, int load)
 {
 	//string data[];
-	if(!load){
+	if(load==0){
 		//Load DRC file
 		drcLines = fileread(drcContent, drc);
 	}
-	else
-	{
+	else if(load==2){
+		//Export DRC file and re-run ULP in execute mode
+		string cmd = "";
+
+		if(schematic){
+			cmd += "EDIT .brd;";
+		}
+
+		cmd += "DRC SAVE \'" + drc + "\';";
+		cmd += "RUN " + getUlpDir("HTLExportPro.ulp") + " execute;";
+
+		exit(cmd);
+	}
+	else{
 		//Export DRC file and re-run ULP
 		string cmd = "";
 
