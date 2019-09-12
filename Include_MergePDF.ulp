@@ -28,7 +28,6 @@ string order[] = {
 
 void main(){
 	int dateFolder = strtol(argv[1]);
-	dlgMessageBox(argv[1]);
 	string outputFile=argv[2]+".pdf";
 
 
