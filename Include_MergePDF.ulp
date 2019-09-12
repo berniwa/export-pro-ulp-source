@@ -93,6 +93,6 @@ void main(){
 			}
 		}
 
-		printf("pause\n");
+		//printf("pause\n");
 	}
 }
