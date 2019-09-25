@@ -814,6 +814,12 @@ void export(){
 		}
 	}
 
+	if(pricing)	{
+		string tmp = "";
+		sprintf(tmp, "RUN "  + include_path + "PriceRequest.ulp;");
+		cmd += tmp;		
+	}
+
 	cmd += "WRITE;";
 	cmd += "EDIT .brd;";
 	
@@ -1000,14 +1006,6 @@ void export(){
 
 	if(idf_export) {
 		cmd += "RUN "  + include_path + "IDF.ulp '" + output_folder_idf + "';";
-	}
-
-
-	if(pricing)	{
-		cmd += "EDIT .sch;";
-		string tmp = "";
-		sprintf(tmp, "RUN "  + include_path + "PriceRequest.ulp;");
-		cmd += tmp;		
 	}
 
 	if(bom)	{

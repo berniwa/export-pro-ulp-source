@@ -570,6 +570,10 @@ void main(){
 	cmd+="OPEN "+lib+";\n";
 	cmd+="SET CONFIRM YES;\n";
 	cmd+="EDIT bridg.pac;\n";
+	//deleting previous bridge
+	cmd+="GROUP ALL;\n";
+	cmd+="DELETE (>0 0);\n",
+	//setup for drawing
 	cmd+="CHANGE WIDTH 0.15mm;\n";
 	cmd+="LAYER DIMENSION;\n";
 	cmd+="GRID mm 0.1;\n";
