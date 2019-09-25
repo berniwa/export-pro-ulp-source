@@ -59,6 +59,8 @@ int ULP_REVISION_FORMAT_REVISION = 7;
 
 string cmd = "", bname = "", layers = "", palette_name = "BLACK", config_file = "-exportpro.cfg", drc_file = "-exportpro.dru";
 
+char UI_LESS=0;
+
 int 
 layout_bot = 1, layout_top = 1, layout_l3 = 0, layout_l2 = 0, parts_top = 1, parts_bot = 1, drills = 1, measure = 1, drilltable = 1, 
 construction = 1, reference = 1, enable_export_image = 1, bom = 1, mirror_bot = 1, crop_all = 1, no_measures = 0, auto_project = 1,
@@ -525,6 +527,9 @@ string updateFrameInformation(string drawing){
 	 	sprintf(cmd, "%sATTRIBUTE %s DRAWING \'%s\'; ", cmd, name, stringTrim(drawing));
 
 	 	int t = time();
+	 	if(UI_LESS){
+	 		t=0;
+	 	}
 	 	sprintf(cmd, "%sATTRIBUTE %s LAST_EDIT \'%s\'; ", cmd, name, t2string(t, "dd.MM.yy"));
 
 
@@ -1410,6 +1415,9 @@ void main(){
 					exit("");
 				}
 			}
+		}
+		else{
+			UI_LESS=1;
 		}
 		
 		export();
