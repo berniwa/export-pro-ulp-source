@@ -661,7 +661,10 @@ string exportLayer(int export_layer, int export_png, int export_pdf, string fold
 }
 
 void export(){
-
+	string preCMD="";
+	if(strstr(OS_SIGNATURE,"Windows")>=0){
+		preCMD="CMD.EXE /C ";
+	}
 
 	if(EAGLE_VERSION<9){
 		//read EAGLE config
@@ -701,13 +704,14 @@ void export(){
 	string tmp[];
 
 	if(fileglob(tmp, output_folder) == 0) { //Empty folder - ulp never run before
-		system("CMD.EXE /C mkdir \"" + output_folder + "\""); //Make new folder
+		system(preCMD + "mkdir \"" + output_folder + "\""); //Make new folder
 	}
 
 	string image_folder = "", pdf_folder = "", gerber_folder = "", eagle_folder = "", cad_folder = "", ecpanel_folder = "", pnp_folder = "";
 
 	if(output_date_folder)	//If a date folder and subfolders should be created
 	{
+		debugMsg(output_folder);
 		string date_folder 	= t2string(time(), "yyyy-MM-dd") + "/";
 		image_folder 		= "images";
 		pdf_folder 			= "pdf";
@@ -718,30 +722,36 @@ void export(){
 		pnp_folder			= "assembly";
 		
 		output_folder = output_folder + date_folder;
+		
+		debugMsg(output_folder);
+
+		string tobi;
+		sprintf(tobi,"%d",fileglob(tmp, output_folder));
+		debugMsg(tobi);
 			
 		if(fileglob(tmp, output_folder) <= 0){
-			system("CMD.EXE /C mkdir \"" + output_folder + "\""); //Make new folder
+			system(preCMD + "mkdir \"" + output_folder + "\""); //Make new folder
 		}
 		if(enable_export_image == 1 && fileglob(tmp, output_folder + image_folder) <= 0){
-			system("CMD.EXE /C mkdir \"" + output_folder + image_folder + "\""); 
+			system(preCMD + "mkdir \"" + output_folder + image_folder + "\""); 
 		}
 		if(gerber_export == 1 && fileglob(tmp, output_folder + gerber_folder) <= 0)	{
-			system("CMD.EXE /C mkdir \"" + output_folder + gerber_folder + "\""); 
+			system(preCMD + "mkdir \"" + output_folder + gerber_folder + "\""); 
 		}
 		if(eagle_export == 1 && fileglob(tmp, output_folder + eagle_folder) <= 0) {
-			system("CMD.EXE /C mkdir \"" + output_folder + eagle_folder + "\""); 
+			system(preCMD + "mkdir \"" + output_folder + eagle_folder + "\""); 
 		}
 		if(idf_export == 1 && fileglob(tmp, output_folder + cad_folder) <= 0) {
-			system("CMD.EXE /C mkdir \"" + output_folder + cad_folder + "\""); 
+			system(preCMD + "mkdir \"" + output_folder + cad_folder + "\""); 
 		}
 		if(ec_export == 1 && fileglob(tmp, output_folder + ecpanel_folder) <= 0) {
-			system("CMD.EXE /C mkdir \"" + output_folder + ecpanel_folder + "\"");
+			system(preCMD + "mkdir \"" + output_folder + ecpanel_folder + "\"");
 		}
 		if(pnp_export == 1 && fileglob(tmp, output_folder + pnp_folder) <= 0) {
-			system("CMD.EXE /C mkdir \"" + output_folder + pnp_folder + "\"");
+			system(preCMD + "mkdir \"" + output_folder + pnp_folder + "\"");
 		}
 		if(enable_export_pdf == 1 && fileglob(tmp, output_folder + pdf_folder) <= 0) {
-			system("CMD.EXE /C mkdir \"" + output_folder + pdf_folder + "\"");
+			system(preCMD + "mkdir \"" + output_folder + pdf_folder + "\"");
 		}
 
 		image_folder 		+= "/";
@@ -1133,7 +1143,7 @@ void export(){
 	
 	cmd += "EDIT \'" + filepath + boardname + ".brd\'" + ";";
 
-	cmd += "RUN " + include_path + "RunBatch.ulp '"+getSystemFilename(".bat")+"';";
+	cmd += "RUN " + include_path + "RunBatch.ulp '"+getSystemFilename(".bat")+"' '"+preCMD+"';";
 
 	if(EAGLE_VERSION<9){
 		cmd+="SET Option.SignalNames "+nameOption[0]+";";
