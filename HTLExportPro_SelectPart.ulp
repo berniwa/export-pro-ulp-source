@@ -419,10 +419,10 @@ int showListOfDevices(){
 					}
 				}				
 				dlgStretch(1);
-				dlgHBoxLayout{
+				dlgVBoxLayout{
 					dlgStretch(1); dlgStretch(1);
-					dlgPushButton(lanGetText("button.save")){dlgAccept(); return 1;}
 					dlgPushButton(lanGetText("button.cancel")){dlgReject(); return 0;}
+					dlgPushButton(lanGetText("button.save")){dlgAccept(); return 1;}
 				}
 			}
 		};
