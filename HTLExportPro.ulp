@@ -472,14 +472,53 @@ void saveUsersettings(){
 	}
 }
 
-string getEAGLEconfig(int index){
-	string path=filedir(EAGLE_HOME);
-	path+="AppData/Roaming/CadSoft/EAGLE/eaglerc.usr";
+string getEAGLEconfig(string config){
+	config += " = ";
 
+	string path=EAGLE_HOME;
+	if(strstr(OS_SIGNATURE,"Windows")>=0){
+		path=filedir(path);
+
+		path += "/AppData/Roaming";
+
+		if(EAGLE_VERSION<9){
+			path+="/CadSoft/EAGLE/eaglerc.usr";
+		}
+		else{
+			string sig[];
+			strsplit(sig,EAGLE_SIGNATURE,' ');
+
+			path+="/Eagle/settings/"+sig[2]+"/eaglerc";
+		}
+	}
+	else if(strstr(OS_SIGNATURE,"Linux")>=0){
+		if(EAGLE_VERSION<9){
+			path ="/.eaglerc";
+		}
+		else{
+			string sig[];
+			strsplit(sig,EAGLE_SIGNATURE,' ');
+
+			path+="/.local/share/Eagle/settings/"+sig[2]+"/eaglerc";
+		}
+	}
+	else {
+		debugMsg("hello MAC User");
+		return "1";
+	}
 	string data[];
 	int lines = fileread(data, path);
 
-	return strsub(data[index],(strchr(data[index],'\"')+1),(strrchr(data[index],'\"')-(strchr(data[index],'\"')+1)));
+	for(int i=0;i<lines;i++) {
+		if(strstr(data[i],config)!=-1) {
+			int start = strchr(data[i],'"')+1;
+			int end = strrchr(data[i],'"');
+
+			config = strsub(data[i],start,(end-start));
+			break;
+		}
+	}
+	return config;
 }
 
 string setLayerFill(){
@@ -623,17 +662,22 @@ string exportLayer(int export_layer, int export_png, int export_pdf, string fold
 
 void export(){
 
-	//read EAGLE config
-	nameOption[0] = getEAGLEconfig(136);
-	nameOption[1] = getEAGLEconfig(143);
 
 	if(EAGLE_VERSION<9){
+		//read EAGLE config
+		nameOption[0] = getEAGLEconfig("Option.SignalNames");
+		nameOption[1] = getEAGLEconfig("Option.PadNames");
+
 		cmd+="SET Option.SignalNames 0;";
 		cmd+="SET Option.PadNames 0;";
 	}
 	else{
-		cmd+="SET Option.SignalNamesOnPads 0;";
+		//read EAGLE config
+		nameOption[0] = getEAGLEconfig("Option.SignalNamesOnTraces");
+		nameOption[1] = getEAGLEconfig("Option.SignalNamesOnPads");
+		
 		cmd+="SET Option.SignalNamesOnTraces 0;";
+		cmd+="SET Option.SignalNamesOnPads 0;";
 	}
 
 	output(getSystemFilename(".bat"), "wt"){
@@ -1093,11 +1137,11 @@ void export(){
 
 	if(EAGLE_VERSION<9){
 		cmd+="SET Option.SignalNames "+nameOption[0]+";";
-		cmd+="SET Option.PadNames "+nameOption[0]+";";
+		cmd+="SET Option.PadNames "+nameOption[1]+";";
 	}
 	else{
-		cmd+="SET Option.SignalNamesOnPads "+nameOption[0]+";";
 		cmd+="SET Option.SignalNamesOnTraces "+nameOption[0]+";";
+		cmd+="SET Option.SignalNamesOnPads "+nameOption[1]+";";
 	}
 
 	if(filesize("\'"+filepath+"fabrication.lbr\'")){
