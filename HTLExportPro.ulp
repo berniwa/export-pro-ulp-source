@@ -493,7 +493,7 @@ string getEAGLEconfig(string config){
 	}
 	else if(strstr(OS_SIGNATURE,"Linux")>=0){
 		if(EAGLE_VERSION<9){
-			path ="/.eaglerc";
+			path +="/.eaglerc";
 		}
 		else{
 			string sig[];
@@ -711,7 +711,6 @@ void export(){
 
 	if(output_date_folder)	//If a date folder and subfolders should be created
 	{
-		debugMsg(output_folder);
 		string date_folder 	= t2string(time(), "yyyy-MM-dd") + "/";
 		image_folder 		= "images";
 		pdf_folder 			= "pdf";
@@ -722,13 +721,7 @@ void export(){
 		pnp_folder			= "assembly";
 		
 		output_folder = output_folder + date_folder;
-		
-		debugMsg(output_folder);
 
-		string tobi;
-		sprintf(tobi,"%d",fileglob(tmp, output_folder));
-		debugMsg(tobi);
-			
 		if(fileglob(tmp, output_folder) <= 0){
 			system(preCMD + "mkdir \"" + output_folder + "\""); //Make new folder
 		}
