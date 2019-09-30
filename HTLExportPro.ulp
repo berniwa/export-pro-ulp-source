@@ -661,10 +661,6 @@ string exportLayer(int export_layer, int export_png, int export_pdf, string fold
 }
 
 void export(){
-	string preCMD="";
-	if(strstr(OS_SIGNATURE,"Windows")>=0){
-		preCMD="CMD.EXE /C ";
-	}
 
 	if(EAGLE_VERSION<9){
 		//read EAGLE config
@@ -685,6 +681,14 @@ void export(){
 
 	output(getSystemFilename(".bat"), "wt"){
 		printf("echo off\n");
+	}
+
+	string preCMD="";
+	if(strstr(OS_SIGNATURE,"Windows")>=0){
+		preCMD="CMD.EXE /C ";
+	}
+	else if(strstr(OS_SIGNATURE,"Linux")>=0){
+		system("chmod +x \""+getSystemFilename(".bat")+"\"");
 	}
 
 	if(filesize(filepath +"fabrication.lbr")>0){
