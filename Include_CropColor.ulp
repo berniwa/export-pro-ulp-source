@@ -248,7 +248,7 @@ else if(OS_SIGNATURE == "Linux")
 	string Param2 = " 1 0";		//1st Method: <name> <crop> <mirror>
 	string CallOfWinProg = WinProgPath + Space + Param1 + Param2;
 	
-  	dlgMessageBox(argv[3]);
+  	//dlgMessageBox(argv[3]);
   	output(argv[3],"at"){
    	 	printf(CallOfWinProg+"\n");
   	}
