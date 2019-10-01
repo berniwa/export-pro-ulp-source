@@ -1425,8 +1425,13 @@ void dialogPdfSettings() {
 	dlgDialog(lanGetText("headline.exportDlg")){
 		dlgGroup(lanGetText("general.general")) {
 			dlgCheckBox(lanGetText("settings.pdf.Frame"), 	pdf_keep_frame);
-			dlgCheckBox(lanGetText("settings.pdf.Merge")+"*", 	pdf_merge);
-			dlgLabel(lanGetText("dlg.pfd.footnote"));
+			if(strstr(OS_SIGNATURE,"Linux")>=0){
+				pdf_merge=0;
+			}
+			else {
+				dlgCheckBox(lanGetText("settings.pdf.Merge")+"*", 	pdf_merge);
+				dlgLabel(lanGetText("dlg.pfd.footnote"));
+			}
 		};	
 		dlgPushButton(lanGetText("button.ok")) {
 			dlgAccept();

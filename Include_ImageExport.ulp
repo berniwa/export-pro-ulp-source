@@ -29,59 +29,59 @@ void exportImages(int exportBot, string botImage, int exportTop, string topImage
 		bname = B.name;
 	}
 
-	cmd += "SET PALETTE COLORED;";
+	cmd += "SET PALETTE COLORED;\n";
 
-	cmd += "SET COLOR_LAYER 1 16;";
-	cmd += "SET COLOR_LAYER 16 17;";
-	cmd += "SET COLOR_LAYER 17 16;";
-	cmd += "SET COLOR_LAYER 18 16;";
-	cmd += "SET COLOR_LAYER 29 18;";
-	cmd += "SET FILL_LAYER 29 solid;";
-	cmd += "SET COLOR_LAYER 30 18;";
-	cmd += "SET FILL_LAYER 30 solid;";
-	cmd += "SET COLOR_LAYER 124 18;";
-	cmd += "SET COLOR_LAYER 120 20;";
-	cmd += "SET COLOR_LAYER 121 21;";
-	cmd += "SET COLOR_LAYER 122 21;";
-	cmd += "SET COLOR_LAYER 125 18;";
-	cmd += "SET COLOR_LAYER 126 18;";
-	cmd += "SET COLOR_LAYER 127 20;";
+	cmd += "SET COLOR_LAYER 1 16;\n";
+	cmd += "SET COLOR_LAYER 16 17;\n";
+	cmd += "SET COLOR_LAYER 17 16;\n";
+	cmd += "SET COLOR_LAYER 18 16;\n";
+	cmd += "SET COLOR_LAYER 29 18;\n";
+	cmd += "SET FILL_LAYER 29 solid;\n";
+	cmd += "SET COLOR_LAYER 30 18;\n";
+	cmd += "SET FILL_LAYER 30 solid;\n";
+	cmd += "SET COLOR_LAYER 124 18;\n";
+	cmd += "SET COLOR_LAYER 120 20;\n";
+	cmd += "SET COLOR_LAYER 121 21;\n";
+	cmd += "SET COLOR_LAYER 122 21;\n";
+	cmd += "SET COLOR_LAYER 125 18;\n";
+	cmd += "SET COLOR_LAYER 126 18;\n";
+	cmd += "SET COLOR_LAYER 127 20;\n";
 
-	cmd += "SET PALETTE 16 " + colorCopper + ";";
-	cmd += "SET PALETTE 17 " + colorCopper + ";";
-	cmd += "SET PALETTE 18 " + colorPlating + ";";
-	cmd += "SET PALETTE 20 0xFF000000;";
-	cmd += "SET PALETTE 21 " + colorSilkscreen + ";";
-	cmd += "SET PALETTE 0 " + colorPcb + ";";
+	cmd += "SET PALETTE 16 " + colorCopper + ";\n";
+	cmd += "SET PALETTE 17 " + colorCopper + ";\n";
+	cmd += "SET PALETTE 18 " + colorPlating + ";\n";
+	cmd += "SET PALETTE 20 0xFF000000;\n";
+	cmd += "SET PALETTE 21 " + colorSilkscreen + ";\n";
+	cmd += "SET PALETTE 0 " + colorPcb + ";\n";
 
 	if(EAGLE_VERSION > 5 || (EAGLE_VERSION == 5 && EAGLE_RELEASE >= 11) ) //Support for SET CONFIRM form Eagle 5.11 on
 	{
-		cmd += "SET CONFIRM YES;";
+		cmd += "SET CONFIRM YES;\n";
 	}
 
 	if(exportTop)
 	{
-		cmd += "DISPLAY NONE;DISPLAY 1 18 29 121 123 124 125 127 ;";
-		sprintf(cmd, "%s EXPORT IMAGE '%s' %d;", cmd, topImage, resolution);
+		cmd += "DISPLAY NONE;DISPLAY 1 18 29 121 123 124 125 127 ;\n";
+		sprintf(cmd, "%s EXPORT IMAGE '%s' %d;\n", cmd, topImage, resolution);
 	}
 	if(exportBot)
 	{
-		cmd += "DISPLAY NONE;DISPLAY 16 18 30 122 123 124 126 127;";
-		sprintf(cmd, "%s EXPORT IMAGE '%s' %d;", cmd, botImage, resolution);
+		cmd += "DISPLAY NONE;DISPLAY 16 18 30 122 123 124 126 127;\n";
+		sprintf(cmd, "%s EXPORT IMAGE '%s' %d;\n", cmd, botImage, resolution);
 	}
 
 
 	if(EAGLE_VERSION > 5 || (EAGLE_VERSION == 5 && EAGLE_RELEASE >= 11) ) //Support for SET CONFIRM form Eagle 5.11 on
 	{
-		cmd += "SET CONFIRM NO;";
+		cmd += "SET CONFIRM NO;\n";
 	}
 
-	cmd += "SET PALETTE 0 0xFFFFFFFF;";
+	cmd += "SET PALETTE 0 0xFFFFFFFF;\n";
 
-	cmd += "SET COLOR_LAYER 1 4;";
-	cmd += "SET COLOR_LAYER 16 1;";
-	cmd += "SET COLOR_LAYER 17 2;";
-	cmd += "SET COLOR_LAYER 18 2;";
+	cmd += "SET COLOR_LAYER 1 4;\n";
+	cmd += "SET COLOR_LAYER 16 1;\n";
+	cmd += "SET COLOR_LAYER 17 2;\n";
+	cmd += "SET COLOR_LAYER 18 2;\n";
 	
 
 	string layers = "";
@@ -98,36 +98,36 @@ void exportImages(int exportBot, string botImage, int exportTop, string topImage
 		}
 	}
 
-	cmd += "DISPLAY NONE; DISPLAY " + layers + ";";
+	cmd += "DISPLAY NONE; DISPLAY " + layers + ";\n";
 
 	if(palette(-1) == PALETTE_BLACK)
 	{
-		cmd += "SET PALETTE BLACK;";
+		cmd += "SET PALETTE BLACK;\n";
 	}
 	else if(palette(-1) == PALETTE_WHITE)
 	{
-		cmd += "SET PALETTE WHITE;";
+		cmd += "SET PALETTE WHITE;\n";
 	}
 	else
 	{
-		cmd += "SET PALETTE COLORED;";
+		cmd += "SET PALETTE COLORED;\n";
 	}
 
-	cmd += "SET FILL_LAYER 29 LtSlash;";
-	cmd += "SET FILL_LAYER 30 BkSlash;";
+	cmd += "SET FILL_LAYER 29 LtSlash;\n";
+	cmd += "SET FILL_LAYER 30 BkSlash;\n";
 	
 	if(exportBot && crop)
 	{
-		sprintf(cmd, "%s RUN %sCropColor.ulp '%s' %d '%s';", cmd, getUlpDir("Include_"), botImage, resolution,filesetext(bname,".bat"));
+		sprintf(cmd, "%s RUN %sCropColor.ulp '%s' %d '%s';\n", cmd, getUlpDir("Include_"), botImage, resolution,filesetext(bname,".bat"));
 	}
 	if(exportTop && crop)
 	{
-		sprintf(cmd, "%s RUN %sCropColor.ulp '%s' %d '%s';", cmd, getUlpDir("Include_"), topImage, resolution,filesetext(bname,".bat"));
+		sprintf(cmd, "%s RUN %sCropColor.ulp '%s' %d '%s';\n", cmd, getUlpDir("Include_"), topImage, resolution,filesetext(bname,".bat"));
 	}
 
 	if(exportBot && mirror)
 	{
-		sprintf(cmd, "%s RUN %sMirrorColor.ulp '%s' '%s';", cmd, getUlpDir("Include_"), botImage,filesetext(bname,".bat"));
+		sprintf(cmd, "%s RUN %sMirrorColor.ulp '%s' '%s';\n", cmd, getUlpDir("Include_"), botImage,filesetext(bname,".bat"));
 	}	
 	
 	executeAndExit(cmd);
