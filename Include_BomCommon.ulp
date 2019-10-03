@@ -236,11 +236,6 @@ string bomUpdateChanges()
 			}
 		}
 	}
-
-	output("W:\\Tobias\\tmp\\tmp.scr","wt"){
-		printf(execute);
-	}
-
 	return execute;
 }
 
