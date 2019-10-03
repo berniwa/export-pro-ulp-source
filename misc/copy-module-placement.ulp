@@ -4,13 +4,54 @@
 //string include[] = {"*_N", "*_P", "*_EN", "*_FAULT", "*_STATUS", "ILIM", "CTL1", "CTL2", "CTL3", "GND", "+5V"};
 //int offset_x = 20;
 
-string copy_from = "HUB1";
-string apply_to[]  = {"HUB2"};
-string exclude[] = {"DUMMY"};
-string include[] = {"+3.3V"};
-int offset_x = 60;
+//string copy_from = "HUB1";
+//string apply_to[]  = {"HUB2"};
+//string exclude[] = {"DUMMY"};
+//string include[] = {"+3.3V"};
+//int offset_x = 60;
 
+//Copy main Row 
+/*
+string copy_from = "FUSE1";
+string apply_to[]  = {"FUSE2", "FUSE3", "FUSE4", "FUSE5", "FUSE6", "FUSE7", "FUSE8"};
+string exclude[] = {"DUMMY"};
+string include[] = {"+5.0V_PRI"};
+int offset_x = 0;
+int offset_y = -10.18;
+*/
+/*
+//Copy to backup row
+string copy_from = "FUSE1";
+string apply_to[]  = {"FUSE17"};
+string exclude[] = {"DUMMY"};
+string include[] = {"+5.0V_PRI"};
+int offset_x = -18.5;
 int offset_y = 0;
+*/
+//Copy Backup row
+string copy_from = "FUSE17";
+string apply_to[]  = {"FUSE18", "FUSE19", "FUSE20", "FUSE21", "FUSE22", "FUSE23", "FUSE24"};
+string exclude[] = {"DUMMY"};
+string include[] = {"+5.0V_PRI"};
+int offset_x = 0;
+int offset_y = -10.18;
+
+
+//string copy_from = "FUSE1";
+//string apply_to[]  = {"FUSE9"};
+//string exclude[] = {"DUMMY"};
+//string include[] = {"+3.3V"};
+//int offset_x = -24;
+//int offset_y = 0;
+
+//string copy_from = "FUSE9";
+//string apply_to[]  = {"FUSE10", "FUSE11", "FUSE12", "FUSE13", "FUSE14", "FUSE15", "FUSE16"};
+//string exclude[] = {"DUMMY"};
+//string include[] = {"+3.3V"};
+//int offset_x = 0;
+//int offset_y = -12;
+
+
 
 string cmd = "";
 

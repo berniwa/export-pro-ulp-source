@@ -139,7 +139,7 @@ string PcbType[]					= {"FR4", "Roggers", "Aluminium", "Polyamid"};
 
 string ExportSetup[];
 
-string nameOption[];
+string eaglercOptions[];
 
 string getSystemFilename(string ends_with){
 	return filesetext(bname + boardname,ends_with);
@@ -665,20 +665,23 @@ void export(){
 
 	if(EAGLE_VERSION<9){
 		//read EAGLE config
-		nameOption[0] = getEAGLEconfig("Option.SignalNames");
-		nameOption[1] = getEAGLEconfig("Option.PadNames");
+		eaglercOptions[0] = getEAGLEconfig("Option.SignalNames");
+		eaglercOptions[1] = getEAGLEconfig("Option.PadNames");
 
 		cmd+="SET Option.SignalNames 0;";
 		cmd+="SET Option.PadNames 0;";
 	}
 	else{
 		//read EAGLE config
-		nameOption[0] = getEAGLEconfig("Option.SignalNamesOnTraces");
-		nameOption[1] = getEAGLEconfig("Option.SignalNamesOnPads");
+		eaglercOptions[0] = getEAGLEconfig("Option.SignalNamesOnTraces");
+		eaglercOptions[1] = getEAGLEconfig("Option.SignalNamesOnPads");
 		
 		cmd+="SET Option.SignalNamesOnTraces 0;";
 		cmd+="SET Option.SignalNamesOnPads 0;";
 	}
+
+	eaglercOptions[2] = getEAGLEconfig("Option.ViaLength");
+	cmd+="SET Option.ViaLength 0;";
 
 	output(getSystemFilename(".bat"), "wt"){
 		printf("echo off\n");
@@ -1144,13 +1147,15 @@ void export(){
 	cmd += "RUN " + include_path + "RunBatch.ulp '"+getSystemFilename(".bat")+"' '"+preCMD+"';";
 
 	if(EAGLE_VERSION<9){
-		cmd+="SET Option.SignalNames "+nameOption[0]+";";
-		cmd+="SET Option.PadNames "+nameOption[1]+";";
+		cmd+="SET Option.SignalNames "+eaglercOptions[0]+";";
+		cmd+="SET Option.PadNames "+eaglercOptions[1]+";";
 	}
 	else{
-		cmd+="SET Option.SignalNamesOnTraces "+nameOption[0]+";";
-		cmd+="SET Option.SignalNamesOnPads "+nameOption[1]+";";
+		cmd+="SET Option.SignalNamesOnTraces "+eaglercOptions[0]+";";
+		cmd+="SET Option.SignalNamesOnPads "+eaglercOptions[1]+";";
 	}
+	cmd+="SET Option.ViaLength "+eaglercOptions[2]+";";
+
 
 	if(filesize("\'"+filepath+"fabrication.lbr\'")){
 		cmd+="USE \'"+filepath+"fabrication.lbr\';";	//to prevent error messages the fabrication.lbr is loaded befor unloading
@@ -1441,7 +1446,7 @@ void dialogPdfSettings() {
 }
 
 
-void main(){
+void mainManu(){
 	//Load/Reload DRC rule files
 	if(argc > 1 && argv[1] == "drcLoaded"){
 		drcLoadRules(getSystemFilename(drc_file), 0);
@@ -1540,6 +1545,7 @@ void main(){
 				exit("DRC; RUN " + getUlpDir("HTLExportPro.ulp") + " execute;");
 			};
 			dlgPushButton(lanGetText("button.cancel")) {
+				saveUsersettings();
 				exit(EXIT_SUCCESS);
 			};
 			dlgStretch(1); 
@@ -1554,4 +1560,4 @@ void main(){
 
 
 //Call main menu
-main();
+mainManu();
