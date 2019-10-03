@@ -52,8 +52,7 @@ void debugMsg(string msg){
 string include_path = "Include_";
 
 
-string ULP_VERSION = "HTLExportPro 7.0";
-string UPDATE_SERVER = "http://eagle.berniwa.com/update/";
+string ULP_VERSION = "ExportPro";
 int ULP_REVISION_FORMAT_REVISION = 7;
 
 
@@ -608,6 +607,7 @@ string pngExport(string folder, string index){
 	return 	"DISPLAY NONE; "+
 			"DISPLAY " + fields[2] + "; " + 
 			"DISPLAY " + fields[3] + "; " + 
+			"SET CONFIRM YES; " + 
 			"EXPORT IMAGE '" + folder + stringTrim(fields[1]) + ".png' MONOCHROME 600;";		
 }
 
@@ -861,10 +861,10 @@ void export(){
 		}
 		
 		if(schematic_bw) {
-			cmd += "PRINT SHEETS ALL HIERARCHY PAPER " + format + " BLACK FILE '" + output_file_schematic_bw + "';";
+			cmd += "SET CONFIRM YES;PRINT SHEETS ALL HIERARCHY PAPER " + format + " BLACK FILE '" + output_file_schematic_bw + "';";
 		}
 		if(schematic_color)	{
-			cmd += "PRINT SHEETS ALL HIERARCHY PAPER " + format + " -BLACK FILE '" + output_file_schematic_color + "';";
+			cmd += "SET CONFIRM YES;PRINT SHEETS ALL HIERARCHY PAPER " + format + " -BLACK FILE '" + output_file_schematic_color + "';";
 		}
 	}
 
@@ -969,7 +969,7 @@ void export(){
 		ExportSetup[row++] = "CT 	;-paste-top		;20 31 " + mt + "				;" + layer_image + ";" + layer_pdf + "; Paste - Top";
 		ExportSetup[row++] = "CB 	;-paste-bottom	;20 32 " + mb + "				;" + layer_image + ";" + layer_pdf + "; Paste - Bottom";
 		ExportSetup[row++] = "FAB	;-fabrication 	;44 45 20 154 "  + mt + "		;" + layer_image + ";" + layer_pdf + "; Fabrication";
-		ExportSetup[row++] = "MECH	;-construction 	;111 20 						;" + layer_image + ";" + layer_pdf + "; Mechanical";
+		ExportSetup[row++] = "MECH	;-construction 	;111 20 						;" + layer_image + ";" + layer_pdf + " -" + mt + "; Mechanical";
 		ExportSetup[row++] = "REF	;-reference 	;111 49							;" + layer_image + ";" + layer_pdf + "; Reference";
 
 		//Switch palette if export is enabled
@@ -1446,6 +1446,11 @@ void dialogPdfSettings() {
 
 
 void mainManu(){
+	//In Eagle Version > 7, we need to have a fixed
+	//an absolute Path to our ULPs as Eagle otherwhise
+	//wont find it
+	include_path = getUlpDir(include_path);
+	
 	//Load/Reload DRC rule files
 	if(argc > 1 && argv[1] == "drcLoaded"){
 		drcLoadRules(getSystemFilename(drc_file), 0);
@@ -1487,11 +1492,6 @@ void mainManu(){
 	else {
 		drcLoadRules(getSystemFilename(drc_file), 1);		
 	}
-
-	//In Eagle Version > 7, we need to have a fixed
-	//an absolute Path to our ULPs as Eagle otherwhise
-	//wont find it
-	include_path = getUlpDir(include_path);
 
 	//Load the users project settings
 	loadUsersettings();
