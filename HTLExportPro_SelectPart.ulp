@@ -36,6 +36,11 @@ string type[] = {
 
 char prefix[] = {'R', 'k', 'M', 'G', 'T'};
 
+void debug(string msg, real val){
+	sprintf(msg,"%s%f",msg,val);
+	dlgMessageBox(msg);
+}
+
 string getVoltage(int select){
 	int tmp = strchr(values[select],'/');
 
@@ -79,7 +84,20 @@ string getOrderNo(int select){
 
 		orderNo+=strsub(tmp,0,int(val))+prefix[(strlen(tmp)-2)/3];
 
+		debug(tmp+"=",strchr(tmp,'0'));
+
+		debug("val",int(val));
+
+		debug("len",(strchr(tmp,'0')-int(val)));
+
 		tmp=strsub(tmp,int(val),(strchr(tmp,'0')-int(val)));
+
+		if(strtod(tmp)==0){
+			tmp="";
+		}
+
+		dlgMessageBox(tmp);
+
 
 		orderNo+=tmp;
 	}
