@@ -1446,6 +1446,11 @@ void dialogPdfSettings() {
 
 
 void mainManu(){
+	//In Eagle Version > 7, we need to have a fixed
+	//an absolute Path to our ULPs as Eagle otherwhise
+	//wont find it
+	include_path = getUlpDir(include_path);
+	
 	//Load/Reload DRC rule files
 	if(argc > 1 && argv[1] == "drcLoaded"){
 		drcLoadRules(getSystemFilename(drc_file), 0);
@@ -1487,11 +1492,6 @@ void mainManu(){
 	else {
 		drcLoadRules(getSystemFilename(drc_file), 1);		
 	}
-
-	//In Eagle Version > 7, we need to have a fixed
-	//an absolute Path to our ULPs as Eagle otherwhise
-	//wont find it
-	include_path = getUlpDir(include_path);
 
 	//Load the users project settings
 	loadUsersettings();
