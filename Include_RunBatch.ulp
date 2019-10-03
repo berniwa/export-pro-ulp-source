@@ -1,1 +1,12 @@
-system(argv[2]+"\""+argv[1]+"\"&DEL /F /Q \""+argv[1]+"\""); //it has to be an ulp, otherwise it would run the batch-file befor creating it
+//it has to be an ulp, otherwise it would run the batch-file befor creating it
+string batPath = argv[1];
+string tmp = " :";
+tmp[0]=batPath[0];
+
+output(batPath, "at"){
+	printf(tmp+"\n");
+	printf("CD \""+filedir(batPath)+"\"\n");
+	printf("DEL \"./"+filename(batPath)+"\"\n");
+}
+
+system(argv[2]+"\""+batPath+"\""); 
