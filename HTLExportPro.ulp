@@ -620,7 +620,7 @@ string pngCrop(string folder, string index){
 	
 	string fields[];
 	int count = strsplit(fields, ExportSetup[i], ';');
-	return "RUN "  + include_path + "Crop.ulp '" + folder + stringTrim(fields[1]) + ".png' '"+getSystemFilename(".bat")+"';";
+	return "RUN '"  + include_path + "Crop.ulp' '" + folder + stringTrim(fields[1]) + ".png' '"+getSystemFilename(".bat")+"';";
 }
 
 string pngMirror(string folder, string index){	
@@ -632,7 +632,7 @@ string pngMirror(string folder, string index){
 	
 	string fields[];
 	int count = strsplit(fields, ExportSetup[i], ';');
-	return "RUN "  + include_path + "Mirror.ulp '" + folder + stringTrim(fields[1]) + ".png' '"+getSystemFilename(".bat")+"';";
+	return "RUN '"  + include_path + "Mirror.ulp' '" + folder + stringTrim(fields[1]) + ".png' '"+getSystemFilename(".bat")+"';";
 }
 
 string pdfExport(string folder, string index){
@@ -851,7 +851,7 @@ void export(){
 	cmd += "SET CONFIRM YES;";
 
 	if(renumber) {
-		cmd += "RUN "  + include_path + "Renumber.ulp;";
+		cmd += "RUN '"  + include_path + "Renumber.ulp';";
 	}
 
 	if(schematic_export) {
@@ -870,7 +870,7 @@ void export(){
 
 	if(pricing)	{
 		string tmp = "";
-		sprintf(tmp, "RUN "  + include_path + "PriceRequest.ulp;");
+		sprintf(tmp, "RUN '"  + include_path + "PriceRequest.ulp';");
 		cmd += tmp;		
 	}
 
@@ -881,7 +881,7 @@ void export(){
 		cmd += "SET CONFIRM YES;";
 		sprintf(cmd, "%s WRITE \'" + output_folder + ecpanel_folder + boardname + "_ec.brd\';", cmd);
 		sprintf(cmd, "%s EDIT \'" +  output_folder + ecpanel_folder + boardname + "_ec.brd\';", cmd);
-		sprintf(cmd, "%s RUN " + include_path + "EcPanel_V2.ulp;", cmd);
+		sprintf(cmd, "%s RUN '" + include_path + "EcPanel_V2.ulp';", cmd);
 		
 		ecpanel_path = output_folder + ecpanel_folder + boardname;
 		
@@ -899,12 +899,12 @@ void export(){
 
 
 	if(measure) {
-		cmd += "RUN "  + include_path + "Measure.ulp;";
+		cmd += "RUN '"  + include_path + "Measure.ulp';";
 	}
 	
 	if(drilltable || fabrication || stackup) {
 		//The drilltable ulp has been repalced with the new fabrication ULP
-		sprintf(cmd, "%s RUN %sFabrication.ulp %d %d %d \'%s\' \'%s\' \'%s\' \'%s\' \'%s\';", cmd, include_path, 
+		sprintf(cmd, "%s RUN '%sFabrication.ulp' %d %d %d \'%s\' \'%s\' \'%s\' \'%s\' \'%s\';", cmd, include_path, 
 			fabrication, drilltable, stackup, 
 			PcbType[board_type], pcbSpecColor[pcbimage_color], 
 			pcbSpecSilkscreenColor[pcbimage_silkscreen_color], 
@@ -914,7 +914,7 @@ void export(){
 	}
 
 	if(silkscreen_enable) {
-		sprintf(cmd, "%s RUN "  + include_path + "SilkGen.ulp %d %d %d %d %d %d %d %d %d;", cmd, 
+		sprintf(cmd, "%s RUN '"  + include_path + "SilkGen.ulp' %d %d %d %d %d %d %d %d %d;", cmd, 
 			silkscreen_width, silkscreen_top, silkscreen_tnames, silkscreen_tvalues, 
 			silkscreen_tdocu, silkscreen_bottom, silkscreen_bnames, silkscreen_bvalues, silkscreen_bdocu
 		);
@@ -1041,7 +1041,7 @@ void export(){
 
 		//Export colored images
 		if((pcbimage_top || pcbimage_bottom) && enable_export_image) {
-			sprintf(cmd, "%s RUN "  + include_path + "ImageExport.ulp '%s' %d '%s' %d %d %d %d %s %s %s %s;", cmd, 
+			sprintf(cmd, "%s RUN '"  + include_path + "ImageExport.ulp' '%s' %d '%s' %d %d %d %d %s %s %s %s;", cmd, 
 				output_file_pcbb, pcbimage_bottom, 
 				output_file_pcbt, pcbimage_top, 
 				pcbImageResolutions[pcbimage_resolution], 
@@ -1055,16 +1055,16 @@ void export(){
 	}
 
 	if(pdf_merge){
-		sprintf(cmd,"%sRUN %sMergePDF.ulp %d '%s' '%s';\n",cmd,include_path,output_date_folder,output_folder_pdf,getSystemFilename(".bat"));
+		sprintf(cmd,"%sRUN '%sMergePDF.ulp' %d '%s' '%s';\n",cmd,include_path,output_date_folder,output_folder_pdf,getSystemFilename(".bat"));
 	}
 
 	if(idf_export) {
-		cmd += "RUN "  + include_path + "IDF.ulp '" + output_folder_idf + "';";
+		cmd += "RUN '"  + include_path + "IDF.ulp' '" + output_folder_idf + "';";
 	}
 
 	if(bom)	{
 		string tmp = "";
-		sprintf(tmp, "RUN "  + include_path + "BOM.ulp '%s' -multiplier %f %s %s %s %s %s %s %s;", getFilename(output_file, "-bom"), bom_quantity,  bom_xls?"-xls":"", bom_xlsx?"-xlsx":"", bom_csv?"-csv":"", bom_dbase3?"-dbase3":"", bom_farnell?"-farnell":"", bom_shorten_names?"-short_names":"", (!bom_display_package_type)?"-display_package_type":"");
+		sprintf(tmp, "RUN '"  + include_path + "BOM.ulp' '%s' -multiplier %f %s %s %s %s %s %s %s;", getFilename(output_file, "-bom"), bom_quantity,  bom_xls?"-xls":"", bom_xlsx?"-xlsx":"", bom_csv?"-csv":"", bom_dbase3?"-dbase3":"", bom_farnell?"-farnell":"", bom_shorten_names?"-short_names":"", (!bom_display_package_type)?"-display_package_type":"");
 		cmd += tmp;
 	}
 
@@ -1075,46 +1075,46 @@ void export(){
 			for(int i = 0; i < 16; i++){
 				if(board_layer[i] == 1){
 					if(i == 0){	
-						sprintf(cmd, "%s RUN "  + include_path + "Gerber.ulp 0 '%s' '%s' %d;", cmd,  getSystemFilename(".brd"), output_file_gerber_copper_top,  i+1);
+						sprintf(cmd, "%s RUN '"  + include_path + "Gerber.ulp' 0 '%s' '%s' %d;", cmd,  getSystemFilename(".brd"), output_file_gerber_copper_top,  i+1);
 					} else if(i == 15){
-						sprintf(cmd, "%s RUN "  + include_path + "Gerber.ulp 0 '%s' '%s' %d;", cmd,  getSystemFilename(".brd"), output_file_gerber_copper_bottom,  i+1);
+						sprintf(cmd, "%s RUN '"  + include_path + "Gerber.ulp' 0 '%s' '%s' %d;", cmd,  getSystemFilename(".brd"), output_file_gerber_copper_bottom,  i+1);
 					} else {
 						string tfname = "";
 						sprintf(tfname, "%s%d", output_file_gerber_copper_other, i+1); 			
-						sprintf(cmd, "%s RUN "  + include_path + "Gerber.ulp 0 '%s' '%s' %d;", cmd,  getSystemFilename(".brd"), tfname ,  i+1);					
+						sprintf(cmd, "%s RUN '"  + include_path + "Gerber.ulp' 0 '%s' '%s' %d;", cmd,  getSystemFilename(".brd"), tfname ,  i+1);					
 					}
 					count++;
 				}			
 			}
 		}
-		if(gerber_stc){ sprintf(cmd, "%s RUN "  + include_path + "Gerber.ulp 1 '%s' '%s' 1;", cmd,  getSystemFilename(".brd"), output_file_gerber_st); }
-		if(gerber_sts){ sprintf(cmd, "%s RUN "  + include_path + "Gerber.ulp 1 '%s' '%s' 0;", cmd,  getSystemFilename(".brd"), output_file_gerber_sb); }
-		if(gerber_crc){ sprintf(cmd, "%s RUN "  + include_path + "Gerber.ulp 2 '%s' '%s' 1;", cmd,  getSystemFilename(".brd"), output_file_gerber_ct); }
-		if(gerber_crs){ sprintf(cmd, "%s RUN "  + include_path + "Gerber.ulp 2 '%s' '%s' 0;", cmd,  getSystemFilename(".brd"), output_file_gerber_cb); }
-		if(gerber_plc){ sprintf(cmd, "%s RUN "  + include_path + "Gerber.ulp 3 '%s' '%s' 1 %d %d %d %d;", cmd,  getSystemFilename(".brd"), output_file_gerber_pt, silkscreen_tplace, silkscreen_tnames, silkscreen_tvalues, silkscreen_tdocu); }
-		if(gerber_pls){ sprintf(cmd, "%s RUN "  + include_path + "Gerber.ulp 3 '%s' '%s' 0 %d %d %d %d;", cmd,  getSystemFilename(".brd"), output_file_gerber_pb, silkscreen_bplace, silkscreen_bnames, silkscreen_bvalues, silkscreen_bdocu); }
-		if(gerber_drd){ sprintf(cmd, "%s RUN "  + include_path + "Gerber.ulp 4 '%s' '%s';",   cmd,  getSystemFilename(".brd"), output_file_gerber_drill); }	
-		if(gerber_otl){ sprintf(cmd, "%s RUN "  + include_path + "Gerber.ulp 5 '%s' '%s';",   cmd,  getSystemFilename(".brd"), output_file_gerber_otl); }	
-		if(gerber_ref){ sprintf(cmd, "%s RUN "  + include_path + "Gerber.ulp 6 '%s' '%s';",   cmd,  getSystemFilename(".brd"), output_file_gerber_ref); }	
-		if(gerber_fab){ sprintf(cmd, "%s RUN "  + include_path + "Gerber.ulp 7 '%s' '%s';",   cmd,  getSystemFilename(".brd"), output_file_gerber_fab); }	
+		if(gerber_stc){ sprintf(cmd, "%s RUN '"  + include_path + "Gerber.ulp' 1 '%s' '%s' 1;", cmd,  getSystemFilename(".brd"), output_file_gerber_st); }
+		if(gerber_sts){ sprintf(cmd, "%s RUN '"  + include_path + "Gerber.ulp' 1 '%s' '%s' 0;", cmd,  getSystemFilename(".brd"), output_file_gerber_sb); }
+		if(gerber_crc){ sprintf(cmd, "%s RUN '"  + include_path + "Gerber.ulp' 2 '%s' '%s' 1;", cmd,  getSystemFilename(".brd"), output_file_gerber_ct); }
+		if(gerber_crs){ sprintf(cmd, "%s RUN '"  + include_path + "Gerber.ulp' 2 '%s' '%s' 0;", cmd,  getSystemFilename(".brd"), output_file_gerber_cb); }
+		if(gerber_plc){ sprintf(cmd, "%s RUN '"  + include_path + "Gerber.ulp' 3 '%s' '%s' 1 %d %d %d %d;", cmd,  getSystemFilename(".brd"), output_file_gerber_pt, silkscreen_tplace, silkscreen_tnames, silkscreen_tvalues, silkscreen_tdocu); }
+		if(gerber_pls){ sprintf(cmd, "%s RUN '"  + include_path + "Gerber.ulp' 3 '%s' '%s' 0 %d %d %d %d;", cmd,  getSystemFilename(".brd"), output_file_gerber_pb, silkscreen_bplace, silkscreen_bnames, silkscreen_bvalues, silkscreen_bdocu); }
+		if(gerber_drd){ sprintf(cmd, "%s RUN '"  + include_path + "Gerber.ulp' 4 '%s' '%s';",   cmd,  getSystemFilename(".brd"), output_file_gerber_drill); }	
+		if(gerber_otl){ sprintf(cmd, "%s RUN '"  + include_path + "Gerber.ulp' 5 '%s' '%s';",   cmd,  getSystemFilename(".brd"), output_file_gerber_otl); }	
+		if(gerber_ref){ sprintf(cmd, "%s RUN '"  + include_path + "Gerber.ulp' 6 '%s' '%s';",   cmd,  getSystemFilename(".brd"), output_file_gerber_ref); }	
+		if(gerber_fab){ sprintf(cmd, "%s RUN '"  + include_path + "Gerber.ulp' 7 '%s' '%s';",   cmd,  getSystemFilename(".brd"), output_file_gerber_fab); }	
 	
 		//Generate specification file
-		sprintf(cmd, "%s RUN "  + include_path + "Specification.ulp '%s' %fmm '%s' %d %fum '%s' '%s' '%s';", cmd, output_file_gerber_spec, board_thickness, PcbType[board_type], count, board_copper_thickness, pcbSpecColor[pcbimage_color], pcbSpecSilkscreenColor[pcbimage_silkscreen_color], pcbSpecPlating[pcbimage_plating]); 		
+		sprintf(cmd, "%s RUN '"  + include_path + "Specification.ulp' '%s' %fmm '%s' %d %fum '%s' '%s' '%s';", cmd, output_file_gerber_spec, board_thickness, PcbType[board_type], count, board_copper_thickness, pcbSpecColor[pcbimage_color], pcbSpecSilkscreenColor[pcbimage_silkscreen_color], pcbSpecPlating[pcbimage_plating]); 		
 	}
 
 	if(pnp_export) {
 
 		cmd += "EDIT .brd;";
-		sprintf(cmd, "%s RUN "  + include_path + "PickAndPlace.ulp '%s' %d %d %d %d %f %f;", cmd, ouput_file_pnp + "-cpl.csv", pnp_top, pnp_bot, pnp_auto_offset, pnp_flip, pnp_offset_x, pnp_offset_y); 		
-		sprintf(cmd, "%s RUN "  + include_path + "BOM.ulp '%s' -pnp ;", cmd, ouput_file_pnp);
+		sprintf(cmd, "%s RUN '"  + include_path + "PickAndPlace.ulp' '%s' %d %d %d %d %f %f;", cmd, ouput_file_pnp + "-cpl.csv", pnp_top, pnp_bot, pnp_auto_offset, pnp_flip, pnp_offset_x, pnp_offset_y); 		
+		sprintf(cmd, "%s RUN '"  + include_path + "BOM.ulp' '%s' -pnp ;", cmd, ouput_file_pnp);
 	}
 
 	cmd += "WRITE;";
 
 	if(eagle_export) {
 
-		sprintf(cmd, "%s RUN "  + include_path + "Eagle.ulp '%s' '%s';", cmd, getSystemFilename(".brd"), output_folder_eagle);
-		sprintf(cmd, "%s RUN "  + include_path + "Eagle.ulp '%s' '%s';", cmd, getSystemFilename(".sch"), output_folder_eagle);
+		sprintf(cmd, "%s RUN '"  + include_path + "Eagle.ulp' '%s' '%s';", cmd, getSystemFilename(".brd"), output_folder_eagle);
+		sprintf(cmd, "%s RUN '"  + include_path + "Eagle.ulp' '%s' '%s';", cmd, getSystemFilename(".sch"), output_folder_eagle);
 
 		//Count all used layers
 		int count = 0;
@@ -1138,12 +1138,12 @@ void export(){
 		
 
 		//Generate specification file
-		sprintf(cmd, "%s RUN "  + include_path + "Specification.ulp '%s' %fmm '%s' %d %fum '%s' '%s' '%s' '%s' '%s';", cmd, output_file_eagle_spec, board_thickness, PcbType[board_type], count, board_copper_thickness, pcbSpecColor[pcbimage_color], pcbSpecSilkscreenColor[pcbimage_silkscreen_color], pcbSpecPlating[pcbimage_plating], tsilk_layers, bsilk_layers); 		
+		sprintf(cmd, "%s RUN '"  + include_path + "Specification.ulp' '%s' %fmm '%s' %d %fum '%s' '%s' '%s' '%s' '%s';", cmd, output_file_eagle_spec, board_thickness, PcbType[board_type], count, board_copper_thickness, pcbSpecColor[pcbimage_color], pcbSpecSilkscreenColor[pcbimage_silkscreen_color], pcbSpecPlating[pcbimage_plating], tsilk_layers, bsilk_layers); 		
 	}	
 	
 	cmd += "EDIT \'" + filepath + boardname + ".brd\'" + ";";
 
-	cmd += "RUN " + include_path + "RunBatch.ulp '"+getSystemFilename(".bat")+"' '"+preCMD+"';";
+	cmd += "RUN '" + include_path + "RunBatch.ulp' '"+getSystemFilename(".bat")+"' '"+preCMD+"';";
 
 	if(EAGLE_VERSION<9){
 		cmd+="SET Option.SignalNames "+eaglercOptions[0]+";";
