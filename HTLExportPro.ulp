@@ -1440,7 +1440,7 @@ void dialogPdfSettings() {
 }
 
 
-void main(){
+void mainManu(){
 	//Load/Reload DRC rule files
 	if(argc > 1 && argv[1] == "drcLoaded"){
 		drcLoadRules(getSystemFilename(drc_file), 0);
@@ -1539,6 +1539,7 @@ void main(){
 				exit("DRC; RUN " + getUlpDir("HTLExportPro.ulp") + " execute;");
 			};
 			dlgPushButton(lanGetText("button.cancel")) {
+				saveUsersettings();
 				exit(EXIT_SUCCESS);
 			};
 			dlgStretch(1); 
@@ -1553,4 +1554,4 @@ void main(){
 
 
 //Call main menu
-main();
+mainManu();
