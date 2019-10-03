@@ -21,7 +21,6 @@
 #include "Include_Si.ulp"
 
 string stdDistributor = "xdevelop";
-string stdToleranc = "1%";
 
 int rerun = 1, save = 1;
 string 	list[];
@@ -69,12 +68,9 @@ string getOrderNo(int select){
 		}
 	}
 
-	string tol;
 	real val;
 	val=siParseValue(values[select]);
 	if (category[select]==0){
-		tol=stdToleranc;
-
 		val*=10;
 
 		string tmp = "";
@@ -90,13 +86,6 @@ string getOrderNo(int select){
 	else if(category[select]==2){
 		val*=pow(10,12); //to get value in pF
 
-		if(val<1000){
-			tol="NP0";
-		}
-		else{
-			tol="X7R";
-		}
-
 		string tmp = "";
 		sprintf(tmp,"%d",int(val));
 
@@ -111,8 +100,6 @@ string getOrderNo(int select){
 	if(v!="50V"){
 		orderNo+="-"+strsub(v,0,strlen(v)-1);
 	}
-
-	orderNo += "-" + tol;
 
 	return orderNo;
 }
