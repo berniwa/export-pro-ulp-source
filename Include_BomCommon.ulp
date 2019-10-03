@@ -216,7 +216,7 @@ string bomUpdateChanges()
 {
 	string execute = "";
 	sprintf(execute, "CHANGE DISPLAY OFF;\n");
-	sprintf(execute, "SET CONFIRM YES;\n");
+	sprintf(execute, "%sSET CONFIRM YES;\n",execute);
 
 	string mysheet = "";
 
@@ -235,6 +235,10 @@ string bomUpdateChanges()
 				execute += bomChangeSchematics(P, mysheet, M.name);
 			}
 		}
+	}
+
+	output("W:\\Tobias\\tmp\\tmp.scr","wt"){
+		printf(execute);
 	}
 
 	return execute;
