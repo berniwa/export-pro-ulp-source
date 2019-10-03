@@ -608,6 +608,7 @@ string pngExport(string folder, string index){
 	return 	"DISPLAY NONE; "+
 			"DISPLAY " + fields[2] + "; " + 
 			"DISPLAY " + fields[3] + "; " + 
+			"SET CONFIRM YES; " + 
 			"EXPORT IMAGE '" + folder + stringTrim(fields[1]) + ".png' MONOCHROME 600;";		
 }
 
@@ -858,10 +859,10 @@ void export(){
 		}
 		
 		if(schematic_bw) {
-			cmd += "PRINT SHEETS ALL HIERARCHY PAPER " + format + " BLACK FILE '" + output_file_schematic_bw + "';";
+			cmd += "SET CONFIRM YES;PRINT SHEETS ALL HIERARCHY PAPER " + format + " BLACK FILE '" + output_file_schematic_bw + "';";
 		}
 		if(schematic_color)	{
-			cmd += "PRINT SHEETS ALL HIERARCHY PAPER " + format + " -BLACK FILE '" + output_file_schematic_color + "';";
+			cmd += "SET CONFIRM YES;PRINT SHEETS ALL HIERARCHY PAPER " + format + " -BLACK FILE '" + output_file_schematic_color + "';";
 		}
 	}
 
@@ -966,7 +967,7 @@ void export(){
 		ExportSetup[row++] = "CT 	;-paste-top		;20 31 " + mt + "				;" + layer_image + ";" + layer_pdf + "; Paste - Top";
 		ExportSetup[row++] = "CB 	;-paste-bottom	;20 32 " + mb + "				;" + layer_image + ";" + layer_pdf + "; Paste - Bottom";
 		ExportSetup[row++] = "FAB	;-fabrication 	;44 45 20 154 "  + mt + "		;" + layer_image + ";" + layer_pdf + "; Fabrication";
-		ExportSetup[row++] = "MECH	;-construction 	;111 20 						;" + layer_image + ";" + layer_pdf + "; Mechanical";
+		ExportSetup[row++] = "MECH	;-construction 	;111 20 						;" + layer_image + ";" + layer_pdf + " -" + mt + "; Mechanical";
 		ExportSetup[row++] = "REF	;-reference 	;111 49							;" + layer_image + ";" + layer_pdf + "; Reference";
 
 		//Switch palette if export is enabled
