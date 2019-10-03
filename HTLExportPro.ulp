@@ -1153,6 +1153,8 @@ void export(){
 		cmd+="SET Option.SignalNamesOnTraces "+eaglercOptions[0]+";";
 		cmd+="SET Option.SignalNamesOnPads "+eaglercOptions[1]+";";
 	}
+	cmd+="SET Option.ViaLength "+eaglercOptions[2]+";";
+
 
 	if(filesize("\'"+filepath+"fabrication.lbr\'")){
 		cmd+="USE \'"+filepath+"fabrication.lbr\';";	//to prevent error messages the fabrication.lbr is loaded befor unloading
