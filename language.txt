@@ -11,7 +11,7 @@ button.apply = Apply && request Price
 dlg.imag.footnote = * This may take a few minutes, depending on the size of the board
 dlg.pfd.footnote = * To merge the pdf-files we use pdftk_server. <br>You can get this tool <a href=\"https://www.pdflabs.com/tools/pdftk-server/\">here</a>.
 dlg.sisc.info = Upon the creation of the slicscreen every wire is copyed to the layers 121 (Top), 122 (Bottom) and 123 (Dimension). This allows for an easy export and suports multiple uses. <br>The ratio of the text will be altered to match the minimal with, if posible.
-dlg.drcError = :The DCR found some errors within this layout
+dlg.drcError = :The DRC found some errors within this layout
 dlg.newVal.footnote = * might be overwriten when requesting the price over the internet
 
 general.copper = Copper
