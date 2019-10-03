@@ -52,8 +52,7 @@ void debugMsg(string msg){
 string include_path = "Include_";
 
 
-string ULP_VERSION = "HTLExportPro 7.0";
-string UPDATE_SERVER = "http://eagle.berniwa.com/update/";
+string ULP_VERSION = "ExportPro";
 int ULP_REVISION_FORMAT_REVISION = 7;
 
 
