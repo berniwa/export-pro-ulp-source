@@ -38,7 +38,7 @@ void main(){
 		i = strstr(outputFile,"/",i);
 	}
 
-	if(system("CMD.EXE /C echo off && pdftk --version")){
+	if(system("CMD.EXE /C echo off && pdftk --version")==-1){
 		dlgMessageBox(":To merge the pdf-files we use pdftk_server.<br>"+
 						"You can get this tool <a href=\"https://www.pdflabs.com/tools/pdftk-server/\">here</a>.");
 		exit("");
