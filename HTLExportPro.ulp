@@ -551,21 +551,52 @@ int exportSetupLookup(string index){
 
 string updateFrameInformation(string drawing){
 	string name = "";
+	string attributes[];
+	string attribute;
 
 	board(B) {
 		B.elements(E) {
 			if(stringCompare(E.package.name, "FRAME") == 0){
 				name = E.name;
+				int i=0;
+				E.attributes(A) {
+					attributes[i]=A.name;
+				}
+				attribute = strjoin(attributes,';');
 			}
 		}
 	 }
 
-	 string cmd = "";
-	 if(name != "") {
-	 	cmd += "ATTRIBUTE " + name + " DRAWING DELETE;";
-	 	cmd += "ATTRIBUTE " + name + " LAST_EDIT DELETE;";
-	 	cmd += "ATTRIBUTE " + name + " FILENAME DELETE;";
+	string cmd = "";
+	if(name != "") {
 
+		if(EAGLE_VERSION<9){
+			cmd += "CHANGE DISPLAY OFF;";
+		}
+	 	
+
+		if(strstr(attribute,"TITLE")==-1) {
+			cmd += "ATTRIBUTE " + name + " TITLE '';";
+		}
+		if(strstr(attribute,"SUBTITLE")==-1) {
+			cmd += "ATTRIBUTE " + name + " SUBTITLE '';";
+		}
+		if(strstr(attribute,"USERNAME")==-1) {
+			cmd += "ATTRIBUTE " + name + " USERNAME '';";
+		}
+		if(strstr(attribute,"SHORTNAME")==-1) {
+			cmd += "ATTRIBUTE " + name + " SHORTNAME '';";
+		}
+
+	 	if(strstr(attribute,"DRAWING")!=-1) {
+			cmd += "ATTRIBUTE " + name + " DRAWING DELETE;";
+		}
+		if(strstr(attribute,"LAST_EDIT")!=-1) {
+			cmd += "ATTRIBUTE " + name + " LAST_EDIT DELETE;";
+		}
+		if(strstr(attribute,"FILENAME")!=-1) {
+			cmd += "ATTRIBUTE " + name + " FILENAME DELETE;";
+		}
 
 	 	sprintf(cmd, "%sATTRIBUTE %s DRAWING \'%s\'; ", cmd, name, stringTrim(drawing));
 
