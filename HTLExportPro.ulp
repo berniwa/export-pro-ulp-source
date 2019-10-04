@@ -562,6 +562,11 @@ string updateFrameInformation(string drawing){
 
 	 string cmd = "";
 	 if(name != "") {
+	 	cmd += "ATTRIBUTE " + name + " DRAWING DELETE";
+	 	cmd += "ATTRIBUTE " + name + " LAST_EDIT DELETE";
+	 	cmd += "ATTRIBUTE " + name + " FILENAME DELETE";
+
+
 	 	sprintf(cmd, "%sATTRIBUTE %s DRAWING \'%s\'; ", cmd, name, stringTrim(drawing));
 
 	 	int t = time();
