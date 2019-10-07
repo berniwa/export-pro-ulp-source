@@ -561,6 +561,7 @@ string updateFrameInformation(string drawing){
 				int i=0;
 				E.attributes(A) {
 					attributes[i]=A.name;
+					i++;
 				}
 				attribute = strjoin(attributes,';');
 			}
@@ -595,15 +596,12 @@ string updateFrameInformation(string drawing){
 			cmd += "ATTRIBUTE " + name + " FILENAME DELETE;";
 		}
 
-	 	sprintf(cmd, "%sATTRIBUTE %s DRAWING \'%s\'; ", cmd, name, stringTrim(drawing));
-
 	 	int t = time();
 	 	if(UI_LESS){
 	 		t=0;
 	 	}
 	 	sprintf(cmd, "%sATTRIBUTE %s LAST_EDIT \'%s\'; ", cmd, name, t2string(t, "dd.MM.yy"));
-
-
+	 	sprintf(cmd, "%sATTRIBUTE %s DRAWING \'%s\'; ", cmd, name, stringTrim(drawing));
 	 	sprintf(cmd, "%sATTRIBUTE %s FILENAME \'%s.brd\'; ", cmd, name, boardname);
 
 	 	if(EAGLE_VERSION<=9){
