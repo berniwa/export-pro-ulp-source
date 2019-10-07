@@ -570,11 +570,8 @@ string updateFrameInformation(string drawing){
 	string cmd = "";
 	if(name != "") {
 
-		if(EAGLE_VERSION<9){
-			cmd += "CHANGE DISPLAY OFF;";
-		}
+		cmd += "CHANGE DISPLAY OFF;";
 	 	
-
 		if(strstr(attribute,"TITLE")==-1) {
 			cmd += "ATTRIBUTE " + name + " TITLE '';";
 		}
@@ -608,6 +605,10 @@ string updateFrameInformation(string drawing){
 
 
 	 	sprintf(cmd, "%sATTRIBUTE %s FILENAME \'%s.brd\'; ", cmd, name, boardname);
+
+	 	if(EAGLE_VERSION<=9){
+	 		cmd += "REPOSITION " + name + "; ";
+	 	}
 	 }
 
 	return cmd;
