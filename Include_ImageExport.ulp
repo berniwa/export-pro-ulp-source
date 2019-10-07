@@ -19,7 +19,7 @@ string getFilename(string basename, string ends_with)
 }
 
 
-void exportImages(int exportBot, string botImage, int exportTop, string topImage, int resolution, int crop, int mirror, string colorPcb, string colorCopper, string colorSilkscreen, string colorPlating)
+void exportImages(int imgExport, int pdfExport, int exportBot, string botImage, string botPdf, int exportTop, string topImage, string topPdf, int resolution, int crop, int mirror, string colorPcb, string colorCopper, string colorSilkscreen, string colorPlating)
 {
 	string cmd = "";
 
@@ -53,6 +53,8 @@ void exportImages(int exportBot, string botImage, int exportTop, string topImage
 	cmd += "SET PALETTE 20 0xFF000000;\n";
 	cmd += "SET PALETTE 21 " + colorSilkscreen + ";\n";
 	cmd += "SET PALETTE 0 " + colorPcb + ";\n";
+	cmd += "SET PALETTE 8 0xFFFFFFFF;\n";
+
 
 	if(EAGLE_VERSION > 5 || (EAGLE_VERSION == 5 && EAGLE_RELEASE >= 11) ) //Support for SET CONFIRM form Eagle 5.11 on
 	{
@@ -62,12 +64,22 @@ void exportImages(int exportBot, string botImage, int exportTop, string topImage
 	if(exportTop)
 	{
 		cmd += "DISPLAY NONE;DISPLAY 1 18 29 121 123 124 125 127 ;\n";
-		sprintf(cmd, "%s EXPORT IMAGE '%s' %d;\n", cmd, topImage, resolution);
+		if (imgExport) {
+			sprintf(cmd, "%s EXPORT IMAGE '%s' %d;\n", cmd, topImage, resolution);
+		}
+		if (pdfExport) {
+			cmd += "PRINT SHEETS ALL HIERARCHY PAPER A4 portrait FILE '" + topPdf + "';\n";
+		}
 	}
 	if(exportBot)
 	{
 		cmd += "DISPLAY NONE;DISPLAY 16 18 30 122 123 124 126 127;\n";
-		sprintf(cmd, "%s EXPORT IMAGE '%s' %d;\n", cmd, botImage, resolution);
+		if (imgExport) {
+			sprintf(cmd, "%s EXPORT IMAGE '%s' %d;\n", cmd, botImage, resolution);
+		}
+		if (pdfExport) {
+			cmd += "PRINT SHEETS ALL HIERARCHY PAPER A4 portrait FILE '" + botPdf + "';\n";
+		}
 	}
 
 
@@ -116,16 +128,16 @@ void exportImages(int exportBot, string botImage, int exportTop, string topImage
 	cmd += "SET FILL_LAYER 29 LtSlash;\n";
 	cmd += "SET FILL_LAYER 30 BkSlash;\n";
 	
-	if(exportBot && crop)
+	if(exportBot && crop && imgExport)
 	{
 		sprintf(cmd, "%s RUN %sCropColor.ulp '%s' %d '%s';\n", cmd, getUlpDir("Include_"), botImage, resolution,filesetext(bname,".bat"));
 	}
-	if(exportTop && crop)
+	if(exportTop && crop && imgExport)
 	{
 		sprintf(cmd, "%s RUN %sCropColor.ulp '%s' %d '%s';\n", cmd, getUlpDir("Include_"), topImage, resolution,filesetext(bname,".bat"));
 	}
 
-	if(exportBot && mirror)
+	if(exportBot && mirror && imgExport)
 	{
 		sprintf(cmd, "%s RUN %sMirrorColor.ulp '%s' '%s';\n", cmd, getUlpDir("Include_"), botImage,filesetext(bname,".bat"));
 	}	
@@ -134,4 +146,4 @@ void exportImages(int exportBot, string botImage, int exportTop, string topImage
 }
 
 
-exportImages(strtol(argv[2]),argv[1],strtol(argv[4]),argv[3],strtol(argv[5]),strtol(argv[6]),strtol(argv[7]), argv[8], argv[9], argv[10], argv[11]);
+exportImages(strtol(argv[12]),strtol(argv[13]),strtol(argv[2]),argv[1],argv[14],strtol(argv[4]),argv[3],argv[15],strtol(argv[5]),strtol(argv[6]),strtol(argv[7]), argv[8], argv[9], argv[10], argv[11]);

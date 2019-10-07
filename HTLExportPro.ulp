@@ -90,9 +90,9 @@ real board_thickness = 0.0, board_copper_thickness = 0.0,bom_quantity, pnp_offse
 
 string output_folder = "./docu/";
 
-string output_folder_idf, output_file_pcbt, 
-output_file_pcbb, output_file_schematic_bw, 
-output_file_schematic_color,
+string output_folder_idf, output_file_img_pcbt, 
+output_file_img_pcbb, output_file_pdf_pcbt, output_file_pdf_pcbb,
+output_file_schematic_bw, output_file_schematic_color,
 output_file_gerber_copper_top,  output_file_gerber_copper_bottom, output_file_gerber_copper_other,
 output_file_gerber_st, output_file_gerber_sb,
 output_file_gerber_pt, output_file_gerber_pb,
@@ -679,10 +679,16 @@ string pdfExport(string folder, string index){
 
 	string fields[];
 	int count = strsplit(fields, ExportSetup[i], ';');
+
+	string isBot="";
+	if(strstr(fields[1],"bot")!=-1) {
+		isBot="MIRROR ";
+	}
+
 	return 	"DISPLAY NONE; "+
 			"DISPLAY " + fields[2] + "; " + 
 			"DISPLAY " + fields[4] + "; " + 
-			"PRINT SHEETS ALL HIERARCHY PAPER A4 portrait BLACK FILE '" + folder + stringTrim(fields[1]) + ".pdf';";
+			"PRINT SHEETS ALL HIERARCHY PAPER A4 portrait BLACK " + isBot + "FILE '" + folder + stringTrim(fields[1]) + ".pdf';";
 } //HERE
 
 string exportLayer(int export_layer, int export_png, int export_pdf, string folder_png, string folder_pdf, string index) {
@@ -806,8 +812,10 @@ void export(){
 	string output_folder_pdf    = output_folder + pdf_folder   + getFilename(boardname, "");
 
 	//Replace this with the new config style?
-	output_file_pcbt = getFilename(output_folder_image, "-pcb-top.png");
-	output_file_pcbb = getFilename(output_folder_image, "-pcb-bot.png");
+	output_file_img_pcbt = getFilename(output_folder_image, "-pcb-top.png");
+	output_file_img_pcbb = getFilename(output_folder_image, "-pcb-bot.png");
+	output_file_pdf_pcbt = getFilename(output_folder_pdf, "-pcb-top.pdf");
+	output_file_pdf_pcbb = getFilename(output_folder_pdf, "-pcb-bot.pdf");
 
 	string output_file = output_folder + gerber_folder + boardname;
 	if(gerber_format == 0){				//Standard EAGLE file naming
@@ -1075,16 +1083,18 @@ void export(){
 		cmd += "RATSNEST;";
 
 		//Export colored images
-		if((pcbimage_top || pcbimage_bottom) && enable_export_image) {
-			sprintf(cmd, "%s RUN '"  + include_path + "ImageExport.ulp' '%s' %d '%s' %d %d %d %d %s %s %s %s;", cmd, 
-				output_file_pcbb, pcbimage_bottom, 
-				output_file_pcbt, pcbimage_top, 
+		if((pcbimage_top || pcbimage_bottom) && (enable_export_image || enable_export_pdf)) {
+			sprintf(cmd, "%s RUN '"  + include_path + "ImageExport.ulp' '%s' %d '%s' %d %d %d %d %s %s %s %s %d %d '%s' '%s';", cmd, 
+				output_file_img_pcbb, pcbimage_bottom, 
+				output_file_img_pcbt, pcbimage_top, 
 				pcbImageResolutions[pcbimage_resolution], 
 				pcbimage_crop, pcbimage_mirror, 
 				pcbImagePcbColors[pcbimage_color],
 				pcbImageCopperColors[pcbimage_color], 
 				pcbImageSilkscreenColors[pcbimage_silkscreen_color], 
-				pcbImagePlating[pcbimage_plating]
+				pcbImagePlating[pcbimage_plating],
+				enable_export_image, enable_export_pdf,
+				output_file_pdf_pcbb, output_file_pdf_pcbt
 			);
 		}		
 	}

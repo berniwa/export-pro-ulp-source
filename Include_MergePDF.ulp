@@ -23,7 +23,9 @@ string order[] = {
 	"stop-top",
 	"stop-bottom",
 	"paste-top",
-	"paste-bottom"
+	"paste-bottom",
+	"pcb-top",
+	"pcb-bot"
 };
 
 void main(){
