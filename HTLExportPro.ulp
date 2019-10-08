@@ -56,7 +56,7 @@ string ULP_VERSION = "ExportPro";
 int ULP_REVISION_FORMAT_REVISION = 7;
 
 
-string cmd = "", bname = "", layers = "", palette_name = "BLACK", config_file = "-exportpro.cfg", drc_file = "-exportpro.dru";
+string cmd = "", bname = "", layers = "", palette_name = "BLACK", config_file = "exportpro.cfg", drc_file = "-exportpro.dru";
 
 char UI_LESS=0;
 
@@ -102,6 +102,8 @@ output_file_gerber_ref, output_file_gerber_fab,
 output_file_gerber_spec, output_folder_eagle, 
 output_file_eagle_spec, ecpanel_path
 ;
+
+string textLanguage = "";
 
 string layer_fill[];
 
@@ -210,8 +212,8 @@ void loadDRCSettings(){
 
 void loadUsersettings(){
 	string data[];
-	if(filesize(getSystemFilename(config_file))){
-		int lines = fileread(data, getSystemFilename(config_file));
+	if(filesize(getSystemFilename("-"+config_file))){
+		int lines = fileread(data, getSystemFilename("-"+config_file));
 		layout_bot = strtol(data[0]);
 		layout_top = strtol(data[1]);
 		parts_top = strtol(data[2]);
@@ -341,10 +343,22 @@ void loadUsersettings(){
 			silkscreen_bplace = 1;
 		}
 	}	
+
+	if (filesize(getUlpDir(config_file))){
+		int lines = fileread(data, getUlpDir(config_file));
+
+		string con;
+		for (int i=0; i<lines; i++){
+			con = stringTrim(strsub(data[i],0,strchr(data[i],'=')));
+			if (con=="language") {
+				 textLanguage = stringTrim(strsub(data[i],(strchr(data[i],'=')+1)));
+			}
+		}
+	}
 }
 
 void saveUsersettings(){
-	output(getSystemFilename(config_file)){
+	output(getSystemFilename("-"+config_file)){
 		printf("%d\n", layout_bot);
 		printf("%d\n", layout_top);
 		printf("%d\n", parts_top);
@@ -468,6 +482,10 @@ void saveUsersettings(){
 		printf("%d\n", pdf_keep_frame);
 		printf("%d\n", pdf_merge);
 
+	}
+
+	output(getUlpDir(config_file)) {
+		printf("language = %s\n",textLanguage);
 	}
 }
 
@@ -1498,7 +1516,7 @@ void mainManu(){
 	else if(argc > 1 && argv[1] == "execute"){
 		//Load the users project settings
 		loadUsersettings();
-		lanLoadText();
+		lanLoadText(textLanguage);
 
 		drcLoadRules(getSystemFilename(drc_file), 0);
 
@@ -1537,7 +1555,34 @@ void mainManu(){
 	loadUsersettings();
 
 	loadDRCSettings();
-	lanLoadText();
+
+	if(!filesize(getUlpDir(textLanguage))){
+		string languages[];
+		int n = fileglob(languages,getUlpDir("lang_*.txt"));
+
+		for(int i=0; i<n; i++){
+			languages[i] = filename(languages[i]);
+			languages[i] = strsub(languages[i],5,(strrstr(languages[i],".txt")-5));
+		}
+
+		dlgDialog("Language") {
+			dlgVBoxLayout {
+				dlgLabel("Choose your prefered language:");
+				dlgHBoxLayout {
+					dlgStretch(1);
+					dlgComboBox(languages,n);
+				}
+				dlgHBoxLayout {
+					dlgStretch(1);
+					dlgPushButton("OK") dlgAccept();
+				}
+			}
+		};
+
+		textLanguage = "lang_"+languages[n]+".txt";
+	}
+
+	lanLoadText(textLanguage);
 
 	//Create the main dialog
 	int dialog = dlgDialog(ULP_VERSION){

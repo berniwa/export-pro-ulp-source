@@ -4,9 +4,13 @@ string  lanContent = "";
 int 	lanLines = 0;
 string  lan="";
 
-void lanLoadText()
+void lanLoadText(string languageFile)
 {
-	lan=getUlpDir("language.txt");
+	if (languageFile=="") {
+		languageFile="lang_English.txt";
+	}
+
+	lan=getUlpDir(languageFile);
 	lanLines = fileread(lanContent, lan);
 }
 
