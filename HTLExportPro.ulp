@@ -1799,33 +1799,29 @@ void mainManu(){
 		dlgHBoxLayout {
 			dlgVBoxLayout {
 				dlgGroup(lanGetText("headline.general.execution")) {
-					dlgHBoxLayout 	{ 
-						dlgLabel(lanGetText("settings.general.boardThickness"));
-						string tmp;
-						sprintf(tmp,"%fmm",board_thickness);
-						dlgLabel(tmp);
-					};
-					dlgHBoxLayout 	{ 
-						dlgLabel(lanGetText("settings.general.boardMaterial"));
-						dlgComboBox(PcbType, board_type);
-					};
-					dlgHBoxLayout 	{ 
-						dlgLabel(lanGetText("settings.general.pcbColor"));
-						string tmp[];
-						strsplit(tmp, lanGetText("comb.pcbColor"), ';');
-						dlgComboBox(tmp, pcbimage_color);
-					};
-					dlgHBoxLayout 	{ 
-						dlgLabel(lanGetText("settings.general.siscColor"));
-						string tmp[];
-						strsplit(tmp, lanGetText("comb.pcbSiScColor"), ';');
-						dlgComboBox(tmp, pcbimage_silkscreen_color);
-					};
-					dlgHBoxLayout 	{ 
-						dlgLabel(lanGetText("settings.general.surface"));
-						string tmp[];
-						strsplit(tmp, lanGetText("comb.pcbPlating"), ';');
-						dlgComboBox(tmp, pcbimage_plating);
+					dlgGridLayout{ 
+						dlgCell(0,0) dlgLabel(lanGetText("settings.general.boardThickness"));
+						string tmp1;
+						sprintf(tmp1,"%fmm",board_thickness);
+						dlgCell(0,1) dlgLabel(tmp1);
+					 
+						dlgCell(1,0) dlgLabel(lanGetText("settings.general.boardMaterial"));
+						dlgCell(1,1) dlgComboBox(PcbType, board_type);
+					
+						dlgCell(2,0) dlgLabel(lanGetText("settings.general.pcbColor"));
+						string tmp2[];
+						strsplit(tmp2, lanGetText("comb.pcbColor"), ';');
+						dlgCell(2,1) dlgComboBox(tmp2, pcbimage_color);
+					
+						dlgCell(3,0) dlgLabel(lanGetText("settings.general.siscColor"));
+						string tmp3[];
+						strsplit(tmp3, lanGetText("comb.pcbSiScColor"), ';');
+						dlgCell(3,1) dlgComboBox(tmp3, pcbimage_silkscreen_color);
+					
+						dlgCell(4,0) dlgLabel(lanGetText("settings.general.surface"));
+						string tmp4[];
+						strsplit(tmp4, lanGetText("comb.pcbPlating"), ';');
+						dlgCell(4,1) dlgComboBox(tmp4, pcbimage_plating);
 					};								
 				}
 

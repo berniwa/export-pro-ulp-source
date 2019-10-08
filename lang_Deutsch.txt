@@ -83,9 +83,9 @@ settings.output = Ausgabeordner
 settings.DateFolder = Unterordner mit aktuellem Datum, sowie Einzelordner erstellen
 settings.general.boardThickness = Dicke der Leiterplatte (mm): 
 settings.general.boardMaterial = Basismaterial: 
-settings.general.copperThickness = Dicke der Kupferschicht (µm) 
-settings.general.pcbColor = Farbe der PCB: 
-settings.general.siscColor = Farbe des Bestückungsdrucks:
+settings.general.copperThickness = Kupferdicke (µm) 
+settings.general.pcbColor = Farbe Leiterplatte: 
+settings.general.siscColor = Farbe Bestückungsdruck:
 settings.general.surface = Oberfläche: 
 settings.gerber.eagle = EAGLE (für Eurocircuits)
 settings.gerber.protel = Protel (für JLC) 
@@ -130,7 +130,7 @@ settings.boardInfo = Board-Info hinzufügen
 
 comb.res = 600dpi - normale Auflösung;1200dpi - hohe Auflösung;2400dpi - extrem hohe Auflösung
 comb.pcbColor = Grüne PCB;Rote PCB;Schwarze PCB;Weiße PCB;Polyimid
-comb.pcbSiScColor = Weißer Bestückungsdruck;Gelber Bestückungsdruck;Roter Bestückungsdruck;Schwarzer Bestückungsdruck
+comb.pcbSiScColor = Weiß;Gelb;Rot;Schwarz
 comb.pcbPlating = Verzinnt (bleifrei);Verzinnt (jedes);Vergoldet
 
 tab.part = Bauteil
