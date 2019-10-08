@@ -56,7 +56,7 @@ string ULP_VERSION = "ExportPro";
 int ULP_REVISION_FORMAT_REVISION = 7;
 
 
-string cmd = "", bname = "", layers = "", palette_name = "BLACK", config_file = "exportpro.cfg", drc_file = "-exportpro.dru";
+string cmd = "", bname = "", layers = "", palette_name = "BLACK", config_file = "exportpro.cfg", config_file2 = "-exportpro2.cfg", drc_file = "-exportpro.dru";
 
 char UI_LESS=0;
 
@@ -212,7 +212,289 @@ void loadDRCSettings(){
 
 void loadUsersettings(){
 	string data[];
-	if(filesize(getSystemFilename("-"+config_file))){
+	if(filesize(getSystemFilename(config_file2))) {
+		int lines = fileread(data, getSystemFilename(config_file2));
+
+		string con;
+		for(int i=0; i<lines; i++);{
+			con = stringTrim(strsub(data[i],0,strchr(data[i],'=')));
+
+			if (con=="layout_bot") {
+				layout_bot = strtol(stringTrim(strsub(data[i],(strchr(data[i],'=')+1))));
+			}
+			else if (con=="layout_top") {
+				layout_top = strtol(stringTrim(strsub(data[i],(strchr(data[i],'=')+1))));
+			}
+			else if (con=="parts_top") {
+				parts_top = strtol(stringTrim(strsub(data[i],(strchr(data[i],'=')+1))));
+			}
+			else if (con=="parts_bot") {
+				parts_bot = strtol(stringTrim(strsub(data[i],(strchr(data[i],'=')+1))));
+			}
+			else if (con=="drills") {
+				drills = strtol(stringTrim(strsub(data[i],(strchr(data[i],'=')+1))));
+			}
+			else if (con=="measure") {
+				measure = strtol(stringTrim(strsub(data[i],(strchr(data[i],'=')+1))));
+			}
+			else if (con=="drilltable") {
+				drilltable = strtol(stringTrim(strsub(data[i],(strchr(data[i],'=')+1))));
+			}
+			else if (con=="enable_export_image") {
+				enable_export_image = strtol(stringTrim(strsub(data[i],(strchr(data[i],'=')+1))));
+			}
+			else if (con=="construction") {
+				construction = strtol(stringTrim(strsub(data[i],(strchr(data[i],'=')+1))));
+			}
+			else if (con=="bom") {
+				bom = strtol(stringTrim(strsub(data[i],(strchr(data[i],'=')+1))));
+			}
+			else if (con=="mirror_bot") {
+				mirror_bot = strtol(stringTrim(strsub(data[i],(strchr(data[i],'=')+1))));
+			}
+			else if (con=="crop_all") {
+				crop_all = strtol(stringTrim(strsub(data[i],(strchr(data[i],'=')+1))));
+			}
+			else if (con=="bom_xls") {
+				bom_xls = strtol(stringTrim(strsub(data[i],(strchr(data[i],'=')+1))));
+			}
+			else if (con=="bom_xlsx") {
+				bom_xlsx = strtol(stringTrim(strsub(data[i],(strchr(data[i],'=')+1))));
+			}
+			else if (con=="bom_csv") {
+				bom_csv = strtol(stringTrim(strsub(data[i],(strchr(data[i],'=')+1))));
+			}
+			else if (con=="bom_dbase3") {
+				bom_dbase3 = strtol(stringTrim(strsub(data[i],(strchr(data[i],'=')+1))));
+			}
+			else if (con=="bom_shorten_names") {
+				bom_shorten_names = strtol(stringTrim(strsub(data[i],(strchr(data[i],'=')+1))));
+			}
+			else if (con=="bom_display_package_type") {
+				bom_display_package_type = strtol(stringTrim(strsub(data[i],(strchr(data[i],'=')+1))));
+			}
+			else if (con=="no_measures") {
+				no_measures = strtol(stringTrim(strsub(data[i],(strchr(data[i],'=')+1))));
+			}
+			else if (con=="auto_project") {
+				auto_project = strtol(stringTrim(strsub(data[i],(strchr(data[i],'=')+1))));
+			}
+			else if (con=="output_folder") {
+				output_folder = stringTrim(strsub(data[i],(strchr(data[i],'=')+1)));
+			}
+			else if (con=="layout_inner_layer") {
+				layout_inner_layer = strtol(stringTrim(strsub(data[i],(strchr(data[i],'=')+1))));
+			}
+			else if (con=="parts_display_names") {
+				parts_display_names = strtol(stringTrim(strsub(data[i],(strchr(data[i],'=')+1))));
+			}
+			else if (con=="parts_display_values") {
+				parts_display_values = strtol(stringTrim(strsub(data[i],(strchr(data[i],'=')+1))));
+			}
+			else if (con=="pricing") {
+				pricing = strtol(stringTrim(strsub(data[i],(strchr(data[i],'=')+1))));
+			}
+			else if (con=="idf_export") {
+				idf_export = strtol(stringTrim(strsub(data[i],(strchr(data[i],'=')+1))));
+			}
+			else if (con=="pcbimage_top") {
+				pcbimage_top = strtol(stringTrim(strsub(data[i],(strchr(data[i],'=')+1))));
+			}
+			else if (con=="pcbimage_bottom") {
+				pcbimage_bottom = strtol(stringTrim(strsub(data[i],(strchr(data[i],'=')+1))));
+			}
+			else if (con=="pcbimage_resolution") {
+				pcbimage_resolution = strtol(stringTrim(strsub(data[i],(strchr(data[i],'=')+1))));
+			}
+			else if (con=="pcbimage_crop") {
+				pcbimage_crop = strtol(stringTrim(strsub(data[i],(strchr(data[i],'=')+1))));
+			}
+			else if (con=="pcbimage_mirror") {
+				pcbimage_mirror = strtol(stringTrim(strsub(data[i],(strchr(data[i],'=')+1))));
+			}
+			else if (con=="pcbimage_color") {
+				pcbimage_color = strtol(stringTrim(strsub(data[i],(strchr(data[i],'=')+1))));
+			}
+			else if (con=="pcbimage_silkscreen_color") {
+				pcbimage_silkscreen_color = strtol(stringTrim(strsub(data[i],(strchr(data[i],'=')+1))));
+			}
+			else if (con=="pcbimage_plating") {
+				pcbimage_plating = strtol(stringTrim(strsub(data[i],(strchr(data[i],'=')+1))));
+			}
+			else if (con=="silkscreen_top") {
+				silkscreen_top = strtol(stringTrim(strsub(data[i],(strchr(data[i],'=')+1))));
+			}
+			else if (con=="silkscreen_tnames") {
+				silkscreen_tnames = strtol(stringTrim(strsub(data[i],(strchr(data[i],'=')+1))));
+			}
+			else if (con=="silkscreen_tvalues") {
+				silkscreen_tvalues = strtol(stringTrim(strsub(data[i],(strchr(data[i],'=')+1))));
+			}
+			else if (con=="silkscreen_tdocu") {
+				silkscreen_tdocu = strtol(stringTrim(strsub(data[i],(strchr(data[i],'=')+1))));
+			}
+			else if (con=="silkscreen_bottom") {
+				silkscreen_bottom = strtol(stringTrim(strsub(data[i],(strchr(data[i],'=')+1))));
+			}
+			else if (con=="silkscreen_bnames") {
+				silkscreen_bnames = strtol(stringTrim(strsub(data[i],(strchr(data[i],'=')+1))));
+			}
+			else if (con=="silkscreen_bvalues") {
+				silkscreen_bvalues = strtol(stringTrim(strsub(data[i],(strchr(data[i],'=')+1))));
+			}
+			else if (con=="silkscreen_bdocu") {
+				silkscreen_bdocu = strtol(stringTrim(strsub(data[i],(strchr(data[i],'=')+1))));
+			}
+			else if (con=="silkscreen_width") {
+				silkscreen_width = strtol(stringTrim(strsub(data[i],(strchr(data[i],'=')+1))));
+			}
+			else if (con=="silkscreen_enable") {
+				silkscreen_enable = strtol(stringTrim(strsub(data[i],(strchr(data[i],'=')+1))));
+			}
+			else if (con=="bom_farnell") {
+				bom_farnell = strtol(stringTrim(strsub(data[i],(strchr(data[i],'=')+1))));
+			}
+			else if (con=="bom_quantity") {
+				bom_quantity = strtod(stringTrim(strsub(data[i],(strchr(data[i],'=')+1))));
+			}
+			else if (con=="renumber") {
+				renumber = strtol(stringTrim(strsub(data[i],(strchr(data[i],'=')+1))));
+			}
+			else if (con=="output_date_folder") {
+				output_date_folder = strtol(stringTrim(strsub(data[i],(strchr(data[i],'=')+1))));
+			}
+			else if (con=="schematic_export") {
+				schematic_export = strtol(stringTrim(strsub(data[i],(strchr(data[i],'=')+1))));
+			}
+			else if (con=="schematic_bw") {
+				schematic_bw = strtol(stringTrim(strsub(data[i],(strchr(data[i],'=')+1))));
+			}
+			else if (con=="schematic_color") {
+				schematic_color = strtol(stringTrim(strsub(data[i],(strchr(data[i],'=')+1))));
+			}
+			else if (con=="schematic_format") {
+				schematic_format = strtol(stringTrim(strsub(data[i],(strchr(data[i],'=')+1))));
+			}
+			else if (con=="silkscreen_tplace") {
+				silkscreen_tplace = strtol(stringTrim(strsub(data[i],(strchr(data[i],'=')+1))));
+			}
+			else if (con=="silkscreen_bplace") {
+				silkscreen_bplace = strtol(stringTrim(strsub(data[i],(strchr(data[i],'=')+1))));
+			}
+			else if (con=="format_revision") {
+				format_revision = strtol(stringTrim(strsub(data[i],(strchr(data[i],'=')+1))));
+			}
+			else if (con=="gerber_export") {
+				gerber_export = strtol(stringTrim(strsub(data[i],(strchr(data[i],'=')+1))));
+			}
+			else if (con=="gerber_copper") {
+				gerber_copper = strtol(stringTrim(strsub(data[i],(strchr(data[i],'=')+1))));
+			}
+			else if (con=="gerber_stc") {
+				gerber_stc = strtol(stringTrim(strsub(data[i],(strchr(data[i],'=')+1))));
+			}
+			else if (con=="gerber_sts") {
+				gerber_sts = strtol(stringTrim(strsub(data[i],(strchr(data[i],'=')+1))));
+			}
+			else if (con=="gerber_plc") {
+				gerber_plc = strtol(stringTrim(strsub(data[i],(strchr(data[i],'=')+1))));
+			}
+			else if (con=="gerber_pls") {
+				gerber_pls = strtol(stringTrim(strsub(data[i],(strchr(data[i],'=')+1))));
+			}
+			else if (con=="gerber_crc") {
+				gerber_crc = strtol(stringTrim(strsub(data[i],(strchr(data[i],'=')+1))));
+			}
+			else if (con=="gerber_crs") {
+				gerber_crs = strtol(stringTrim(strsub(data[i],(strchr(data[i],'=')+1))));
+			}
+			else if (con=="gerber_drd") {
+				gerber_drd = strtol(stringTrim(strsub(data[i],(strchr(data[i],'=')+1))));
+			}
+			else if (con=="board_thickness") {
+				board_thickness = strtod(stringTrim(strsub(data[i],(strchr(data[i],'=')+1))));
+			}
+			else if (con=="board_type") {
+				board_type = strtol(stringTrim(strsub(data[i],(strchr(data[i],'=')+1))));
+			}
+			else if (con=="board_copper_thickness") {
+				board_copper_thickness = strtod(stringTrim(strsub(data[i],(strchr(data[i],'=')+1))));
+			}
+			else if (con=="eagle_export") {
+				eagle_export = strtol(stringTrim(strsub(data[i],(strchr(data[i],'=')+1))));
+			}
+			else if (con=="gerber_otl") {
+				gerber_otl = strtol(stringTrim(strsub(data[i],(strchr(data[i],'=')+1))));
+			}
+			else if (con=="reference") {
+				reference = strtol(stringTrim(strsub(data[i],(strchr(data[i],'=')+1))));
+			}
+			else if (con=="gerber_ref") {
+				gerber_ref = strtol(stringTrim(strsub(data[i],(strchr(data[i],'=')+1))));
+			}
+			else if (con=="parts_top_docu") {
+				parts_top_docu = strtol(stringTrim(strsub(data[i],(strchr(data[i],'=')+1))));
+			}
+			else if (con=="parts_bot_docu") {
+				parts_bot_docu = strtol(stringTrim(strsub(data[i],(strchr(data[i],'=')+1))));
+			}
+			else if (con=="ec_export") {
+				ec_export = strtol(stringTrim(strsub(data[i],(strchr(data[i],'=')+1))));
+			}
+			else if (con=="gerber_format") {
+				gerber_format = strtol(stringTrim(strsub(data[i],(strchr(data[i],'=')+1))));
+			}
+			else if (con=="pnp_export") {
+				pnp_export = strtol(stringTrim(strsub(data[i],(strchr(data[i],'=')+1))));
+			}
+			else if (con=="pnp_top") {
+				pnp_top = strtol(stringTrim(strsub(data[i],(strchr(data[i],'=')+1))));
+			}
+			else if (con=="pnp_bot") {
+				pnp_bot = strtol(stringTrim(strsub(data[i],(strchr(data[i],'=')+1))));
+			}
+			else if (con=="pnp_flip") {
+				pnp_flip = strtol(stringTrim(strsub(data[i],(strchr(data[i],'=')+1))));
+			}
+			else if (con=="pnp_auto_offset") {
+				pnp_auto_offset = strtol(stringTrim(strsub(data[i],(strchr(data[i],'=')+1))));
+			}
+			else if (con=="pnp_offset_x") {
+				pnp_offset_x = strtod(stringTrim(strsub(data[i],(strchr(data[i],'=')+1))));
+			}
+			else if (con=="pnp_offset_y") {
+				pnp_offset_y = strtod(stringTrim(strsub(data[i],(strchr(data[i],'=')+1))));
+			}
+			else if (con=="fabrication") {
+				fabrication = strtol(stringTrim(strsub(data[i],(strchr(data[i],'=')+1))));
+			}
+			else if (con=="stackup") {
+				stackup = strtol(stringTrim(strsub(data[i],(strchr(data[i],'=')+1))));
+			}
+			else if (con=="gerber_fab") {
+				gerber_fab = strtol(stringTrim(strsub(data[i],(strchr(data[i],'=')+1))));
+			}
+			else if (con=="enable_export_pdf") {
+				enable_export_pdf = strtol(stringTrim(strsub(data[i],(strchr(data[i],'=')+1))));
+			}
+			else if (con=="pdf_keep_frame") {
+				pdf_keep_frame = strtol(stringTrim(strsub(data[i],(strchr(data[i],'=')+1))));
+			}
+			else if (con=="pdf_merge") {
+				pdf_merge = strtol(stringTrim(strsub(data[i],(strchr(data[i],'=')+1))));
+			}
+			else {
+				for(int l=0; l<16;l++){
+					string s;
+					sprintf(s,"%d",l);
+					if (con=="board_layer.Nr."+s+"") {
+						board_layer[l] = strtol(stringTrim(strsub(data[i],(strchr(data[i],'=')+1))));
+					}
+				}
+			}
+		}
+	}
+	else if(filesize(getSystemFilename("-"+config_file))){
 		int lines = fileread(data, getSystemFilename("-"+config_file));
 		layout_bot = strtol(data[0]);
 		layout_top = strtol(data[1]);
@@ -358,130 +640,115 @@ void loadUsersettings(){
 }
 
 void saveUsersettings(){
-	output(getSystemFilename("-"+config_file)){
-		printf("%d\n", layout_bot);
-		printf("%d\n", layout_top);
-		printf("%d\n", parts_top);
-		printf("%d\n", parts_bot);
-		printf("%d\n", drills);
-		printf("%d\n", measure);
-		printf("%d\n", drilltable);
-		printf("%d\n", enable_export_image);
-		printf("%d\n", construction);
-		printf("%d\n", bom);
-		printf("%d\n", mirror_bot);
-		printf("%d\n", crop_all);
-		printf("%d\n", bom_xls);
-		printf("%d\n", bom_xlsx);
-		printf("%d\n", bom_csv);
-		printf("%d\n", bom_dbase3);
-		printf("%d\n", bom_shorten_names);
-		printf("%d\n", bom_display_package_type);
-		printf("%d\n", no_measures);
-		printf("%d\n", auto_project);
-		printf("%s\n", output_folder);
-		printf("%d\n", layout_inner_layer);
-		printf("%d\n", layout_inner_layer);
-		printf("%d\n", parts_display_names);
-		printf("%d\n", parts_display_values);
-		printf("%d\n", pricing);
-		printf("%d\n", idf_export);
+	output(getSystemFilename(config_file2)){
+		printf("layout_bot = %d\n", layout_bot);
+		printf("layout_top = %d\n", layout_top);
+		printf("parts_top = %d\n", parts_top);
+		printf("parts_bot = %d\n", parts_bot);
+		printf("drills = %d\n", drills);
+		printf("measure = %d\n", measure);
+		printf("drilltable = %d\n", drilltable);
+		printf("enable_export_image = %d\n", enable_export_image);
+		printf("construction = %d\n", construction);
+		printf("bom = %d\n", bom);
+		printf("mirror_bot = %d\n", mirror_bot);
+		printf("crop_all = %d\n", crop_all);
+		printf("bom_xls = %d\n", bom_xls);
+		printf("bom_xlsx = %d\n", bom_xlsx);
+		printf("bom_csv = %d\n", bom_csv);
+		printf("bom_dbase3 = %d\n", bom_dbase3);
+		printf("bom_shorten_names = %d\n", bom_shorten_names);
+		printf("bom_display_package_type = %d\n", bom_display_package_type);
+		printf("no_measures = %d\n", no_measures);
+		printf("auto_project = %d\n", auto_project);
+		printf("output_folder = %s\n", output_folder);
+		printf("layout_inner_layer = %d\n", layout_inner_layer);
+		printf("parts_display_names = %d\n", parts_display_names);
+		printf("parts_display_values = %d\n", parts_display_values);
+		printf("pricing = %d\n", pricing);
+		printf("idf_export = %d\n", idf_export);
 
-		printf("%d\n", pcbimage_top);
-		printf("%d\n", pcbimage_bottom);
-		printf("%d\n", pcbimage_resolution);
-		printf("%d\n", pcbimage_crop);
-		printf("%d\n", pcbimage_mirror);
-		printf("%d\n", pcbimage_color);
-		printf("%d\n", pcbimage_silkscreen_color);
-		printf("%d\n", pcbimage_plating);
+		printf("pcbimage_top = %d\n", pcbimage_top);
+		printf("pcbimage_bottom = %d\n", pcbimage_bottom);
+		printf("pcbimage_resolution = %d\n", pcbimage_resolution);
+		printf("pcbimage_crop = %d\n", pcbimage_crop);
+		printf("pcbimage_mirror = %d\n", pcbimage_mirror);
+		printf("pcbimage_color = %d\n", pcbimage_color);
+		printf("pcbimage_silkscreen_color = %d\n", pcbimage_silkscreen_color);
+		printf("pcbimage_plating = %d\n", pcbimage_plating);
 
-		printf("%d\n", silkscreen_top);
-		printf("%d\n", silkscreen_tnames);
-		printf("%d\n", silkscreen_tvalues);
-		printf("%d\n", silkscreen_tdocu);
-		printf("%d\n", silkscreen_bottom);
-		printf("%d\n", silkscreen_bnames);
-		printf("%d\n", silkscreen_bvalues);
-		printf("%d\n", silkscreen_bdocu);
-		printf("%d\n", silkscreen_width);
-		printf("%d\n", silkscreen_enable);
+		printf("silkscreen_top = %d\n", silkscreen_top);
+		printf("silkscreen_tnames = %d\n", silkscreen_tnames);
+		printf("silkscreen_tvalues = %d\n", silkscreen_tvalues);
+		printf("silkscreen_tdocu = %d\n", silkscreen_tdocu);
+		printf("silkscreen_bottom = %d\n", silkscreen_bottom);
+		printf("silkscreen_bnames = %d\n", silkscreen_bnames);
+		printf("silkscreen_bvalues = %d\n", silkscreen_bvalues);
+		printf("silkscreen_bdocu = %d\n", silkscreen_bdocu);
+		printf("silkscreen_width = %d\n", silkscreen_width);
+		printf("silkscreen_enable = %d\n", silkscreen_enable);
 
-		printf("%d\n", bom_farnell);
-		printf("%f\n", bom_quantity);
+		printf("bom_farnell = %d\n", bom_farnell);
+		printf("bom_quantity = %f\n", bom_quantity);
 		
-		printf("%d\n", renumber);
-		printf("%d\n", output_date_folder);
-		printf("%d\n", schematic_export);
-		printf("%d\n", schematic_bw);
-		printf("%d\n", schematic_color);
-		printf("%d\n", schematic_format);
+		printf("renumber = %d\n", renumber);
+		printf("output_date_folder = %d\n", output_date_folder);
+		printf("schematic_export = %d\n", schematic_export);
+		printf("schematic_bw = %d\n", schematic_bw);
+		printf("schematic_color = %d\n", schematic_color);
+		printf("schematic_format = %d\n", schematic_format);
 
-		printf("%d\n", silkscreen_tplace);
-		printf("%d\n", silkscreen_bplace);
+		printf("silkscreen_tplace = %d\n", silkscreen_tplace);
+		printf("silkscreen_bplace = %d\n", silkscreen_bplace);
 
-		printf("%d\n", board_layer[0]);
-		printf("%d\n", board_layer[1]);
-		printf("%d\n", board_layer[2]);
-		printf("%d\n", board_layer[3]);
-		printf("%d\n", board_layer[4]);
-		printf("%d\n", board_layer[5]);
-		printf("%d\n", board_layer[6]);
-		printf("%d\n", board_layer[7]);
-		printf("%d\n", board_layer[8]);
-		printf("%d\n", board_layer[9]);
-		printf("%d\n", board_layer[10]);
-		printf("%d\n", board_layer[11]);
-		printf("%d\n", board_layer[12]);
-		printf("%d\n", board_layer[13]);
-		printf("%d\n", board_layer[14]);
-		printf("%d\n", board_layer[15]);
+		for(int l=0; l<16;l++){
+			printf("board_layer.Nr.%d = %d\n", l, board_layer[l]);
+		}
 
-		printf("%d\n", ULP_REVISION_FORMAT_REVISION);	
+		printf("ULP_REVISION_FORMAT_REVISION = %d\n", ULP_REVISION_FORMAT_REVISION);	
 		
-		printf("%d\n", gerber_export);
-		printf("%d\n", gerber_copper);
-		printf("%d\n", gerber_stc);
-		printf("%d\n", gerber_sts);
-		printf("%d\n", gerber_plc);
-		printf("%d\n", gerber_pls);
-		printf("%d\n", gerber_crc);
-		printf("%d\n", gerber_crs);
-		printf("%d\n", gerber_drd);
+		printf("gerber_export = %d\n", gerber_export);
+		printf("gerber_copper = %d\n", gerber_copper);
+		printf("gerber_stc = %d\n", gerber_stc);
+		printf("gerber_sts = %d\n", gerber_sts);
+		printf("gerber_plc = %d\n", gerber_plc);
+		printf("gerber_pls = %d\n", gerber_pls);
+		printf("gerber_crc = %d\n", gerber_crc);
+		printf("gerber_crs = %d\n", gerber_crs);
+		printf("gerber_drd = %d\n", gerber_drd);
 
-		printf("%f\n", board_thickness);
-		printf("%d\n", board_type);
-		printf("%f\n", board_copper_thickness);
+		printf("board_thickness = %f\n", board_thickness);
+		printf("board_type = %d\n", board_type);
+		printf("board_copper_thickness = %f\n", board_copper_thickness);
 
-		printf("%d\n", eagle_export);
+		printf("eagle_export = %d\n", eagle_export);
 		
-		printf("%d\n", gerber_otl);
+		printf("gerber_otl%d\n", gerber_otl);
 
-		printf("%d\n", reference);
-		printf("%d\n", gerber_ref);
+		printf("reference = %d\n", reference);
+		printf("gerber_ref = %d\n", gerber_ref);
 		
-		printf("%d\n", parts_top_docu);
-		printf("%d\n", parts_bot_docu);
+		printf("parts_top_docu = %d\n", parts_top_docu);
+		printf("parts_bot_docu = %d\n", parts_bot_docu);
 
-		printf("%d\n", ec_export);
-		printf("%d\n", gerber_format);
+		printf("ec_export = %d\n", ec_export);
+		printf("gerber_format = %d\n", gerber_format);
 
-		printf("%d\n", pnp_export);
-		printf("%d\n", pnp_top);
-		printf("%d\n", pnp_bot);
-		printf("%d\n", pnp_flip);
-		printf("%d\n", pnp_auto_offset);
-		printf("%f\n", pnp_offset_x);
-		printf("%f\n", pnp_offset_y);
+		printf("pnp_export = %d\n", pnp_export);
+		printf("pnp_top = %d\n", pnp_top);
+		printf("pnp_bot = %d\n", pnp_bot);
+		printf("pnp_flip = %d\n", pnp_flip);
+		printf("pnp_auto_offset = %d\n", pnp_auto_offset);
+		printf("pnp_offset_x = %f\n", pnp_offset_x);
+		printf("pnp_offset_y = %f\n", pnp_offset_y);
 
-		printf("%d\n", fabrication);
-		printf("%d\n", stackup);
-		printf("%d\n", gerber_fab);
+		printf("fabrication = %d\n", fabrication);
+		printf("stackup = %d\n", stackup);
+		printf("gerber_fab = %d\n", gerber_fab);
 
-		printf("%d\n", enable_export_pdf);
-		printf("%d\n", pdf_keep_frame);
-		printf("%d\n", pdf_merge);
-
+		printf("enable_export_pdf = %d\n", enable_export_pdf);
+		printf("pdf_keep_frame = %d\n", pdf_keep_frame);
+		printf("pdf_merge = %d\n", pdf_merge);
 	}
 
 	output(getUlpDir(config_file)) {
