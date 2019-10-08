@@ -89,6 +89,8 @@ enable_export_image = 1;
 
 real board_thickness = 0.0, board_copper_thickness = 0.0,bom_quantity, pnp_offset_x = 0.0, pnp_offset_y = 0.0;
 
+real copper_layer_thickness[]={18, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 18};
+
 string output_folder = "./docu/";
 
 string output_folder_idf, output_file_img_pcbt, 
@@ -107,6 +109,8 @@ output_file_eagle_spec, ecpanel_path
 string textLanguage = "";
 
 string layer_fill[];
+
+string copper_layer_Name[];
 
 string boardname = "output";
 
@@ -162,6 +166,10 @@ project.board(B){
 		if(L.visible){
 			sprintf(layers, layers + " %d", L.number);
 		}
+
+		if(L.number<=16){
+			copper_layer_Name[L.number-1]=L.name;
+		}
 	}
 }
 
@@ -201,10 +209,12 @@ void loadDRCSettings(){
 		if(l==(layer[i]-1)){
 			board_thickness += strtod(copper[l]);
 			board_layer[l]=1;
+			copper_layer_thickness[l]=strtod(copper[l])*1000;
 			i++;
 		}
 		else{
 			board_layer[l]=0;
+			copper_layer_thickness[l]=0;
 		}
 	}
 
@@ -491,8 +501,11 @@ void loadUsersettings(){
 				for(int l=0; l<16;l++){
 					string s;
 					sprintf(s,"%d",l);
-					if (con=="board_layer.Nr."+s+"") {
+					if (con=="board_layer.Nr."+s) {
 						board_layer[l] = strtol(stringTrim(strsub(data[i],(strchr(data[i],'=')+1))));
+					}
+					else if (con=="copper_layer_thickness.Nr."+s){
+						copper_layer_thickness[l] = strtod(stringTrim(strsub(data[i],(strchr(data[i],'=')+1))));
 					}
 				}
 			}
@@ -754,6 +767,10 @@ void saveUsersettings(){
 		printf("pdf_keep_frame = %d\n", pdf_keep_frame);
 		printf("pdf_merge = %d\n", pdf_merge);
 		printf("enable_export_image = %d\n", enable_export_image);
+
+		for(int i=0;i<16;i++){
+			printf("copper_layer_thickness.Nr.%d = %f\n",i,copper_layer_thickness[i]);
+		}
 	}
 
 	output(getUlpDir(config_file)) {
@@ -1639,94 +1656,6 @@ void dialogSchematicSettings(){
 	};
 }
 
-void dialogBoardSettings(){
-
-	dlgDialog(lanGetText("headline.settings")){
-		dlgGroup(lanGetText("headline.general.usedCopper")) {
-			dlgHBoxLayout {
-				dlgCheckBox(lanGetText("general.copper") + " Top", board_layer[0])		{ board_layer[0]=!board_layer[0]; };
-				dlgCheckBox(lanGetText("general.copper") + " Layer 2", board_layer[1])	{ board_layer[1]=!board_layer[1]; };
-				dlgCheckBox(lanGetText("general.copper") + " Layer 3", board_layer[2])	{ board_layer[2]=!board_layer[2]; };
-				dlgCheckBox(lanGetText("general.copper") + " Layer 4", board_layer[3])	{ board_layer[3]=!board_layer[3]; };
-			}
-			dlgHBoxLayout {
-				dlgCheckBox(lanGetText("general.copper") + " Layer 5", board_layer[4])	{ board_layer[4]=!board_layer[4]; };
-				dlgCheckBox(lanGetText("general.copper") + " Layer 6", board_layer[5])	{ board_layer[5]=!board_layer[5]; };
-				dlgCheckBox(lanGetText("general.copper") + " Layer 7", board_layer[6])	{ board_layer[6]=!board_layer[6]; };
-				dlgCheckBox(lanGetText("general.copper") + " Layer 8", board_layer[7])	{ board_layer[7]=!board_layer[7]; };
-			}
-			dlgHBoxLayout {
-				dlgCheckBox(lanGetText("general.copper") + " Layer 9", board_layer[8])	{ board_layer[8]=!board_layer[8]; };
-				dlgCheckBox(lanGetText("general.copper") + " Layer 10", board_layer[9])	{ board_layer[9]=!board_layer[9]; };
-				dlgCheckBox(lanGetText("general.copper") + " Layer 11", board_layer[10]){ board_layer[10]=!board_layer[10]; };
-				dlgCheckBox(lanGetText("general.copper") + " Layer 12", board_layer[11]){ board_layer[11]=!board_layer[11]; };
-			}
-			dlgHBoxLayout {
-				dlgCheckBox(lanGetText("general.copper") + " Layer 13", board_layer[12]){ board_layer[12]=!board_layer[12]; };
-				dlgCheckBox(lanGetText("general.copper") + " Layer 14", board_layer[13]){ board_layer[13]=!board_layer[13]; };
-				dlgCheckBox(lanGetText("general.copper") + " Layer 15", board_layer[14]){ board_layer[14]=!board_layer[14]; };
-				dlgCheckBox(lanGetText("general.copper") + " Bottom", board_layer[15])	{ board_layer[15]=!board_layer[15]; };
-			}	
-		}
-		dlgGroup(lanGetText("headline.general.siscTop")) {		
-			dlgHBoxLayout {
-				dlgCheckBox(lanGetText("settings.general.siscPlace"), silkscreen_tplace);
-				dlgCheckBox(lanGetText("settings.general.siscNames"), silkscreen_tnames);
- 				dlgCheckBox(lanGetText("settings.general.siscValues"), silkscreen_tvalues);
- 				dlgCheckBox(lanGetText("settings.general.siscDoku"), silkscreen_tdocu);
-			};
-		}
-		dlgGroup(lanGetText("headline.general.siscBot")) {
-			dlgHBoxLayout {
-				dlgCheckBox(lanGetText("settings.general.siscPlace"), silkscreen_bplace);
-				dlgCheckBox(lanGetText("settings.general.siscNames"), silkscreen_bnames);
- 				dlgCheckBox(lanGetText("settings.general.siscValues"), silkscreen_bvalues);
- 				dlgCheckBox(lanGetText("settings.general.siscDoku"), silkscreen_bdocu);
-			};			
-		}
-		dlgGroup(lanGetText("headline.general.execution")) {
-			dlgHBoxLayout 	{ 
-				dlgLabel(lanGetText("settings.general.boardThickness"));
-				string tmp;
-				sprintf(tmp,"%fmm",board_thickness);
-				dlgLabel(tmp);
-			};
-			dlgHBoxLayout 	{ 
-				dlgLabel(lanGetText("settings.general.boardMaterial"));
-				dlgComboBox(PcbType, board_type);
-			};
-			dlgHBoxLayout 	{ 
-				dlgLabel(lanGetText("settings.general.copperThickness"));
-				string tmp;
-				sprintf(tmp,"%fum",board_copper_thickness);
-				dlgLabel(tmp);
-			};
-			dlgHBoxLayout 	{ 
-				dlgLabel(lanGetText("settings.general.pcbColor"));
-				string tmp[];
-				strsplit(tmp, lanGetText("comb.pcbColor"), ';');
-				dlgComboBox(tmp, pcbimage_color);
-			};
-			dlgHBoxLayout 	{ 
-				dlgLabel(lanGetText("settings.general.siscColor"));
-				string tmp[];
-				strsplit(tmp, lanGetText("comb.pcbSiScColor"), ';');
-				dlgComboBox(tmp, pcbimage_silkscreen_color);
-			};
-			dlgHBoxLayout 	{ 
-				dlgLabel(lanGetText("settings.general.surface"));
-				string tmp[];
-				strsplit(tmp, lanGetText("comb.pcbPlating"), ';');
-				dlgComboBox(tmp, pcbimage_plating);
-			};								
-		}		
-
-		dlgPushButton(lanGetText("button.ok")) {
-			dlgAccept();
-		};
-	};	
-}
-
 void dialogGerberSettings(){
 	dlgDialog(lanGetText("headline.exportDlg")){
 		dlgGroup(lanGetText("headline.gerber.naming")){
@@ -1767,7 +1696,7 @@ void dialogPnpSettings(){
 }
 
 void dialogFabricationSettings() {
-	dlgDialog("") {
+	dlgDialog(lanGetText("headline.exportDlg")) {
 		dlgVBoxLayout {
 			dlgCheckBox(lanGetText("settings.measure"),measure);
 			dlgCheckBox(lanGetText("settings.drilltable"),drilltable); 
@@ -1869,9 +1798,77 @@ void mainManu(){
 	int dialog = dlgDialog(ULP_VERSION){
 		dlgHBoxLayout {
 			dlgVBoxLayout {
-				dlgGroup(lanGetText("headline.settings")){
-					dlgHBoxLayout {dlgLabel(lanGetText("settings.general")); dlgPushButton(lanGetText("button.settings")){dialogBoardSettings();}; };
+				dlgGroup(lanGetText("headline.general.execution")) {
+					dlgHBoxLayout 	{ 
+						dlgLabel(lanGetText("settings.general.boardThickness"));
+						string tmp;
+						sprintf(tmp,"%fmm",board_thickness);
+						dlgLabel(tmp);
+					};
+					dlgHBoxLayout 	{ 
+						dlgLabel(lanGetText("settings.general.boardMaterial"));
+						dlgComboBox(PcbType, board_type);
+					};
+					dlgHBoxLayout 	{ 
+						dlgLabel(lanGetText("settings.general.pcbColor"));
+						string tmp[];
+						strsplit(tmp, lanGetText("comb.pcbColor"), ';');
+						dlgComboBox(tmp, pcbimage_color);
+					};
+					dlgHBoxLayout 	{ 
+						dlgLabel(lanGetText("settings.general.siscColor"));
+						string tmp[];
+						strsplit(tmp, lanGetText("comb.pcbSiScColor"), ';');
+						dlgComboBox(tmp, pcbimage_silkscreen_color);
+					};
+					dlgHBoxLayout 	{ 
+						dlgLabel(lanGetText("settings.general.surface"));
+						string tmp[];
+						strsplit(tmp, lanGetText("comb.pcbPlating"), ';');
+						dlgComboBox(tmp, pcbimage_plating);
+					};								
 				}
+
+				dlgGroup(lanGetText("headline.usedLayers")) {
+					dlgGridLayout {
+						dlgCell(0,0) dlgLabel(lanGetText("general.layer"));
+						dlgCell(0,1) dlgLabel(lanGetText("general.name"));
+						dlgCell(0,2) dlgLabel(lanGetText("settings.general.copperThickness"));
+
+						for(int i=0, l=1; i<16; i++){
+							if(board_layer[i]){
+								string nr, th;
+								sprintf(nr,"%02d",(i+1));
+								sprintf(th,"%0.1f",copper_layer_thickness[i]);
+								dlgCell(l,0) dlgLabel(nr);
+								dlgCell(l,1) dlgLabel(copper_layer_Name[i]);
+								dlgCell(l,2) dlgLabel(th);
+								l++;
+							}
+						}
+					}
+				}
+
+				dlgGroup(lanGetText("headline.general.siscTop")) {		
+					dlgHBoxLayout {
+						dlgCheckBox("tPlace", silkscreen_tplace);
+						dlgCheckBox("tNames", silkscreen_tnames);
+		 				dlgCheckBox("tValues", silkscreen_tvalues);
+		 				dlgCheckBox("tDocu", silkscreen_tdocu);
+					};
+				}
+				dlgGroup(lanGetText("headline.general.siscBot")) {
+					dlgHBoxLayout {
+						dlgCheckBox("bPlace", silkscreen_bplace);
+						dlgCheckBox("bNames", silkscreen_bnames);
+		 				dlgCheckBox("bValues", silkscreen_bvalues);
+		 				dlgCheckBox("bDocu", silkscreen_bdocu);
+					};			
+				}
+				dlgStretch(1);
+			}
+
+			dlgVBoxLayout {
 				dlgGroup(lanGetText("headline.staps")){
 					dlgHBoxLayout {dlgCheckBox(lanGetText("settings.renumber"), renumber); dlgStretch(1);}
 					dlgHBoxLayout {dlgCheckBox(lanGetText("settings.schematic"),schematic_export); dlgPushButton(lanGetText("button.settings")){dialogSchematicSettings();}; };
@@ -1900,12 +1897,6 @@ void mainManu(){
 			  		}
 					dlgHBoxLayout {dlgCheckBox(lanGetText("settings.DateFolder"), output_date_folder); dlgStretch(1);}		
 				}
-				dlgStretch(1);
-			}
-
-			dlgVBoxLayout {
-				dlgLabel("this is going to be the second column");
-
 				dlgStretch(1);
 			}
 		}
