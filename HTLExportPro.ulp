@@ -62,7 +62,7 @@ char UI_LESS=0;
 
 int 
 layout_bot = 1, layout_top = 1, layout_l3 = 0, layout_l2 = 0, parts_top = 1, parts_bot = 1, drills = 1, measure = 1, drilltable = 1, 
-construction = 1, reference = 1, enable_export_image = 1, bom = 1, mirror_bot = 1, crop_all = 1, no_measures = 0, auto_project = 1,
+construction = 1, reference = 1, enable_export_png = 1, bom = 1, mirror_bot = 1, crop_all = 1, no_measures = 0, auto_project = 1,
 bom_xls = 1, bom_xlsx = 1, bom_csv = 0, bom_dbase3 = 1, bom_farnell = 1, bom_shorten_names = 1, bom_display_package_type = 1, 
 parts_display_names = 1, parts_display_values = 1, pricing = 1, idf_export = 1, pcbimage_top = 1, 
 pcbimage_bottom = 1, pcbimage_resolution = 2, pcbimage_crop = 1, pcbimage_mirror = 1, pcbimage_color = 0,
@@ -82,8 +82,9 @@ gerber_ref = 0, gerber_fab = 1, parts_top_docu = 1, parts_bot_docu = 1,
 board_type = 0,
 eagle_export, ec_export, gerber_format = 0,
 pnp_export = 0, pnp_top = 1, pnp_bot = 1, pnp_flip = 0, pnp_auto_offset = 0,
-fabrication = 1, stackup = 1, 
-enable_export_pdf = 1, pdf_keep_frame = 1, pdf_merge = 1;
+fabrication = 1, stackup = 1, boardInfo = 1,
+enable_export_pdf = 1, pdf_keep_frame = 1, pdf_merge = 1,
+enable_export_image = 1;
 ;
 
 real board_thickness = 0.0, board_copper_thickness = 0.0,bom_quantity, pnp_offset_x = 0.0, pnp_offset_y = 0.0;
@@ -240,8 +241,8 @@ void loadUsersettings(){
 			else if (con=="drilltable") {
 				drilltable = strtol(stringTrim(strsub(data[i],(strchr(data[i],'=')+1))));
 			}
-			else if (con=="enable_export_image") {
-				enable_export_image = strtol(stringTrim(strsub(data[i],(strchr(data[i],'=')+1))));
+			else if (con=="enable_export_png") {
+				enable_export_png = strtol(stringTrim(strsub(data[i],(strchr(data[i],'=')+1))));
 			}
 			else if (con=="construction") {
 				construction = strtol(stringTrim(strsub(data[i],(strchr(data[i],'=')+1))));
@@ -483,6 +484,9 @@ void loadUsersettings(){
 			else if (con=="pdf_merge") {
 				pdf_merge = strtol(stringTrim(strsub(data[i],(strchr(data[i],'=')+1))));
 			}
+			else if (con=="enable_export_image") {
+				enable_export_image = strtol(stringTrim(strsub(data[i],(strchr(data[i],'=')+1))));
+			}
 			else {
 				for(int l=0; l<16;l++){
 					string s;
@@ -503,7 +507,7 @@ void loadUsersettings(){
 		drills = strtol(data[4]);
 		measure = strtol(data[5]);
 		drilltable = strtol(data[6]);
-		enable_export_image = strtol(data[7]);
+		enable_export_png = strtol(data[7]);
 		construction = strtol(data[8]);
 		bom = strtol(data[9]);
 		mirror_bot = strtol(data[10]);
@@ -648,7 +652,7 @@ void saveUsersettings(){
 		printf("drills = %d\n", drills);
 		printf("measure = %d\n", measure);
 		printf("drilltable = %d\n", drilltable);
-		printf("enable_export_image = %d\n", enable_export_image);
+		printf("enable_export_png = %d\n", enable_export_png);
 		printf("construction = %d\n", construction);
 		printf("bom = %d\n", bom);
 		printf("mirror_bot = %d\n", mirror_bot);
@@ -749,6 +753,7 @@ void saveUsersettings(){
 		printf("enable_export_pdf = %d\n", enable_export_pdf);
 		printf("pdf_keep_frame = %d\n", pdf_keep_frame);
 		printf("pdf_merge = %d\n", pdf_merge);
+		printf("enable_export_image = %d\n", enable_export_image);
 	}
 
 	output(getUlpDir(config_file)) {
@@ -1053,7 +1058,7 @@ void export(){
 		if(fileglob(tmp, output_folder) <= 0){
 			system(preCMD + "mkdir \"" + output_folder + "\""); //Make new folder
 		}
-		if(enable_export_image == 1 && fileglob(tmp, output_folder + image_folder) <= 0){
+		if(enable_export_png == 1 && fileglob(tmp, output_folder + image_folder) <= 0){
 			system(preCMD + "mkdir \"" + output_folder + image_folder + "\""); 
 		}
 		if(gerber_export == 1 && fileglob(tmp, output_folder + gerber_folder) <= 0)	{
@@ -1247,7 +1252,7 @@ void export(){
 	//We drop support for eagle < 7, so set confirm is ok
 	cmd += "SET CONFIRM YES;";
 
-	if(enable_export_image || enable_export_pdf){
+	if(enable_export_png || enable_export_pdf){
 		string mt = measure_layer_top;
 		string mb = measure_layer_bottom;
 		string ltx = "";
@@ -1306,24 +1311,24 @@ void export(){
 		cmd += setLayerFill();
 
 		//Export
-		cmd += exportLayer(layout_top, 	enable_export_image, 	enable_export_pdf, output_folder_image, output_folder_pdf,  "L1");
+		cmd += exportLayer(layout_top, 	enable_export_png, 	enable_export_pdf, output_folder_image, output_folder_pdf,  "L1");
 		if(layout_inner_layer) {
 			for(int i = 1; i < 15; i++) {
-				cmd += exportLayer(board_layer[i] == 1, enable_export_image, 	enable_export_pdf, output_folder_image, output_folder_pdf,  "L" + stringFromInt(i+1));
+				cmd += exportLayer(board_layer[i] == 1, enable_export_png, 	enable_export_pdf, output_folder_image, output_folder_pdf,  "L" + stringFromInt(i+1));
 			}
 		}
-		cmd += exportLayer(layout_bot, 	enable_export_image, 	enable_export_pdf, output_folder_image, output_folder_pdf,  "L16");
-		cmd += exportLayer(parts_top, 	enable_export_image, 	enable_export_pdf, output_folder_image, output_folder_pdf,  "PT");
-		cmd += exportLayer(parts_bot, 	enable_export_image, 	enable_export_pdf, output_folder_image, output_folder_pdf,  "PB");
-		cmd += exportLayer(stop_top, 	enable_export_image, 	enable_export_pdf, output_folder_image, output_folder_pdf,  "ST");
-		cmd += exportLayer(stop_bot, 	enable_export_image, 	enable_export_pdf, output_folder_image, output_folder_pdf,  "SB");
-		cmd += exportLayer(cream_top, 	enable_export_image, 	enable_export_pdf, output_folder_image, output_folder_pdf,  "CT");
-		cmd += exportLayer(creap_bot, 	enable_export_image, 	enable_export_pdf, output_folder_image, output_folder_pdf,  "CB");
-		cmd += exportLayer(construction,enable_export_image, 	enable_export_pdf, output_folder_image, output_folder_pdf,  "MECH");
-		cmd += exportLayer(reference, 	enable_export_image, 	enable_export_pdf, output_folder_image, output_folder_pdf,  "REF");
-		cmd += exportLayer(drills, 		enable_export_image, 	enable_export_pdf, output_folder_image, output_folder_pdf,  "FAB");
+		cmd += exportLayer(layout_bot, 	enable_export_png, 	enable_export_pdf, output_folder_image, output_folder_pdf,  "L16");
+		cmd += exportLayer(parts_top, 	enable_export_png, 	enable_export_pdf, output_folder_image, output_folder_pdf,  "PT");
+		cmd += exportLayer(parts_bot, 	enable_export_png, 	enable_export_pdf, output_folder_image, output_folder_pdf,  "PB");
+		cmd += exportLayer(stop_top, 	enable_export_png, 	enable_export_pdf, output_folder_image, output_folder_pdf,  "ST");
+		cmd += exportLayer(stop_bot, 	enable_export_png, 	enable_export_pdf, output_folder_image, output_folder_pdf,  "SB");
+		cmd += exportLayer(cream_top, 	enable_export_png, 	enable_export_pdf, output_folder_image, output_folder_pdf,  "CT");
+		cmd += exportLayer(creap_bot, 	enable_export_png, 	enable_export_pdf, output_folder_image, output_folder_pdf,  "CB");
+		cmd += exportLayer(construction,enable_export_png, 	enable_export_pdf, output_folder_image, output_folder_pdf,  "MECH");
+		cmd += exportLayer(reference, 	enable_export_png, 	enable_export_pdf, output_folder_image, output_folder_pdf,  "REF");
+		cmd += exportLayer(drills, 		enable_export_png, 	enable_export_pdf, output_folder_image, output_folder_pdf,  "FAB");
 
-		if(enable_export_image){
+		if(enable_export_png){
 			//Crop
 			if(crop_all){
 				if(layout_top)	{cmd += pngCrop(output_folder_image, "L1");}
@@ -1363,7 +1368,7 @@ void export(){
 		cmd += "RATSNEST;";
 
 		//Export colored images
-		if((pcbimage_top || pcbimage_bottom) && (enable_export_image || enable_export_pdf)) {
+		if((pcbimage_top || pcbimage_bottom) && (enable_export_png || enable_export_pdf)) {
 			sprintf(cmd, "%s RUN '"  + include_path + "ImageExport.ulp' '%s' %d '%s' %d %d %d %d %s %s %s %s %d %d '%s' '%s';", cmd, 
 				output_file_img_pcbb, pcbimage_bottom, 
 				output_file_img_pcbt, pcbimage_top, 
@@ -1373,7 +1378,7 @@ void export(){
 				pcbImageCopperColors[pcbimage_color], 
 				pcbImageSilkscreenColors[pcbimage_silkscreen_color], 
 				pcbImagePlating[pcbimage_plating],
-				enable_export_image, enable_export_pdf,
+				enable_export_png, enable_export_pdf,
 				output_file_pdf_pcbb, output_file_pdf_pcbt
 			);
 		}		
@@ -1516,28 +1521,28 @@ void dialogSilkscreenSettings(){
 
 void dialogImageSettings(){
 	dlgDialog(lanGetText("headline.exportDlg")){
-		dlgGroup(lanGetText("general.view")) 
-		{
-			dlgHBoxLayout
-			{
+		dlgGroup(lanGetText("general.filetype")) {
+			dlgCheckBox(lanGetText("settings.png"),enable_export_png);
+			dlgCheckBox(lanGetText("settings.pdf"),enable_export_pdf);
+		}
+
+		dlgGroup(lanGetText("general.view")) {
+			dlgHBoxLayout {
 				dlgCheckBox(lanGetText("general.layout")+" Bot.", layout_bot);
 				dlgCheckBox(lanGetText("general.layout")+" Top", layout_top);
 			};
 			dlgCheckBox(lanGetText("settings.imag.innerLayer"), layout_inner_layer);
 
-			dlgHBoxLayout
-			{
+			dlgHBoxLayout {
 				dlgCheckBox(lanGetText("settings.gerber.plc"), parts_top);
  				dlgCheckBox(lanGetText("settings.gerber.pls"), parts_bot);
 			};
 
-			dlgHBoxLayout
-			{
+			dlgHBoxLayout {
 	 			dlgCheckBox(lanGetText("settings.gerber.drill"), drills);
 				dlgCheckBox(lanGetText("general.construction"), construction);
 			};		
-			dlgHBoxLayout
-			{
+			dlgHBoxLayout {
 				dlgCheckBox(lanGetText("settings.gerber.ref"), reference);
 			};	
 		};
@@ -1564,6 +1569,16 @@ void dialogImageSettings(){
 				dlgCheckBox(lanGetText("settings.imag.vMirror"), pcbimage_mirror);
 			}
 		}
+		dlgGroup(lanGetText("headline.pdf")) {
+			dlgCheckBox(lanGetText("settings.pdf.Frame"), 	pdf_keep_frame);
+			if(strstr(OS_SIGNATURE,"Linux")>=0){
+				pdf_merge=0;
+			}
+			else {
+				dlgCheckBox(lanGetText("settings.pdf.Merge")+"*", 	pdf_merge);
+				dlgLabel(lanGetText("dlg.pfd.footnote"));
+			}
+		};
 		dlgPushButton(lanGetText("button.ok")) {
 			dlgAccept();
 		};
@@ -1751,24 +1766,16 @@ void dialogPnpSettings(){
 	};
 }
 
-void dialogPdfSettings() {
-	dlgDialog(lanGetText("headline.exportDlg")){
-		dlgGroup(lanGetText("general.general")) {
-			dlgCheckBox(lanGetText("settings.pdf.Frame"), 	pdf_keep_frame);
-			if(strstr(OS_SIGNATURE,"Linux")>=0){
-				pdf_merge=0;
-			}
-			else {
-				dlgCheckBox(lanGetText("settings.pdf.Merge")+"*", 	pdf_merge);
-				dlgLabel(lanGetText("dlg.pfd.footnote"));
-			}
-		};	
-		dlgPushButton(lanGetText("button.ok")) {
-			dlgAccept();
-		};
-	};	
+void dialogFabricationSettings() {
+	dlgDialog("") {
+		dlgVBoxLayout {
+			dlgCheckBox(lanGetText("settings.measure"),measure);
+			dlgCheckBox(lanGetText("settings.drilltable"),drilltable); 
+			dlgCheckBox(lanGetText("settings.fabrication"),fabrication);
+			dlgCheckBox(lanGetText("settings.stackup"),stackup);
+		}
+	};
 }
-
 
 void mainManu(){
 	//In Eagle Version > 7, we need to have a fixed
@@ -1809,6 +1816,14 @@ void mainManu(){
 			UI_LESS=1;
 		}
 		
+		enable_export_pdf = enable_export_pdf && enable_export_image;
+		enable_export_png = enable_export_png && enable_export_image;
+
+		measure = measure && boardInfo;
+		drilltable = drilltable && boardInfo;
+		fabrication = fabrication && boardInfo;
+		stackup = stackup && boardInfo;
+
 		export();
 	}
 	else if(argc > 1 && argv[1] == "uiLess"){
@@ -1845,7 +1860,6 @@ void mainManu(){
 				}
 			}
 		};
-
 		textLanguage = "lang_"+languages[n]+".txt";
 	}
 
@@ -1853,40 +1867,47 @@ void mainManu(){
 
 	//Create the main dialog
 	int dialog = dlgDialog(ULP_VERSION){
-		dlgGroup(lanGetText("headline.settings")){
-			dlgHBoxLayout {dlgLabel(lanGetText("settings.general")); dlgPushButton(lanGetText("button.settings")){dialogBoardSettings();}; };
-		}
-		dlgGroup(lanGetText("headline.staps")){
-			dlgHBoxLayout {dlgCheckBox(lanGetText("settings.renumber"), renumber); dlgStretch(1);}
-			dlgHBoxLayout {dlgCheckBox(lanGetText("settings.measure"),measure);  dlgStretch(1); };
-			dlgHBoxLayout {dlgCheckBox(lanGetText("settings.drilltable"),drilltable); dlgStretch(1); };
-			dlgHBoxLayout {dlgCheckBox(lanGetText("settings.fabrication"),fabrication); dlgStretch(1); };
-			dlgHBoxLayout {dlgCheckBox(lanGetText("settings.stackup"),stackup); dlgStretch(1); };
-			dlgHBoxLayout {dlgCheckBox(lanGetText("settings.sisc"),silkscreen_enable); dlgPushButton(lanGetText("button.settings")){dialogSilkscreenSettings();}; };
-			dlgHBoxLayout {dlgCheckBox(lanGetText("settings.image"),enable_export_image); dlgPushButton(lanGetText("button.settings")){dialogImageSettings();}; };
-			dlgHBoxLayout {dlgCheckBox(lanGetText("settings.pdf"),enable_export_pdf); dlgPushButton(lanGetText("button.settings")){dialogPdfSettings();}; };
-			dlgHBoxLayout {dlgCheckBox(lanGetText("settings.pricing"),pricing); dlgStretch(1); };
-			dlgHBoxLayout {dlgCheckBox(lanGetText("settings.bom"),bom); dlgPushButton(lanGetText("button.settings")){dialogBomSettings();}; };
-			dlgHBoxLayout {dlgCheckBox(lanGetText("settings.idf"),idf_export); dlgStretch(1); };
-			dlgHBoxLayout {dlgCheckBox(lanGetText("settings.schematic"),schematic_export); dlgPushButton(lanGetText("button.settings")){dialogSchematicSettings();}; };
-			dlgHBoxLayout {dlgCheckBox(lanGetText("settings.gerber"),gerber_export); dlgPushButton(lanGetText("button.settings")){dialogGerberSettings();}; };
-			dlgHBoxLayout {dlgCheckBox(lanGetText("settings.pnp"),pnp_export); dlgPushButton(lanGetText("button.settings")){dialogPnpSettings();}; };		
-			dlgHBoxLayout {dlgCheckBox(lanGetText("settings.eagle"),eagle_export); dlgStretch(1); };
-			dlgHBoxLayout {dlgCheckBox(lanGetText("settings.panel"),ec_export); dlgStretch(1); };
-		}
-		dlgGroup(lanGetText("settings.output")){
-			dlgHBoxLayout {
-	 			dlgLabel(lanGetText("settings.output"));
-	  			dlgStringEdit(output_folder);
-				dlgPushButton(lanGetText("button.select")){
-					if(output_folder == "./"){
-						output_folder = bname;
-					}
-					output_folder = dlgDirectory(lanGetText("headline.selectOutput"), output_folder);
-					output_folder += "/";
+		dlgHBoxLayout {
+			dlgVBoxLayout {
+				dlgGroup(lanGetText("headline.settings")){
+					dlgHBoxLayout {dlgLabel(lanGetText("settings.general")); dlgPushButton(lanGetText("button.settings")){dialogBoardSettings();}; };
 				}
-	  		}
-			dlgHBoxLayout {dlgCheckBox(lanGetText("settings.DateFolder"), output_date_folder); dlgStretch(1);}		
+				dlgGroup(lanGetText("headline.staps")){
+					dlgHBoxLayout {dlgCheckBox(lanGetText("settings.renumber"), renumber); dlgStretch(1);}
+					dlgHBoxLayout {dlgCheckBox(lanGetText("settings.schematic"),schematic_export); dlgPushButton(lanGetText("button.settings")){dialogSchematicSettings();}; };
+					dlgHBoxLayout {dlgCheckBox(lanGetText("settings.boardInfo"),stackup); dlgPushButton(lanGetText("button.settings")){dialogFabricationSettings();}; };
+					dlgHBoxLayout {dlgCheckBox(lanGetText("settings.sisc"),silkscreen_enable); dlgPushButton(lanGetText("button.settings")){dialogSilkscreenSettings();}; };
+					dlgHBoxLayout {dlgCheckBox(lanGetText("settings.image"),enable_export_image); dlgPushButton(lanGetText("button.settings")){dialogImageSettings();}; };
+					dlgHBoxLayout {dlgCheckBox(lanGetText("settings.pricing"),pricing); dlgStretch(1); };
+					dlgHBoxLayout {dlgCheckBox(lanGetText("settings.bom"),bom); dlgPushButton(lanGetText("button.settings")){dialogBomSettings();}; };
+					dlgHBoxLayout {dlgCheckBox(lanGetText("settings.idf"),idf_export); dlgStretch(1); };
+					dlgHBoxLayout {dlgCheckBox(lanGetText("settings.gerber"),gerber_export); dlgPushButton(lanGetText("button.settings")){dialogGerberSettings();}; };
+					dlgHBoxLayout {dlgCheckBox(lanGetText("settings.pnp"),pnp_export); dlgPushButton(lanGetText("button.settings")){dialogPnpSettings();}; };		
+					dlgHBoxLayout {dlgCheckBox(lanGetText("settings.eagle"),eagle_export); dlgStretch(1); };
+					dlgHBoxLayout {dlgCheckBox(lanGetText("settings.panel"),ec_export); dlgStretch(1); };
+				}
+				dlgGroup(lanGetText("settings.output")){
+					dlgHBoxLayout {
+			 			dlgLabel(lanGetText("settings.output"));
+			  			dlgStringEdit(output_folder);
+						dlgPushButton(lanGetText("button.select")){
+							if(output_folder == "./"){
+								output_folder = bname;
+							}
+							output_folder = dlgDirectory(lanGetText("headline.selectOutput"), output_folder);
+							output_folder += "/";
+						}
+			  		}
+					dlgHBoxLayout {dlgCheckBox(lanGetText("settings.DateFolder"), output_date_folder); dlgStretch(1);}		
+				}
+				dlgStretch(1);
+			}
+
+			dlgVBoxLayout {
+				dlgLabel("this is going to be the second column");
+
+				dlgStretch(1);
+			}
 		}
 		dlgHBoxLayout {
 			dlgStretch(1); 
