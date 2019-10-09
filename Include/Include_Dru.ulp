@@ -33,7 +33,7 @@ void drcLoadRules(string drc, int load)
 		}
 
 		cmd += "DRC SAVE \'" + drc + "\';";
-		cmd += "RUN " + getUlpDir("HTLExportPro.ulp") + " execute drcIgnore;";
+		cmd += "RUN " + getUlpDir("../HTLExportPro.ulp") + " execute drcIgnore;";
 
 		exit(cmd);
 	}
@@ -46,7 +46,7 @@ void drcLoadRules(string drc, int load)
 		}
 
 		cmd += "DRC SAVE \'" + drc + "\';";
-		cmd += "RUN " + getUlpDir("HTLExportPro.ulp") + " drcLoaded;";
+		cmd += "RUN " + getUlpDir("../HTLExportPro.ulp") + " drcLoaded;";
 
 		exit(cmd);
 	}

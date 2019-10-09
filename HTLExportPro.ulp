@@ -38,15 +38,19 @@
 /* Version 9                                                */
 /************************************************************/
 
-#include "Include_Misc.ulp";
-#include "Include_Dru.ulp";
-#include "Include_Language.ulp";
+#include "Include/Include_Misc.ulp";
+#include "Include/Include_Dru.ulp";
+#include "Include/Include_Language.ulp";
 
 void debugMsg(string msg){
 	//to prevent debug messages to apear in releace
 	dlgMessageBox(msg);
 }
 
+void debugVal(string msg, int val){
+	sprintf(msg,"%s%d",msg,val);
+	debugMsg(msg);
+}
 
 
 string include_path = "Include_";
@@ -227,7 +231,7 @@ void loadUsersettings(){
 		int lines = fileread(data, getSystemFilename(config_file2));
 
 		string con;
-		for(int i=0; i<lines; i++);{
+		for(int i=0; i<lines; i++) {
 			con = stringTrim(strsub(data[i],0,strchr(data[i],'=')));
 
 			if (con=="layout_bot") {
@@ -643,8 +647,8 @@ void loadUsersettings(){
 		}
 	}	
 
-	if (filesize(getUlpDir(config_file))){
-		int lines = fileread(data, getUlpDir(config_file));
+	if (filesize(getUlpDir("../"+config_file))){
+		int lines = fileread(data, getUlpDir("../"+config_file));
 
 		string con;
 		for (int i=0; i<lines; i++){
@@ -740,7 +744,7 @@ void saveUsersettings(){
 
 		printf("eagle_export = %d\n", eagle_export);
 		
-		printf("gerber_otl%d\n", gerber_otl);
+		printf("gerber_otl = %d\n", gerber_otl);
 
 		printf("reference = %d\n", reference);
 		printf("gerber_ref = %d\n", gerber_ref);
@@ -773,7 +777,7 @@ void saveUsersettings(){
 		}
 	}
 
-	output(getUlpDir(config_file)) {
+	output(getUlpDir("../"+config_file)) {
 		printf("language = %s\n",textLanguage);
 	}
 }
@@ -1712,6 +1716,7 @@ void mainManu(){
 	//wont find it
 	include_path = getUlpDir(include_path);
 	
+
 	//Load/Reload DRC rule files
 	if(argc > 1 && argv[1] == "drcLoaded"){
 		drcLoadRules(getSystemFilename(drc_file), 0);
@@ -1767,9 +1772,9 @@ void mainManu(){
 
 	loadDRCSettings();
 
-	if(!filesize(getUlpDir(textLanguage))){
+	if(!filesize(getUlpDir("../Languages/"+textLanguage))){
 		string languages[];
-		int n = fileglob(languages,getUlpDir("lang_*.txt"));
+		int n = fileglob(languages,getUlpDir("../Languages/lang_*.txt"));
 
 		for(int i=0; i<n; i++){
 			languages[i] = filename(languages[i]);
@@ -1901,7 +1906,7 @@ void mainManu(){
 			dlgPushButton(lanGetText("button.ok")) {
 				saveUsersettings();
 
-				exit("DRC; RUN " + getUlpDir("HTLExportPro.ulp") + " execute;");
+				exit("DRC; RUN " + getUlpDir("../HTLExportPro.ulp") + " execute;");
 			};
 			dlgPushButton(lanGetText("button.cancel")) {
 				saveUsersettings();

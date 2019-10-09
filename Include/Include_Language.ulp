@@ -10,6 +10,8 @@ void lanLoadText(string languageFile)
 		languageFile="lang_English.txt";
 	}
 
+	languageFile = "../Languages/" + languageFile;
+
 	lan=getUlpDir(languageFile);
 	lanLines = fileread(lanContent, lan);
 }

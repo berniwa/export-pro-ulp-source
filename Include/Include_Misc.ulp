@@ -18,7 +18,7 @@ string getUlpDirSearcher(string path, string needle){
 	dirs[dir_count++] = path;
 
 	for(int k = 0; k < dir_count; k++){
-		int n = fileglob(a, dirs[k] + "*");
+		int n = fileglob(a, dirs[k] + "/*");
 		for(int i = 0; i < n; i++){
 			if(stringEndsWith(a[i], "/")){
 				dirs[dir_count++] = a[i];		
