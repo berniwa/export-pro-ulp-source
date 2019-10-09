@@ -10,17 +10,19 @@
 /* Version 2.0                                              */
 /************************************************************/
 
-#include "Include_Misc.ulp"
-#include "Include_FastExecute.ulp"
-#include "Include_BomConfig.ulp"
-#include "Include_String.ulp"
-#include "Include_BomCategory.ulp"
-#include "Include_BomCommon.ulp"
-#include "Include_BomPricing.ulp"
-#include "Include_Language.ulp"
-#include "Include_Si.ulp"
+#include "Include/Include_Misc.ulp"
+#include "Include/Include_FastExecute.ulp"
+#include "Include/Include_BomConfig.ulp"
+#include "Include/Include_String.ulp"
+#include "Include/Include_BomCategory.ulp"
+#include "Include/Include_BomCommon.ulp"
+#include "Include/Include_BomPricing.ulp"
+#include "Include/Include_Language.ulp"
+#include "Include/Include_Si.ulp"
 
 string stdDistributor = "xdevelop";
+string config_file = getUlpDir("../exportpro.cfg");
+string textLanguage = "";
 
 int rerun = 1, save = 1;
 string 	list[];
@@ -111,6 +113,28 @@ string getOrderNo(int select){
 	}
 
 	return orderNo;
+}
+
+void loadUlpSettings() {
+	string data[];
+
+	if (filesize(config_file)){
+		int lines = fileread(data, config_file);
+
+		string con;
+		for (int i=0; i<lines; i++){
+			con = stringTrim(strsub(data[i],0,strchr(data[i],'=')));
+			if (con=="language") {
+				 textLanguage = stringTrim(strsub(data[i],(strchr(data[i],'=')+1)));
+			}
+		}
+	}
+}
+
+void saveUsersettings() {
+	output(config_file) {
+		printf("language = %s\n",textLanguage);
+	}
 }
 
 void updateAttributeList(){
@@ -353,8 +377,36 @@ int showListOfDevices(){
 	int sorted = 0;
 	int quantity = 1;
 
+	loadUlpSettings();
+	if(!filesize(getUlpDir("../Languages/"+textLanguage))){
+		string languages[];
+		int n = fileglob(languages,getUlpDir("../Languages/lang_*.txt"));
+
+		for(int i=0; i<n; i++){
+			languages[i] = filename(languages[i]);
+			languages[i] = strsub(languages[i],5,(strrstr(languages[i],".txt")-5));
+		}
+
+		dlgDialog("Language") {
+			dlgVBoxLayout {
+				dlgLabel("Choose your prefered language:");
+				dlgHBoxLayout {
+					dlgStretch(1);
+					dlgComboBox(languages,n);
+				}
+				dlgHBoxLayout {
+					dlgStretch(1);
+					dlgPushButton("OK") dlgAccept();
+				}
+			}
+		};
+		textLanguage = "lang_"+languages[n]+".txt";
+	}
+
+	saveUsersettings();
+
 	bomLoadData();
-	lanLoadText();
+	lanLoadText(textLanguage);
 
 	while(1){
 		updateAttributeList();
