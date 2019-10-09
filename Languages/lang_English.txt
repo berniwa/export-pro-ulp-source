@@ -60,6 +60,7 @@ headline.newValues = New Values
 headline.AutoDetect = Auto detected values
 headline.pdf = Pdf settings
 headline.usedLayers = Used Layers
+headline.boardInfo = Board information
 
 settings.general = General settings
 settings.renumber = Renumber parts

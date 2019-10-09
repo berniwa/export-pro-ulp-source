@@ -1702,10 +1702,13 @@ void dialogPnpSettings(){
 void dialogFabricationSettings() {
 	dlgDialog(lanGetText("headline.exportDlg")) {
 		dlgVBoxLayout {
-			dlgCheckBox(lanGetText("settings.measure"),measure);
-			dlgCheckBox(lanGetText("settings.drilltable"),drilltable); 
-			dlgCheckBox(lanGetText("settings.fabrication"),fabrication);
-			dlgCheckBox(lanGetText("settings.stackup"),stackup);
+			dlgGroup(lanGetText("headline.boardInfo")) {
+				dlgCheckBox(lanGetText("settings.measure"),measure);
+				dlgCheckBox(lanGetText("settings.drilltable"),drilltable); 
+				dlgCheckBox(lanGetText("settings.fabrication"),fabrication);
+				dlgCheckBox(lanGetText("settings.stackup"),stackup);
+			}
+			dlgPushButton(lanGetText("button.ok")) {dlgAccept();};
 		}
 	};
 }

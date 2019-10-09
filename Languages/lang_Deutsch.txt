@@ -60,6 +60,7 @@ headline.newValues = Neue Werte
 headline.AutoDetect = Automatisch erfasste Werte
 headline.pdf = PDF einstellungen
 headline.usedLayers = Benutzte Layer
+headline.boardInfo = Board-Information
 
 settings.general = Allgemeine Einstellungen
 settings.renumber = Bauteile neu nummerieren
