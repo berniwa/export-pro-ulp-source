@@ -354,7 +354,7 @@ void writeScr() {
 	real line_x = u2mil(min_x) - offset;
 	real line_y = u2mil(min_y) - offset;
 
-	output(scr_name) {
+	output(scr_name,"wt") {
 		printf("OPEN \'%sfabrication.lbr\';\n", prj_path);
 		printf("EDIT measure.pac;\n");
 		printf("GRID mil FINEST;\n");
@@ -399,8 +399,8 @@ void writeScr() {
 }
 
 board(B) {
-	scr_name = filesetext(B.name, "_measure.scr");
 	prj_path = filedir(B.name);
+	scr_name = prj_path+"tmp.scr";
 
  	B.wires(W) {
 		if(W.layer == 20) {
