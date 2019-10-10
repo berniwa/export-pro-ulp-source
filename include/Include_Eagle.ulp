@@ -1,0 +1,16 @@
+ /************************************************************/
+/* Include_Eagle.ulp                                        */
+/* - Export(kopiert) Eagle Dateien                          */
+/************************************************************/
+/* (c) Copyright 2013, Bernhard Wörndl-Aichriedler          */
+/* E-Mail: bwa@berniwa.com                                  */
+/* Homepage: www.berniwa.com                                */
+/************************************************************/
+/* Letzte Änderung am 07.06.2013                            */
+/* Version 1                                                */
+/************************************************************/
+
+
+#usage ""
+string tmp =filedir(argv[1]);
+system("CMD.EXE /C W: && cd \"" + tmp + "\" && copy \"" + argv[1] + "\" \"" +  argv[2] + "\" ");
