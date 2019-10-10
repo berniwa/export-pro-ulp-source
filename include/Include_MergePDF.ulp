@@ -23,9 +23,7 @@ string order[] = {
 	"stop-top",
 	"stop-bottom",
 	"paste-top",
-	"paste-bottom",
-	"pcb-top",
-	"pcb-bot"
+	"paste-bottom"
 };
 
 void main(){
@@ -53,7 +51,7 @@ void main(){
 	//dlgMessageBox(argv[2]);
 
 	output(argv[3],"at"){
-		printf("echo on\n");
+		//printf("echo on\n");
 
 		printf("%s:\n",strsub(path,0,1));
 		printf("cd \"%s\"\n",path);//W:\Tobias\Projects\fpga\docu\2019-09-03\pdf
