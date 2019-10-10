@@ -1390,7 +1390,7 @@ void export(){
 
 		//Export colored images
 		if((pcbimage_top || pcbimage_bottom) && (enable_export_png || enable_export_pdf)) {
-			sprintf(cmd, "%s RUN '"  + include_path + "ImageExport.ulp' '%s' %d '%s' %d %d %d %d %s %s %s %s %d %d '%s' '%s';", cmd, 
+			sprintf(cmd, "%s RUN '"  + include_path + "ImageExport.ulp' '%s' %d '%s' %d %d %d %d %s %s %s %s %d;", cmd, 
 				output_file_img_pcbb, pcbimage_bottom, 
 				output_file_img_pcbt, pcbimage_top, 
 				pcbImageResolutions[pcbimage_resolution], 
@@ -1399,8 +1399,7 @@ void export(){
 				pcbImageCopperColors[pcbimage_color], 
 				pcbImageSilkscreenColors[pcbimage_silkscreen_color], 
 				pcbImagePlating[pcbimage_plating],
-				enable_export_png, enable_export_pdf,
-				output_file_pdf_pcbb, output_file_pdf_pcbt
+				enable_export_png
 			);
 		}		
 	}
