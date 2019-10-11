@@ -23,7 +23,8 @@ string order[] = {
 	"stop-top",
 	"stop-bottom",
 	"paste-top",
-	"paste-bottom"
+	"paste-bottom",
+	"bom"
 };
 
 void main(){
