@@ -1,7 +1,7 @@
 real startX=0, startY=0, width=0;
 string LIBRARY_NAME = "fabrication.lbr";
 string BOARD_NAME = ".brd";
-string cols="1;1;1;1;1;1";
+string cols="1;1;1;1;1;1;1";
 
 real 	frameWith			= 0.5;		//in mm
 real 	rowHeight 			= 2.5; 		//in mm
@@ -11,7 +11,7 @@ int 	outputLayer 		= 155;		//in mm
 real 	lineWidth 			= 0.1016;	//in mm
 real 	textSize 			= 1.778;	//in mm
 real 	lineWidthBorder		= 0.2032; 	//in mm
-real 	distance  			= 0.3;		//in mm, from left cell edge
+real 	distance  			= 0.5;		//in mm, from left cell edge
 int 	ratioNormal 		= 5;		//
 int 	ratioHeadline		= 8;		//
 real 	stackupWidth		= 10; 		//in mm
@@ -20,10 +20,11 @@ real 	tableOffset 		= 10;		//in mm
 real 	charWidth			= 1.64;		//in mm
 
 int 	spaceID				= 3;		//in %
+int 	spacePartNr			= 3;		//in %
 int 	spaceDesinator		= 22;		//in %
-int 	spaceValue			= 16;		//in %
+int 	spaceValue			= 15;		//in %
 int 	spaceManufacturer	= 23;		//in %
-int 	spaceMPN			= 19;		//in %
+int 	spaceMPN			= 17;		//in %
 int 	spacePackage		= 17;		//in %
 						//+ =100
 
@@ -40,8 +41,9 @@ void initVariables() {
 
 				width = u2mm(E.footprint.area.x2) - u2mm(E.footprint.area.x1) - (2*frameWith);
 
-				sprintf(cols,"%f;%f;%f;%f;%f;%f",
+				sprintf(cols,"%f;%f;%f;%f;%f;%f;%f",
 					width*(real(spaceID)/100),
+					width*(real(spacePartNr)/100),
 					width*(real(spaceDesinator)/100),
 					width*(real(spaceValue)/100),
 					width*(real(spaceManufacturer)/100),
@@ -188,11 +190,12 @@ void bomOutputPdfFile(){
 	int row = 0;
 	string buffer;
 
-	cmd += drawRow(0, 0, row++, 1, 1, cols, "ID;DESIGNATOR;VALUE;MANUFACTURER;MPN;PACKAGE");
+	cmd += drawRow(0, 0, row++, 1, 1, cols, "ID;CNT;DESIGNATOR;VALUE;MANUFACTURER;MPN;PACKAGE");
 
 	for(int i = 0; i < bomInfoCount; i++) {
-      	sprintf(buffer,"%d;%s;%s;%s;%s;%s"
-        	,i+1, 
+      	sprintf(buffer,"%d;%d;%s;%s;%s;%s;%s",
+        	i+1, 
+        	bomInfoPartCount[i],
         	bomCsvSafe(bomOutputParts[i]), 
         	bomCsvSafe(bomInfoValue[i]), 
         	bomCsvSafe(bomAttributeManufacturer[i]), 
