@@ -33,6 +33,7 @@ int 	bomExportDbase3 			= 0;
 int 	bomExportFarnellBom 		= 0;
 int 	bomExportPnpBom				= 0;
 real	bomExportFarnellMultiplier	= 1.0;
+int 	bomExportPdf 				= 0;
 
 int	bomInfoCount = 0;
 
@@ -79,9 +80,9 @@ string	bomOutputGP4[];
 #include "Include_BomExportFarnell.ulp"
 #include "Include_BomExportCsv.ulp"
 #include "Include_BomExportPnp.ulp"
+#include "Include_BomExportPdf.ulp"
 
-string bomValuesGet(int pid, string name)
-{
+string bomValuesGet(int pid, string name) {
 	if(name == "PACKAGE")
 	{
 		return bomInfoPackage[pid];
@@ -168,8 +169,7 @@ string bomValuesGet(int pid, string name)
 	}
 }
 
-string bomWildcardReplaceWithValues(int pid, string wildcarded)
-{
+string bomWildcardReplaceWithValues(int pid, string wildcarded) {
 	while(strstr(wildcarded, BOM_WILDCARD_STR) != -1)
 	{
 		string wildcard = stringWildcardGetNext(wildcarded);
@@ -178,8 +178,7 @@ string bomWildcardReplaceWithValues(int pid, string wildcarded)
 	return wildcarded;
 }
 
-int bomPartPresent(string value, string dev, string pack, string desc, string distributor, string orderNo, string manufacturer, string partNo, string referenceNo, string reserved1, string reserved2, string populate)
-{
+int bomPartPresent(string value, string dev, string pack, string desc, string distributor, string orderNo, string manufacturer, string partNo, string referenceNo, string reserved1, string reserved2, string populate) {
 	for(int i = 0; i < bomInfoCount; i++)
 	{
 		if(	distributor != "" && orderNo != "" &&
@@ -213,9 +212,8 @@ int bomPartPresent(string value, string dev, string pack, string desc, string di
 	return -1;
 }
 
-void bomPartsLoadPart(UL_PART P, string prefix){
-	if (P.device.package) 
-	{
+void bomPartsLoadPart(UL_PART P, string prefix) {
+	if (P.device.package)  {
 		int pdevice = 0;
 
 		string distributor 			= P.attribute["DISTRIBUTOR"];
@@ -236,14 +234,17 @@ void bomPartsLoadPart(UL_PART P, string prefix){
 		string note 				= P.attribute["NOTE"];
 		int    category				= BOM_PART_UNRECOGNISED;
 
-		if(P.attribute["CATEGORY"]){
+		if(P.attribute["CATEGORY"]) {
 			category				= strtol(P.attribute["CATEGORY"]);
 		} 
 
 		//Resolve category
 		int 	categoryIndex 		= 0;
-		for(int j = 0; j < BOM_DATA_COUNT; j++){
-			if(BOM_DATA_PART_ID[j] == category){categoryIndex = j; break;}
+		for(int j = 0; j < BOM_DATA_COUNT; j++) {
+			if(BOM_DATA_PART_ID[j] == category) {
+				categoryIndex = j; 
+				break;
+			}
 		}
 
 		if((pdevice = bomPartPresent(
@@ -289,8 +290,7 @@ void bomPartsLoadPart(UL_PART P, string prefix){
 	}
 }
 
-void bomPartsLoad()
-{
+void bomPartsLoad() {
 	project.schematic(SCH){
 		SCH.parts(P){
 			bomPartsLoadPart(P, "");
@@ -305,9 +305,7 @@ void bomPartsLoad()
 	}
 }
 
-
-void bomPartsCategorize()
-{
+void bomPartsCategorize() {
 	for(int i = 0; i < bomInfoCount; i++)
 	{
 		int k = bomAttributeCategory[i];
@@ -342,9 +340,7 @@ void bomPartsCategorize()
 	}
 }
 
-
-void bomPartSwitch(int pid1, int pid2)
-{
+void bomPartSwitch(int pid1, int pid2) {
 	string	tmpOutputName					= bomOutputName[pid1];
 	string	tmpOutputParts					= bomOutputParts[pid1];
 	string	tmpOutputNote					= bomOutputNote[pid1];
@@ -451,63 +447,46 @@ void bomPartSwitch(int pid1, int pid2)
 	bomAttributeNote[pid2]					= tmpAttributeNote;	
 }
 
-int bomPartSortRoutine(int pid1, int pid2)
-{
-	if(bomInfoPartId[pid1] == bomInfoPartId[pid2])
-	{
-		if(bomInfoHasParsedValue[pid1]) //Values computed
-		{
-			if(bomInfoParsedValue[pid1] > bomInfoParsedValue[pid2])
-			{
+int bomPartSortRoutine(int pid1, int pid2) {
+	if(bomInfoPartId[pid1] == bomInfoPartId[pid2]) {
+		if(bomInfoHasParsedValue[pid1]) {	//Values computed 
+			if(bomInfoParsedValue[pid1] > bomInfoParsedValue[pid2]) {
 				return 1;
 			}
-			else if(bomInfoParsedValue[pid1] == bomInfoParsedValue[pid2])
-			{
-				if(bomOutputNote[pid1] > bomOutputNote[pid2])
-				{
+			else if(bomInfoParsedValue[pid1] == bomInfoParsedValue[pid2]) {
+				if(bomOutputNote[pid1] > bomOutputNote[pid2]) {
 					return 1;
 				}
 			}
 		}
-		else
-		{
+		else {
 			int compare = stringCompare(bomInfoValue[pid1], bomInfoValue[pid2]);
 
-			if(compare == 0)
-			{
-				if(bomOutputNote[pid1] > bomOutputNote[pid2])
-				{
+			if(compare == 0) {
+				if(bomOutputNote[pid1] > bomOutputNote[pid2]) {
 					return 1;
 				}
 			}
-			else if(compare < 0)
-			{
+			else if(compare < 0) {
 				return 1;
 			}
 		}
 
 	}
-	else if(bomInfoPartId[pid1] > bomInfoPartId[pid2])
-	{
+	else if(bomInfoPartId[pid1] > bomInfoPartId[pid2]) {
 		return 1;
 	}
 	return 0;
-	
 }
 
-
-void bomPartsSort()
-{
+void bomPartsSort() {
 	int ready = 0;
 
-	while(!ready)
-	{
+	while(!ready) {
 		ready = 1;
 
-		for(int i = 0; i < bomInfoCount-1; i++)
-		{		
-			if(bomPartSortRoutine(i, i+1))
-			{
+		for(int i = 0; i < bomInfoCount-1; i++) {		
+			if(bomPartSortRoutine(i, i+1)) {
 				ready = 0;
 				bomPartSwitch(i, i+1);
 			}
@@ -516,10 +495,8 @@ void bomPartsSort()
 	}	
 }
 
-void bomShortenNames()
-{
-	for(int i = 0; i < bomInfoCount-1; i++)
-	{
+void bomShortenNames() {
+	for(int i = 0; i < bomInfoCount-1; i++) {
 		numeric string names[];
 		int count = strsplit(names, bomOutputParts[i], ',');
 		sort(count, names);
@@ -527,39 +504,31 @@ void bomShortenNames()
 		int start_id = -1, last_id = -1;
 		string snames = "";
 
-		for(int k = 0; k < count; k++)
-		{
-			if(snames == "")	
-			{
+		for(int k = 0; k < count; k++) {
+			if(snames == "") {
 				snames = strsub(names[k], 0, 1);
 			}
 			
 			string sid = strsub(names[k], 1);
 			int id = strtol(sid);
 			
-			if(start_id == -1)
-			{
+			if(start_id == -1) {
 				start_id = id;
 				last_id = id;
 			}
-			else if(last_id + 1 == id)
-			{
+			else if(last_id + 1 == id) {
 				last_id = id;
 			}
-			else
-			{
-				if(strlen(snames) > 1)
-				{
+			else {
+				if(strlen(snames) > 1) {
 					snames += ",";
 				}
-				if(last_id == start_id)
-				{
+				if(last_id == start_id) {
 					string tmp = "";
 					sprintf(tmp, "%d", start_id);
 					snames += tmp;
 				}
-				else
-				{	
+				else {	
 					string tmp = "";
 					sprintf(tmp, "%d-%d", start_id, last_id);
 					snames += tmp;				
@@ -568,22 +537,18 @@ void bomShortenNames()
 				start_id = id;
 				last_id = id;
 			}
-			
 		}
 
 		
-		if(strlen(snames) > 1)
-		{
+		if(strlen(snames) > 1) {
 			snames += ",";
 		}
-		if(last_id == start_id)
-		{
+		if(last_id == start_id) {
 			string tmp = "";
 			sprintf(tmp, "%d", start_id);
 			snames += tmp;
 		}
-		else
-		{	
+		else {	
 			string tmp = "";
 			sprintf(tmp, "%d-%d", start_id, last_id);
 			snames += tmp;				
@@ -594,71 +559,58 @@ void bomShortenNames()
 	}	
 }
 
-
 string bname;
 
-project.schematic(S)
-{
+project.schematic(S) {
 	bname = S.name;
 }
 
 
-string bomGetFilename(string ends_with)
-{
+string bomGetFilename(string ends_with) {
 	return filesetext(bname,ends_with);
 }
 
 
-void bomProcess()
-{
+void bomProcess() {
 	string ofilename = bomGetFilename("");
 
-	if(argc > 1)
-	{
+	if(argc > 1) {
 		ofilename = argv[1];	
 	}
-	for(int i = 2; i < argc; i++)
-	{
-		if(argv[i] == "-xls")
-		{
+	for(int i = 2; i < argc; i++) {
+		if(argv[i] == "-xls") {
 			bomExportXls = 1;
 		}
-		else if(argv[i] == "-xlsx")
-		{
+		else if(argv[i] == "-xlsx") {
 			bomExportXlsx = 1;
 		}
-		else if(argv[i] == "-csv")
-		{
+		else if(argv[i] == "-csv") {
 			bomExportCsv = 1;
 		}
-		else if(argv[i] == "-dbase3")
-		{
+		else if(argv[i] == "-dbase3") {
 			bomExportDbase3 = 1;
 		}
-		else if(argv[i] == "-farnell")
-		{
+		else if(argv[i] == "-farnell") {
 			bomExportFarnellBom = 1;
 		}
-		else if(argv[i] == "-pnp")
-		{
+		else if(argv[i] == "-pnp") {
 			bomExportPnpBom	= 1;
 		}
-		else if(argv[i] == "-multiplier")
-		{
-			if(i + 1 < argc)
-			{
+		else if(argv[i] == "-multiplier") {
+			if(i + 1 < argc) {
 				i++;
 				bomExportFarnellMultiplier = strtod(argv[i]);
 			}
 		}
 
-		else if(argv[i] == "-short_names")
-		{
+		else if(argv[i] == "-short_names") {
 			bomShortPartNames = 1;
 		}
-		else if(argv[i] == "-display_package_type")
-		{
+		else if(argv[i] == "-display_package_type") {
 			bomDisplayPackageType = 1;
+		}
+		else if(argv[i] == "-pdf") {
+			bomExportPdf = 1;
 		}
 	}	
 
@@ -666,36 +618,30 @@ void bomProcess()
 	bomPartsCategorize();
 	bomPartsSort();
 	
-	if(bomShortPartNames)
-	{
+	if(bomShortPartNames) {
 		bomShortenNames();
 	}
-	if(bomExportXlsx)
-	{
+	if(bomExportXlsx) {
 		bomOutputXslFile(ofilename + ".xlsx"); //Office 2007 - written XML style - openable with Office 2003 and up and OO 3.0 and up
 	}
-	if(bomExportXls)
-	{
+	if(bomExportXls) {
 		bomOutputXslFile(ofilename + ".xls");  //Office 2003 and 2010 - for all that say - "Woah I don't have Office 2007" - like me =) - but it's the same file as the xlsx
 	}
-	if(bomExportCsv)
-	{
+	if(bomExportCsv) {
 		bomOutputCsvFile(ofilename + ".csv");  //Good old CSV may be opened with almost everything out there =)
 	}
-	if(bomExportDbase3)
-	{
+	if(bomExportDbase3) {
 		bomOutputDatabaseFile(ofilename + ".dbf"); //DBASE File
 	}
-	if(bomExportFarnellBom)
-	{
+	if(bomExportFarnellBom) {
 		bomOutputFarnellBom(ofilename + "-farnell.txt", bomExportFarnellMultiplier); //Farnell BOM
 	}
-	if(bomExportPnpBom)
-	{
+	if(bomExportPnpBom) {
 		bomOutputPnpFile(ofilename + "-bom.csv");	//Eurocircuits BOM
+	}
+	if(bomExportPdf) {
+		bomOutputPdfFile();	//PDF BOM
 	}
 }
 
-
 bomProcess();
-

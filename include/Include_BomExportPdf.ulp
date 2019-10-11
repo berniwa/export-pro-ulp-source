@@ -1,0 +1,222 @@
+real startX=0, startY=0, width=0;
+string LIBRARY_NAME = "fabrication.lbr";
+string BOARD_NAME = ".brd";
+string cols="1;1;1;1;1;1";
+
+real 	frameWith			= 0.5;		//in mm
+real 	rowHeight 			= 2.5; 		//in mm
+int 	headHight 			= 51;		//in mm
+string 	outputLayerName 	= "FabDoc3";	//in mm
+int 	outputLayer 		= 155;		//in mm
+real 	lineWidth 			= 0.1016;	//in mm
+real 	textSize 			= 1.778;	//in mm
+real 	lineWidthBorder		= 0.2032; 	//in mm
+real 	distance  			= 0.3;		//in mm, from left cell edge
+int 	ratioNormal 		= 5;		//
+int 	ratioHeadline		= 8;		//
+real 	stackupWidth		= 10; 		//in mm
+real 	stackupXOffset 		= 5;		//in mm - X offset
+real 	tableOffset 		= 10;		//in mm
+real 	charWidth			= 1.64;		//in mm
+
+int 	spaceID				= 3;		//in %
+int 	spaceDesinator		= 22;		//in %
+int 	spaceValue			= 16;		//in %
+int 	spaceManufacturer	= 23;		//in %
+int 	spaceMPN			= 19;		//in %
+int 	spacePackage		= 17;		//in %
+						//+ =100
+
+char replace = 0;
+
+void initVariables() {
+	board(B){
+		BOARD_NAME = B.name;
+		LIBRARY_NAME = filedir(BOARD_NAME)+LIBRARY_NAME;
+		B.elements(E) {
+			if (strstr(E.footprint.name,"FRAME")!=-1){
+				startX = u2mm(E.footprint.area.x1)+frameWith;
+				startY = u2mm(E.footprint.area.y2)-frameWith;
+
+				width = u2mm(E.footprint.area.x2) - u2mm(E.footprint.area.x1) - (2*frameWith);
+
+				sprintf(cols,"%f;%f;%f;%f;%f;%f",
+					width*(real(spaceID)/100),
+					width*(real(spaceDesinator)/100),
+					width*(real(spaceValue)/100),
+					width*(real(spaceManufacturer)/100),
+					width*(real(spaceMPN)/100),
+					width*(real(spacePackage)/100)
+				);
+			}
+
+			if(E.name == "BOM"){
+				replace = 1;
+			}
+		}
+	}
+}
+
+real getTotalWidth(string cols) {
+	real width = 0.0;
+	//Walk through all columns
+	string buffer = "";
+	for(int i = 0; cols[i]; i++) {
+		if(cols[i] == ';'){
+			width += strtod(buffer);
+			buffer = "";
+		} else {
+			buffer = buffer + cols[i];
+		}
+	}
+	width += strtod(buffer);
+	return width;
+}
+
+
+
+/**
+ * Draw a row of table
+ */
+string drawRow(real startx, real starty, int row, int isHeadline, int align, string cols, string text) {
+	//Column widths
+	real 	widths[];
+	string 	texts[];
+
+	//Walk through column content
+	string buffer = "";
+	int index = 0;
+	for(int i = 0; text[i]; i++) {
+		if(text[i] == ';'){
+			texts[index++] = buffer;
+			buffer = "";
+		} else {
+			buffer = buffer + text[i];
+		}
+	}
+	texts[index++] = buffer;
+
+	//Walk through all columns
+	index = 0;
+	buffer = "";
+	for(i = 0; cols[i]; i++) {
+		if(cols[i] == ';'){
+			widths[index++] = strtod(buffer);
+			buffer = "";
+		} else {
+			buffer = buffer + cols[i];
+		}
+	}
+	widths[index++] = strtod(buffer);
+
+	//Draw columns and 
+	string cmd = "";
+	real x = startx;
+	real y = starty - row*rowHeight;
+
+	sprintf(cmd, "%sCHANGE RATIO %d;\n", cmd, isHeadline?ratioHeadline:ratioNormal);
+	for(i = 0; i < index; i++){
+		sprintf(cmd, "%sWIRE (%f %f) (%f %f) (%f %f);\n", cmd,
+				x, 				y-rowHeight, 
+				x, 				y, 
+				x+widths[i], 	y
+		);
+
+		if(widths[i]<(real(strlen(texts[i]))*charWidth)){
+			texts[i]=strsub(texts[i],0,int(widths[i]/charWidth));
+		}
+
+		real x2 = 0.0;
+		if(align == 0){
+			sprintf(cmd, "%sCHANGE ALIGN CENTER LEFT;\n", cmd);
+			x2 = x+distance;
+		} else if(align == 1) {
+			sprintf(cmd, "%sCHANGE ALIGN CENTER CENTER;\n", cmd);
+			x2 = x+(widths[i]/2);
+		}
+		sprintf(cmd, "%sTEXT '%s' (%f %f);\n", cmd, texts[i], x2, y-(rowHeight/2));
+		x =  x + widths[i];
+
+		if(isHeadline == 2 && i == 0) {
+			sprintf(cmd, "%sCHANGE RATIO %d;\n", cmd, ratioNormal);
+		}
+	}
+	sprintf(cmd, "%sWIRE (%f %f) (%f %f) (%f %f);\n", cmd, 
+		x, y, x, y-rowHeight, startx, y-rowHeight);
+
+	return cmd;
+}
+
+/**
+ * Draw the border of the table
+ */
+string drawBorder(real startx, real starty, int rows, string cols) {
+	string cmd = "";
+
+	real width = getTotalWidth(cols);
+	sprintf(cmd, "%sCHANGE WIDTH %fmm;\n", cmd, lineWidthBorder);
+	sprintf(cmd, "%sWIRE (%f %f) (%f %f) (%f %f) (%f %f) (%f %f);\n", cmd, 
+		startx, 		starty, 
+		startx+width, 	starty, 
+		startx+width, 	starty-rows*rowHeight, 
+		startx, 		starty-rows*rowHeight,
+		startx, 		starty
+	);	
+	sprintf(cmd, "%sCHANGE WIDTH %fmm;\n", cmd, lineWidth);
+	return cmd;
+}
+
+void bomOutputPdfFile(){
+	string cmd = "";
+	initVariables();
+
+	cmd += "OPEN \'"+LIBRARY_NAME+"\';\n";
+	cmd += "SET CONFIRM YES;\n";
+	cmd += "EDIT bom.pac;\n";
+	sprintf(cmd, "%sLAYER %s %d;\n", cmd, outputLayerName, outputLayer);
+	sprintf(cmd, "%sCHANGE LAYER %d;\n", cmd, outputLayer);
+	sprintf(cmd, "%sCHANGE WIDTH %fmm;\n", cmd, lineWidth);
+	sprintf(cmd, "%sCHANGE SIZE %fmm;\n", cmd, textSize);
+	cmd += "CHANGE ALIGN TOP LEFT;\n";
+	cmd += "CHANGE FONT VECTOR;\n";
+	cmd += "GRID mm 0.1;\n";
+	cmd += "SET WIRE_BEND 2;\n";
+
+	cmd+="GROUP ALL;\n";
+	cmd+="DELETE (>0 0);\n";
+
+	int row = 0;
+	string buffer;
+
+	cmd += drawRow(0, 0, row++, 1, 1, cols, "ID;DESIGNATOR;VALUE;MANUFACTURER;MPN;PACKAGE");
+
+	for(int i = 0; i < bomInfoCount; i++) {
+      	sprintf(buffer,"%d;%s;%s;%s;%s;%s"
+        	,i+1, 
+        	bomCsvSafe(bomOutputParts[i]), 
+        	bomCsvSafe(bomInfoValue[i]), 
+        	bomCsvSafe(bomAttributeManufacturer[i]), 
+        	bomCsvSafe(bomAttributePartNo[i]), 
+        	bomCsvSafe(bomInfoPackage[i])
+       	);
+
+      	cmd += drawRow(0, 0, row++, 0, 0, cols, buffer);
+    }
+    cmd += drawBorder(0, 0, row, cols);
+
+    sprintf(cmd, "%sWRITE '%s';\n", cmd, LIBRARY_NAME);
+	sprintf(cmd, "%sEDIT '%s';\n", cmd, BOARD_NAME);
+	//sprintf(cmd, "%sCLOSE '%s';\n", cmd, LIBRARY_NAME);
+	sprintf(cmd, "%sGRID mm 0.1 1 mm;\n", cmd);
+	sprintf(cmd, "%sUSE '%s';\n", cmd, LIBRARY_NAME);
+
+	if(replace) {
+		cmd += "DELETE BOM;\n";
+	}
+
+	sprintf(cmd, "%sADD 'bom' BOM R0 (%.3f %.3f);\n", cmd, 
+ 		startX, startY
+ 	);
+
+	exit(cmd);
+}
