@@ -24,8 +24,8 @@ int 	spacePartNr			= 3;		//in %
 int 	spaceDesinator		= 22;		//in %
 int 	spaceValue			= 15;		//in %
 int 	spaceManufacturer	= 23;		//in %
-int 	spaceMPN			= 17;		//in %
-int 	spacePackage		= 17;		//in %
+int 	spaceMPN			= 26;		//in %
+int 	spacePackage		= 8;		//in %
 						//+ =100
 
 char replace = 0;
@@ -125,7 +125,8 @@ string drawRow(real startx, real starty, int row, int isHeadline, int align, str
 		);
 
 		if(widths[i]<(real(strlen(texts[i]))*charWidth)){
-			texts[i]=strsub(texts[i],0,int(widths[i]/charWidth));
+			texts[i] = strsub(texts[i],0,(int(widths[i]/charWidth)-2));
+			texts[i] += "...";
 		}
 
 		real x2 = 0.0;
