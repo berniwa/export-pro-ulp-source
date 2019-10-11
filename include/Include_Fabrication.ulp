@@ -561,22 +561,22 @@ void run(int info, int drilltable, int stackup, string PcbMaterial, string Stopm
 		data += drawRow(startX, startY, row++, 0, 0, colsMain, ";Silkscreen;;");
 		data += drawBorder(startX, startY, row, colsMain);
 	}
-/*
-	//Create vias
-	int rowStart = 3;
-	for(int i = 0; viaLayerStart[i] != -1; i++){
-		rowY = startY - rowStart*rowHeight;
-		rowX = startX - stackupXOffset;
+	/*
+		//Create vias
+		int rowStart = 3;
+		for(int i = 0; viaLayerStart[i] != -1; i++){
+			rowY = startY - rowStart*rowHeight;
+			rowX = startX - stackupXOffset;
 
-		sprintf(data, "%sCHANGE POUR SOLID;\n", data);	
-		sprintf(data, "%sPOLYGON (%f %f) (%f %f) (%f %f) (%f %f) (%f %f);\n", data, 
-			rowX, 				rowY+rowHeight, 
-			rowX, 				rowY, 
-			rowX-stackupWidth, 	rowY,
-			rowX-stackupWidth, 	rowY+rowHeight,
-			rowX, 				rowY+rowHeight);
-	}
-*/
+			sprintf(data, "%sCHANGE POUR SOLID;\n", data);	
+			sprintf(data, "%sPOLYGON (%f %f) (%f %f) (%f %f) (%f %f) (%f %f);\n", data, 
+				rowX, 				rowY+rowHeight, 
+				rowX, 				rowY, 
+				rowX-stackupWidth, 	rowY,
+				rowX-stackupWidth, 	rowY+rowHeight,
+				rowX, 				rowY+rowHeight);
+		}
+	*/
 
 
 
@@ -592,6 +592,9 @@ void run(int info, int drilltable, int stackup, string PcbMaterial, string Stopm
 		B.elements(E) {
 			if(E.name == "FABRICATION"){
 				replace = 1;
+			}
+			else if(E.name == "DRILEGEND"){
+				data += "DELETE DRILEGEND;\n";
 			}
 		}
 	 }
