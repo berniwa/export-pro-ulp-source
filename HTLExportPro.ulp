@@ -112,7 +112,10 @@ output_file_gerber_spec, output_folder_eagle,
 output_file_eagle_spec, ecpanel_path
 ;
 
-string textLanguage = "";
+string 
+textLanguage = "", 
+userName = "", shortUserName = ""
+;
 
 string layer_fill[];
 
@@ -664,6 +667,12 @@ void loadUsersettings(){
 			if (con=="language") {
 				 textLanguage = stringTrim(strsub(data[i],(strchr(data[i],'=')+1)));
 			}
+			if (con=="userName") {
+				 userName = stringTrim(strsub(data[i],(strchr(data[i],'=')+1)));
+			}
+			if (con=="shortUserName") {
+				 shortUserName = stringTrim(strsub(data[i],(strchr(data[i],'=')+1)));
+			}
 		}
 	}
 }
@@ -790,6 +799,8 @@ void saveUsersettings(){
 
 	output(getUlpDir("../"+config_file)) {
 		printf("language = %s\n",textLanguage);
+		printf("userName = %s\n",userName);
+		printf("shortUserName = %s\n",shortUserName);
 	}
 }
 
@@ -901,12 +912,6 @@ string updateFrameInformation(string drawing){
 		if(strstr(attribute,"SUBTITLE")==-1) {
 			cmd += "ATTRIBUTE " + name + " SUBTITLE '';";
 		}
-		if(strstr(attribute,"USERNAME")==-1) {
-			cmd += "ATTRIBUTE " + name + " USERNAME '';";
-		}
-		if(strstr(attribute,"SHORTNAME")==-1) {
-			cmd += "ATTRIBUTE " + name + " SHORTNAME '';";
-		}
 
 	 	if(strstr(attribute,"DRAWING")!=-1) {
 			cmd += "ATTRIBUTE " + name + " DRAWING DELETE;";
@@ -916,6 +921,12 @@ string updateFrameInformation(string drawing){
 		}
 		if(strstr(attribute,"FILENAME")!=-1) {
 			cmd += "ATTRIBUTE " + name + " FILENAME DELETE;";
+		}
+		if(strstr(attribute,"USERNAME")!=-1) {
+			cmd += "ATTRIBUTE " + name + " USERNAME DELETE;";
+		}
+		if(strstr(attribute,"SHORTNAME")!=-1) {
+			cmd += "ATTRIBUTE " + name + " SHORTNAME DELETE;";
 		}
 		if (board_format){
 			if(strstr(attribute,"OBJECT_NO")==-1) {
@@ -935,6 +946,8 @@ string updateFrameInformation(string drawing){
 	 	sprintf(cmd, "%sATTRIBUTE %s LAST_EDIT \'%s\'; ", cmd, name, t2string(t, "dd.MM.yy"));
 	 	sprintf(cmd, "%sATTRIBUTE %s DRAWING \'%s\'; ", cmd, name, stringTrim(drawing));
 	 	sprintf(cmd, "%sATTRIBUTE %s FILENAME \'%s.brd\'; ", cmd, name, boardname);
+	 	sprintf(cmd, "%sATTRIBUTE %s USERNAME \'%s\'; ", cmd, name, userName);
+	 	sprintf(cmd, "%sATTRIBUTE %s SHORTNAME \'%s\'; ", cmd, name, shortUserName);
 
 	 	if(EAGLE_VERSION>=9){
 	 		cmd += "REPOSITION " + name + "; ";
@@ -974,9 +987,6 @@ string updateSchematicFrameInformation(){
 		if(strstr(attribute,"SUBTITLE")==-1) {
 			cmd += "ATTRIBUTE " + name + " SUBTITLE '';";
 		}
-		if(strstr(attribute,"USERNAME")==-1) {
-			cmd += "ATTRIBUTE " + name + " USERNAME '';";
-		}
 		if(strstr(attribute,"DRAWING")==-1) {
 			cmd += "ATTRIBUTE " + name + " DRAWING '';";
 		}
@@ -993,6 +1003,10 @@ string updateSchematicFrameInformation(){
 		if(strstr(attribute,"FILENAME")!=-1) {
 			cmd += "ATTRIBUTE " + name + " FILENAME DELETE;";
 		}
+		if(strstr(attribute,"USERNAME")!=-1) {
+			cmd += "ATTRIBUTE " + name + " USERNAME DELETE;";
+		}
+
 
 
 
@@ -1002,6 +1016,7 @@ string updateSchematicFrameInformation(){
 	 	}
 	 	sprintf(cmd, "%sATTRIBUTE %s LAST_EDIT \'%s\'; ", cmd, name, t2string(t, "dd.MM.yy"));
 	 	sprintf(cmd, "%sATTRIBUTE %s FILENAME \'%s.brd\'; ", cmd, name, boardname);
+	 	sprintf(cmd, "%sATTRIBUTE %s USERNAME \'%s\'; ", cmd, name, userName);
 
 	 	if(EAGLE_VERSION>=9){
 	 		cmd += "REPOSITION " + name + "; ";
@@ -1287,7 +1302,7 @@ void export(){
 			format = "A3 landscape";
 		}
 
-		updateSchematicFrameInformation();
+		//updateSchematicFrameInformation();
 		
 		if(schematic_bw) {
 			cmd += "SET CONFIRM YES;PRINT SHEETS ALL HIERARCHY PAPER " + format + " BLACK FILE '" + output_file_schematic_bw + "';";
@@ -1820,7 +1835,6 @@ void mainManu(){
 	else if(argc > 1 && argv[1] == "execute"){
 		//Load the users project settings
 		loadUsersettings();
-		lanLoadText(textLanguage);
 
 		drcLoadRules(getSystemFilename(drc_file), 0);
 
@@ -1836,6 +1850,7 @@ void mainManu(){
 			}
 
 			if(error!=0){
+				lanLoadText(textLanguage);
 				int opt=dlgMessageBox(lanGetText("dlg.drcError"),lanGetText("button.continue"),lanGetText("button.cancel"));
 				if(opt){
 					exit("");
@@ -1894,6 +1909,25 @@ void mainManu(){
 	}
 
 	lanLoadText(textLanguage);
+
+	if(userName==""||shortUserName==""){
+		dlgDialog(lanGetText("grneral.userName")) {
+			dlgGridLayout {
+				dlgCell(0, 0, 0, 1) dlgLabel(lanGetText("dlg.username"));
+				dlgCell(1, 0) dlgLabel(lanGetText("grneral.userName")+":");
+				dlgCell(1, 1) dlgStringEdit(userName);
+				dlgCell(2, 0) dlgLabel(lanGetText("general.shortName")+":");
+				dlgCell(2, 1) dlgStringEdit(shortUserName);
+			}
+			dlgHBoxLayout{
+				dlgStretch(1);
+				dlgPushButton(lanGetText("button.ok")) {
+					dlgAccept();
+				};
+			}
+		};
+	}
+
 
 	//Create the main dialog
 	int dialog = dlgDialog(ULP_VERSION){
