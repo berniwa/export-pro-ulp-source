@@ -7,7 +7,7 @@ output(batPath, "at"){
 	printf(tmp+"\n");
 	printf("CD \""+filedir(batPath)+"\"\n");
 	printf("DEL \"./tmp.scr\"\n");
-	printf("DEL \"./"+filename(batPath)+"\"\n");
+	//printf("DEL \"./"+filename(batPath)+"\"\n");
 }
 
 system(argv[2]+"\""+batPath+"\""); 

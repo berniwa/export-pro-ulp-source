@@ -88,7 +88,8 @@ eagle_export, ec_export, gerber_format = 0,
 pnp_export = 0, pnp_top = 1, pnp_bot = 1, pnp_flip = 0, pnp_auto_offset = 0,
 fabrication = 1, stackup = 1, boardInfo = 1,
 enable_export_pdf = 1, pdf_keep_frame = 1, pdf_merge = 1,
-enable_export_image = 1;
+enable_export_image = 1,
+bomToPDF = 1
 ;
 
 real board_thickness = 0.0, board_copper_thickness = 0.0,bom_quantity, pnp_offset_x = 0.0, pnp_offset_y = 0.0;
@@ -501,6 +502,9 @@ void loadUsersettings(){
 			else if (con=="enable_export_image") {
 				enable_export_image = strtol(stringTrim(strsub(data[i],(strchr(data[i],'=')+1))));
 			}
+			else if (con=="bomToPDF") {
+				bomToPDF = strtol(stringTrim(strsub(data[i],(strchr(data[i],'=')+1))));
+			}
 			else {
 				for(int l=0; l<16;l++){
 					string s;
@@ -775,6 +779,8 @@ void saveUsersettings(){
 		for(int i=0;i<16;i++){
 			printf("copper_layer_thickness.Nr.%d = %f\n",i,copper_layer_thickness[i]);
 		}
+
+		printf("bomToPDF = %d\n", bomToPDF);
 	}
 
 	output(getUlpDir("../"+config_file)) {
@@ -1262,6 +1268,21 @@ void export(){
 		);
 	}
 
+	if(bom)	{
+		sprintf(cmd, "%sRUN '"  + include_path + "BOM.ulp' '%s' -multiplier %f %s %s %s %s %s %s %s %s;",cmd, 
+			getFilename(output_file, "-bom"), bom_quantity,  bom_xls?"-xls":"", 
+			bom_xlsx?"-xlsx":"", bom_csv?"-csv":"", bom_dbase3?"-dbase3":"", 
+			bom_farnell?"-farnell":"", bom_shorten_names?"-short_names":"", 
+			(!bom_display_package_type)?"-display_package_type":"", 
+			bomToPDF?"-pdf":""
+		);
+
+		if(bomToPDF) {
+			ExportSetup[0] = "BOM;"+boardname+"-bom;155;;153; BOM";
+			cmd+=exportLayer(bomToPDF, 0, 1, "", output_folder,  "BOM");
+		}
+	}
+
 	if(silkscreen_enable) {
 		sprintf(cmd, "%s RUN '"  + include_path + "SilkGen.ulp' %d %d %d %d %d %d %d %d %d;", cmd, 
 			silkscreen_width, silkscreen_top, silkscreen_tnames, silkscreen_tvalues, 
@@ -1405,17 +1426,15 @@ void export(){
 	}
 
 	if(pdf_merge){
-		sprintf(cmd,"%sRUN '%sMergePDF.ulp' %d '%s' '%s';\n",cmd,include_path,output_date_folder,output_folder_pdf,getSystemFilename(".bat"));
+		sprintf(cmd,"%sRUN '%sMergePDF.ulp' %d '%s' '%s' %d %d;\n", cmd, include_path, 
+			output_date_folder, output_folder_pdf,
+			getSystemFilename(".bat"), 
+			schematic_export, bomToPDF
+		);
 	}
 
 	if(idf_export) {
 		cmd += "RUN '"  + include_path + "IDF.ulp' '" + output_folder_idf + "';";
-	}
-
-	if(bom)	{
-		string tmp = "";
-		sprintf(tmp, "RUN '"  + include_path + "BOM.ulp' '%s' -multiplier %f %s %s %s %s %s %s %s;", getFilename(output_file, "-bom"), bom_quantity,  bom_xls?"-xls":"", bom_xlsx?"-xlsx":"", bom_csv?"-csv":"", bom_dbase3?"-dbase3":"", bom_farnell?"-farnell":"", bom_shorten_names?"-short_names":"", (!bom_display_package_type)?"-display_package_type":"");
-		cmd += tmp;
 	}
 
 	if(gerber_export) {
@@ -1608,8 +1627,6 @@ void dialogImageSettings(){
 void dialogBomSettings(){
 	dlgDialog(lanGetText("headline.exportDlg")){
 		dlgGroup(lanGetText("general.bom")){
-			
-			dlgCheckBox(lanGetText("settings.bom"), bom);
 
 			dlgGroup(lanGetText("general.filetype")) {
 				dlgHBoxLayout {
@@ -1622,6 +1639,7 @@ void dialogBomSettings(){
 				}
 				dlgHBoxLayout {
 					dlgCheckBox("Farnell Bom", bom_farnell);
+					dlgCheckBox("PDF", bomToPDF);
 				}
 			}
 			dlgGroup(lanGetText("general.options")) {

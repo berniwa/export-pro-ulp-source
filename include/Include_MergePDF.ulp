@@ -23,13 +23,14 @@ string order[] = {
 	"stop-top",
 	"stop-bottom",
 	"paste-top",
-	"paste-bottom",
-	"bom"
+	"paste-bottom"
 };
 
 void main(){
 	int dateFolder = strtol(argv[1]);
 	string outputFile=argv[2]+".pdf";
+	int sch = strtol(argv[4]);
+	int bom = strtol(argv[5]);
 
 
 	int i = strstr(outputFile,"/");
@@ -78,10 +79,28 @@ void main(){
 			printf("del \"%s*.pdf\"\n",filesetext(filename(outputFile),""));
 			printf("cd ..\n");				//W:\Tobias\Projects\fpga\docu\2019-09-03
 
-			printf("pdftk *-schematic.pdf \"%s\" cat output \"%s\"\n",tmpFile,outputFile);
+			if (bom||sch) {
+				printf("pdftk ");
+				if (sch){
+					printf("*-schematic.pdf ");
+				}
 
-			printf("ren \"%s\" \"%s\"\n",tmpFile,filename(outputFile));
-			printf("del \"%s\"\n", tmpFile);
+				printf("\"%s\" ", tmpFile);
+
+				if (bom) {
+					printf("*-bom.pdf ");
+				}
+
+				printf("cat output \"%s\"\n",outputFile);
+				printf("del \"%s\"\n", tmpFile);
+
+				if (bom) {
+					printf("del *-bom.pdf\n");
+				}
+			}
+			else {
+				printf("ren \"%s\" \"%s\"\n",tmpFile,filename(outputFile));
+			}
 
 			printf("copy \"%s\" \"%s\"\n",outputFile,filename(outputFile));
 			printf("rd /S /Q pdf\n");
