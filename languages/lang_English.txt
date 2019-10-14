@@ -64,6 +64,7 @@ headline.AutoDetect = Auto detected values
 headline.pdf = Pdf settings
 headline.usedLayers = Used Layers
 headline.boardInfo = Board information
+headline.bom.pdf = Settings for pdf export
 
 settings.general = General settings
 settings.renumber = Renumber parts
@@ -131,6 +132,9 @@ settings.newVal.available = Available Quantity
 settings.newVal.perPkg = Parts per Package
 settings.newVal.datasheet = Datasheet
 settings.boardInfo = Add board info
+settings.offset.x = Offset X
+settings.offset.y = Offset Y
+settings.bom.width = Bom width
 
 comb.res = 600dpi - normal resolution;1200dpi - high resolution;2400dpi - very high resolution
 comb.pcbColor = Green;Red;Black;White;Polyimid

@@ -64,6 +64,7 @@ headline.AutoDetect = Automatisch erfasste Werte
 headline.pdf = PDF einstellungen
 headline.usedLayers = Benutzte Layer
 headline.boardInfo = Board-Information
+headline.bom.pdf = Einstellungen für den pdf Export
 
 settings.general = Allgemeine Einstellungen
 settings.renumber = Bauteile neu nummerieren
@@ -131,6 +132,9 @@ settings.newVal.available = Vorhandene Bauteilmenge
 settings.newVal.perPkg = Teile pro Packung
 settings.newVal.datasheet = Datenblatt
 settings.boardInfo = Board-Info hinzufügen
+settings.offset.x = Abstand X
+settings.offset.y = Abstand Y
+settings.bom.width = Bom breite
 
 comb.res = 600dpi - normale Auflösung;1200dpi - hohe Auflösung;2400dpi - extrem hohe Auflösung
 comb.pcbColor = Grüne PCB;Rote PCB;Schwarze PCB;Weiße PCB;Polyimid

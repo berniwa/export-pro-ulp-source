@@ -93,7 +93,9 @@ bomToPDF = 1,
 board_format = 0;
 ;
 
-real board_thickness = 0.0, board_copper_thickness = 0.0,bom_quantity, pnp_offset_x = 0.0, pnp_offset_y = 0.0;
+real board_thickness = 0.0, board_copper_thickness = 0.0,
+bom_quantity, pnp_offset_x = 0.0, pnp_offset_y = 0.0,
+bom_offsetX = 0.15, bom_offsetY = 0.15, bom_width = 179.6;
 
 real copper_layer_thickness[]={18, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 18};
 
@@ -512,6 +514,15 @@ void loadUsersettings(){
 			else if (con=="board_format") {
 				board_format = strtol(stringTrim(strsub(data[i],(strchr(data[i],'=')+1))));
 			}
+			else if (con=="bom_offsetX") {
+				bom_offsetX = strtod(stringTrim(strsub(data[i],(strchr(data[i],'=')+1))));
+			}
+			else if (con=="bom_offsetY") {
+				bom_offsetY = strtod(stringTrim(strsub(data[i],(strchr(data[i],'=')+1))));
+			}
+			else if (con=="bom_width") {
+				bom_width = strtod(stringTrim(strsub(data[i],(strchr(data[i],'=')+1))));
+			}
 			else {
 				for(int l=0; l<16;l++){
 					string s;
@@ -795,6 +806,9 @@ void saveUsersettings(){
 
 		printf("bomToPDF = %d\n", bomToPDF);
 		printf("board_format = %d\n", board_format);
+		printf("bom_offsetX = %f\n", bom_offsetX);
+		printf("bom_offsetY = %f\n", bom_offsetY);
+		printf("bom_width = %f\n", bom_width);
 	}
 
 	output(getUlpDir("../"+config_file)) {
@@ -1285,12 +1299,12 @@ void export(){
 	}
 
 	if(bom)	{
-		sprintf(cmd, "%sRUN '"  + include_path + "BOM.ulp' '%s' -multiplier %f %s %s %s %s %s %s %s %s %d;",cmd, 
+		sprintf(cmd, "%sRUN '"  + include_path + "BOM.ulp' '%s' -multiplier %f %s %s %s %s %s %s %s %s %f %f %f;",cmd, 
 			getFilename(output_file, "-bom"), bom_quantity,  bom_xls?"-xls":"", 
 			bom_xlsx?"-xlsx":"", bom_csv?"-csv":"", bom_dbase3?"-dbase3":"", 
 			bom_farnell?"-farnell":"", bom_shorten_names?"-short_names":"", 
 			(!bom_display_package_type)?"-display_package_type":"", 
-			bomToPDF?"-pdf":"", board_format
+			bomToPDF?"-pdf":"", bom_offsetX, bom_offsetY, bom_width 
 		);
 
 		if(bomToPDF) {
@@ -1669,7 +1683,27 @@ void dialogBomSettings(){
 					dlgLabel(lanGetText("settings.bom.quantity"));
 					dlgRealEdit(bom_quantity);
 				}
-			}		
+			}
+			dlgGroup(lanGetText("headline.bom.pdf")) {
+				dlgHBoxLayout {
+					dlgLabel(lanGetText("settings.offset.x"));
+					dlgStretch(1);
+					dlgRealEdit(bom_offsetX);
+					dlgLabel("mm");
+				}
+				dlgHBoxLayout {
+					dlgLabel(lanGetText("settings.offset.y"));
+					dlgStretch(1);
+					dlgRealEdit(bom_offsetY);
+					dlgLabel("mm");
+				}
+				dlgHBoxLayout {
+					dlgLabel(lanGetText("settings.bom.width"));
+					dlgStretch(1);
+					dlgRealEdit(bom_width);
+					dlgLabel("mm");
+				}
+			};		
 		};
 		dlgPushButton(lanGetText("button.ok")) {
 			dlgAccept();

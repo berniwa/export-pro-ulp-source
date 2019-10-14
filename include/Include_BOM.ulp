@@ -34,7 +34,9 @@ int 	bomExportFarnellBom 		= 0;
 int 	bomExportPnpBom				= 0;
 real	bomExportFarnellMultiplier	= 1.0;
 int 	bomExportPdf 				= 0;
-int 	bomPdfFormat 				= 0;
+real 	bomPdfoffsetX 				= 0;
+real 	bomPdfoffsetY 				= 0;
+real 	bomPdfWidth					= 180;
 
 int	bomInfoCount = 0;
 
@@ -612,9 +614,13 @@ void bomProcess() {
 		}
 		else if(argv[i] == "-pdf") {
 			bomExportPdf = 1;
-			if(i + 1 < argc) {
+			if(i + 3 < argc) {
 				i++;
-				bomPdfFormat = strtol(argv[i]);
+				bomPdfoffsetX = strtod(argv[i]);
+				i++;
+				bomPdfoffsetY = strtod(argv[i]);
+				i++;
+				bomPdfWidth = strtod(argv[i]);
 			}
 		}
 	}	
@@ -645,7 +651,7 @@ void bomProcess() {
 		bomOutputPnpFile(ofilename + "-bom.csv");	//Eurocircuits BOM
 	}
 	if(bomExportPdf) {
-		bomOutputPdfFile(bomPdfFormat);	//PDF BOM
+		bomOutputPdfFile(bomPdfoffsetX, bomPdfoffsetY, bomPdfWidth);	//PDF BOM
 	}
 }
 
