@@ -957,75 +957,6 @@ string updateFrameInformation(string drawing){
 	return cmd;
 }
 
-string updateSchematicFrameInformation(){
-	string name = "";
-	string attributes[];
-	string attribute;
-
-	schematic(S) {
-		S.parts(P) {
-			if(stringCompare(P.device.name, "FRAME") == 0){
-				name = P.name;
-				int i=0;
-				P.attributes(A) {
-					attributes[i]=A.name;
-					i++;
-				}
-				attribute = strjoin(attributes,';');
-			}
-		}
-	 }
-
-	string cmd = "";
-	if(name != "") {
-
-		cmd += "CHANGE DISPLAY OFF;";
-	 	
-		if(strstr(attribute,"TITLE")==-1) {
-			cmd += "ATTRIBUTE " + name + " TITLE '';";
-		}
-		if(strstr(attribute,"SUBTITLE")==-1) {
-			cmd += "ATTRIBUTE " + name + " SUBTITLE '';";
-		}
-		if(strstr(attribute,"DRAWING")==-1) {
-			cmd += "ATTRIBUTE " + name + " DRAWING '';";
-		}
-		if(strstr(attribute,"OBJECT_NO")==-1) {
-			cmd += "ATTRIBUTE " + name + " OBJECT_NO '';";
-		}
-		if(strstr(attribute,"CREATE_DATE")==-1) {
-			cmd += "ATTRIBUTE " + name + " CREATE_DATE '';";
-		}
-
-		if(strstr(attribute,"EDIT_DATE")!=-1) {
-			cmd += "ATTRIBUTE " + name + " EDIT_DATE DELETE;";
-		}
-		if(strstr(attribute,"FILENAME")!=-1) {
-			cmd += "ATTRIBUTE " + name + " FILENAME DELETE;";
-		}
-		if(strstr(attribute,"USERNAME")!=-1) {
-			cmd += "ATTRIBUTE " + name + " USERNAME DELETE;";
-		}
-
-
-
-
-	 	int t = time();
-	 	if(UI_LESS){
-	 		t=0;
-	 	}
-	 	sprintf(cmd, "%sATTRIBUTE %s LAST_EDIT \'%s\'; ", cmd, name, t2string(t, "dd.MM.yy"));
-	 	sprintf(cmd, "%sATTRIBUTE %s FILENAME \'%s.brd\'; ", cmd, name, boardname);
-	 	sprintf(cmd, "%sATTRIBUTE %s USERNAME \'%s\'; ", cmd, name, userName);
-
-	 	if(EAGLE_VERSION>=9){
-	 		cmd += "REPOSITION " + name + "; ";
-	 	}
-	 }
-
-	return cmd;
-}
-
 string exportSetup(string index) {
 	int i = exportSetupLookup(index);
 	if(i == -1){
@@ -1301,8 +1232,6 @@ void export(){
 		if(schematic_format == 1) {
 			format = "A3 landscape";
 		}
-
-		//updateSchematicFrameInformation();
 		
 		if(schematic_bw) {
 			cmd += "SET CONFIRM YES;PRINT SHEETS ALL HIERARCHY PAPER " + format + " BLACK FILE '" + output_file_schematic_bw + "';";
@@ -1313,9 +1242,7 @@ void export(){
 	}
 
 	if(pricing)	{
-		string tmp = "";
-		sprintf(tmp, "RUN '"  + include_path + "PriceRequest.ulp';");
-		cmd += tmp;		
+		sprintf(cmd, "%sRUN '%sPriceRequest.ulp';",cmd,include_path);	
 	}
 
 	cmd += "WRITE;";
