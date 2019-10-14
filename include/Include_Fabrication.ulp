@@ -462,6 +462,10 @@ void run(int info, int drilltable, int stackup, string PcbMaterial, string Stopm
 	sprintf(data, "%sGRID mm 0.1;\n", data);
 	sprintf(data, "%sSET WIRE_BEND 2;\n", data);
 
+
+	sprintf(data, "%sGROUP ALL;\n", data);
+	sprintf(data, "%sDELETE (>0 0);\n", data);
+
 	real startX = 0.0;
 	real startY = 0.0;
 	real rowY = 0.0;

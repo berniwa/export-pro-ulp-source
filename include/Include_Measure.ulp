@@ -363,6 +363,9 @@ void writeScr() {
 
 		printf("CHANGE SIZE 70;\n");
 
+		printf("GROUP ALL;\n");
+		printf("DELETE (>0 0);\n");
+
 		printf(generateMeasureX(max_x, 0, 0));
 		printf(generateMeasureY(max_y, 0, 0));
 		
