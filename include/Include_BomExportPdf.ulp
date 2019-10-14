@@ -75,8 +75,6 @@ real getTotalWidth(string cols) {
 	return width;
 }
 
-
-
 /**
  * Draw a row of table
  */
@@ -169,7 +167,11 @@ string drawBorder(real startx, real starty, int rows, string cols) {
 	return cmd;
 }
 
-void bomOutputPdfFile(){
+void bomOutputPdfFile(int format){
+	if(format==1){//A3
+		frameWith = 5.32;
+	}
+
 	string cmd = "";
 	initVariables();
 

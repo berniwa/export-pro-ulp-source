@@ -1358,12 +1358,12 @@ void export(){
 	}
 
 	if(bom)	{
-		sprintf(cmd, "%sRUN '"  + include_path + "BOM.ulp' '%s' -multiplier %f %s %s %s %s %s %s %s %s;",cmd, 
+		sprintf(cmd, "%sRUN '"  + include_path + "BOM.ulp' '%s' -multiplier %f %s %s %s %s %s %s %s %s %d;",cmd, 
 			getFilename(output_file, "-bom"), bom_quantity,  bom_xls?"-xls":"", 
 			bom_xlsx?"-xlsx":"", bom_csv?"-csv":"", bom_dbase3?"-dbase3":"", 
 			bom_farnell?"-farnell":"", bom_shorten_names?"-short_names":"", 
 			(!bom_display_package_type)?"-display_package_type":"", 
-			bomToPDF?"-pdf":""
+			bomToPDF?"-pdf":"", board_format
 		);
 
 		if(bomToPDF) {
