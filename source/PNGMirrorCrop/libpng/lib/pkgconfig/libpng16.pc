@@ -1,0 +1,12 @@
+prefix=C:/libs4win/install/libpng/1.6.36/mingw530-x86-Release
+exec_prefix=C:/libs4win/install/libpng/1.6.36/mingw530-x86-Release
+libdir=C:/libs4win/install/libpng/1.6.36/mingw530-x86-Release/lib
+includedir=C:/libs4win/install/libpng/1.6.36/mingw530-x86-Release/include/libpng16
+
+Name: libpng
+Description: Loads and saves PNG files
+Version: 1.6.36
+Requires: zlib
+Libs: -L${libdir} -lpng16
+Libs.private: -lz -lm
+Cflags: -I${includedir}
