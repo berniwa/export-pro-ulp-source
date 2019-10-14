@@ -391,10 +391,10 @@ void writeScr() {
 		printf("USE '%sfabrication.lbr';\n", prj_path);
 		if(update) {
 			printf("UPDATE '%sfabrication.lbr';\n", prj_path);
+			prinf("DELETE MEASURE;\n");
 		}
-		else {
-			printf("ADD 'MEASURE' MEASURE R0 (0 0);\n");
-		}
+		printf("ADD 'MEASURE' MEASURE R0 (0 0);\n");
+		
 	}
 }
 
