@@ -1019,8 +1019,9 @@ void export(){
 		cmd+="SET Option.SignalNamesOnTraces 0;";
 		cmd+="SET Option.SignalNamesOnPads 0;";
 	}
-
-	cmd+="SET Option.SignalNames 0;";
+	else{
+		cmd+="SET Option.SignalNames 0;";
+	}
 	cmd+="SET Option.PadNames 0;";
 
 	cmd+="SET Option.ViaLength 0;";
@@ -1508,7 +1509,9 @@ void export(){
 		cmd+="SET Option.SignalNamesOnTraces "+getEAGLEconfig("Option.SignalNamesOnTraces")+";";
 		cmd+="SET Option.SignalNamesOnPads "+getEAGLEconfig("Option.SignalNamesOnPads")+";";
 	}
-	cmd+="SET Option.SignalNames "+getEAGLEconfig("Option.SignalNames")+";";
+	else {
+		cmd+="SET Option.SignalNames "+getEAGLEconfig("Option.SignalNames")+";";
+	}
 	cmd+="SET Option.PadNames "+getEAGLEconfig("Option.PadNames")+";";
 	cmd+="SET Option.ViaLength "+getEAGLEconfig("Option.ViaLength")+";";
 
