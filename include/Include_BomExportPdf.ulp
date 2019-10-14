@@ -35,11 +35,11 @@ void initVariables() {
 		BOARD_NAME = B.name;
 		LIBRARY_NAME = filedir(BOARD_NAME)+LIBRARY_NAME;
 		B.elements(E) {
-			if (strstr(E.footprint.name,"FRAME")!=-1){
-				startX = u2mm(E.footprint.area.x1)+frameWith;
-				startY = u2mm(E.footprint.area.y2)-frameWith;
+			if (strstr(E.package.name,"FRAME")!=-1){
+				startX = u2mm(E.package.area.x1)+frameWith;
+				startY = u2mm(E.package.area.y2)-frameWith;
 
-				width = u2mm(E.footprint.area.x2) - u2mm(E.footprint.area.x1) - (2*frameWith);
+				width = u2mm(E.package.area.x2) - u2mm(E.package.area.x1) - (2*frameWith);
 
 				sprintf(cols,"%f;%f;%f;%f;%f;%f;%f",
 					width*(real(spaceID)/100),
