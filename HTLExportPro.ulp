@@ -89,7 +89,8 @@ pnp_export = 0, pnp_top = 1, pnp_bot = 1, pnp_flip = 0, pnp_auto_offset = 0,
 fabrication = 1, stackup = 1, boardInfo = 1,
 enable_export_pdf = 1, pdf_keep_frame = 1, pdf_merge = 1,
 enable_export_image = 1,
-bomToPDF = 1
+bomToPDF = 1,
+board_format = 0;
 ;
 
 real board_thickness = 0.0, board_copper_thickness = 0.0,bom_quantity, pnp_offset_x = 0.0, pnp_offset_y = 0.0;
@@ -505,6 +506,9 @@ void loadUsersettings(){
 			else if (con=="bomToPDF") {
 				bomToPDF = strtol(stringTrim(strsub(data[i],(strchr(data[i],'=')+1))));
 			}
+			else if (con=="board_format") {
+				board_format = strtol(stringTrim(strsub(data[i],(strchr(data[i],'=')+1))));
+			}
 			else {
 				for(int l=0; l<16;l++){
 					string s;
@@ -781,6 +785,7 @@ void saveUsersettings(){
 		}
 
 		printf("bomToPDF = %d\n", bomToPDF);
+		printf("board_format = %d\n", board_format);
 	}
 
 	output(getUlpDir("../"+config_file)) {
@@ -912,6 +917,16 @@ string updateFrameInformation(string drawing){
 		if(strstr(attribute,"FILENAME")!=-1) {
 			cmd += "ATTRIBUTE " + name + " FILENAME DELETE;";
 		}
+		if (board_format){
+			if(strstr(attribute,"OBJECT_NO")==-1) {
+				cmd += "ATTRIBUTE " + name + " OBJECT_NO '';";
+			}
+			if(strstr(attribute,"CREATE_DATE")==-1) {
+				cmd += "ATTRIBUTE " + name + " CREATE_DATE '';";
+			}
+		}
+
+
 
 	 	int t = time();
 	 	if(UI_LESS){
@@ -1000,7 +1015,7 @@ string pdfExport(string folder, string index){
 	return 	"DISPLAY NONE; "+
 			"DISPLAY " + fields[2] + "; " + 
 			"DISPLAY " + fields[4] + "; " + 
-			"PRINT SHEETS ALL HIERARCHY PAPER A4 portrait BLACK FILE '" + folder + stringTrim(fields[1]) + ".pdf';";
+			"PRINT SHEETS ALL HIERARCHY PAPER "+board_format?"A3 LANDSCAPE":"A4 PORTRAIT"+" BLACK FILE '" + folder + stringTrim(fields[1]) + ".pdf';";
 } //HERE
 
 string exportLayer(int export_layer, int export_png, int export_pdf, string folder_png, string folder_pdf, string index) {
@@ -1600,6 +1615,9 @@ void dialogImageSettings(){
 		}
 		dlgGroup(lanGetText("headline.pdf")) {
 			dlgCheckBox(lanGetText("settings.pdf.Frame"), 	pdf_keep_frame);
+			dlgRadioButton("A4",board_format);
+			dlgRadioButton("A3",board_format);
+
 			if(strstr(OS_SIGNATURE,"Linux")>=0){
 				pdf_merge=0;
 			}
