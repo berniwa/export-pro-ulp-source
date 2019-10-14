@@ -93,7 +93,9 @@ int LibPNGImage::ReadPNG(char* const fileName){
   // png_read_end(mpPNG, mpEndInfo); //commented out: chunks after image are broken - so it throws an error
   png_get_IHDR(mpPNG, mpInfo, &mWidth, &mHeight, &mBitDepth, &mColorType, &mInterlace, &mCompression, &mFilter);  //reading image-parameters into members
 
+  mWasBw = 0;
   if (mBitDepth < 8){
+    mWasBw = 1;
     png_set_expand_gray_1_2_4_to_8(mpPNG);  //expanding to a full byte per Pixel from 1 bit per Pixel
     mIsExpanded = 0xFF;                     //setting flag for identifying expansion later in the code
   }
@@ -110,8 +112,9 @@ int LibPNGImage::ReadPNG(char* const fileName){
   png_set_filler(mpPNG, 0xFF, PNG_FILLER_AFTER);
   png_read_update_info(mpPNG, mpInfo);
 
+
   if (mIsExpanded){
-    png_read_update_info(mpPNG, mpInfo);  // has to be done: Optional call to update the users info structure
+    //png_read_update_info(mpPNG, mpInfo);  // has to be done: Optional call to update the users info structure
     png_get_IHDR(mpPNG, mpInfo, &mWidth, &mHeight, &mBitDepth, &mColorType, &mInterlace, &mCompression, &mFilter);
     if (png_get_PLTE(mpPNG, mpInfo, &mpPalette, &mNumPalette) != PNG_INFO_PLTE){
       std::cerr << "[LibPNGImage::ReadPNG] - init_io failed" << std::endl;
@@ -120,6 +123,8 @@ int LibPNGImage::ReadPNG(char* const fileName){
       return NOT_OK;
     }
   }
+
+
 
   mBytesPerRow = png_get_rowbytes(mpPNG, mpInfo);
 
@@ -131,28 +136,11 @@ int LibPNGImage::ReadPNG(char* const fileName){
     return NOT_OK;
   }
 
-
-  //We will allocate quite a lot of memory
-  //depending on the image, it may well be >1Gb
-  //so memory allocation needs to be done carefully 
-  //to speed up the process
-
-  //Allocate an array of pointers for the vertical lines
-  mRowPointers = (png_bytep*)malloc(sizeof(png_bytep*) * mHeight);
-
-  //Allocate the entire memory block for the image in one go 
-  size_t memsize = (size_t)mWidth*mHeight*PNG_BYTES_PER_PIXEL;
-  mPngData = (char *)malloc(memsize);
-  if(mPngData == NULL) {
-    std::cerr << "[LibPNGImage::ReadPNG] - unable to allocate image memory: "<<(int)memsize << std::endl;
-    return NOT_OK;
-  }
-
-  //Set the buffer pointers accordingly
+  mRowPointers = (png_bytep*)malloc(sizeof(png_bytep)* mHeight);
   for (size_t y = 0; y < mHeight; y++){
-    mRowPointers[y] = (png_byte*)(mPngData + (y * mBytesPerRow) );
+    mRowPointers[y] = (png_byte*)malloc(mBytesPerRow);
   }
-
+  
   if (!mRowPointers){
     std::cerr << "[LibPNGImage::ReadPNG] - error during allocating memory for the image data" << std::endl;
     png_destroy_read_struct(&mpPNG, &mpInfo, &mpEndInfo);
@@ -314,56 +302,61 @@ int LibPNGImage::CropPNG()
     }
   }
 
-  //Generate cutouts from left to right
-  for (size_t y = MinY; y < MaxY; y++){
-     for (size_t x = MinX; x < MaxX; x+=PNG_BYTES_PER_PIXEL){
-      if(!this->CheckPixel((char *)&mRowPointers[y][x])){
-        break;
-      }
-    }
-  }
-  //Generate cutouts from right to left
-  for (size_t y = MinY; y < MaxY; y++){
-     for (size_t x = MaxX; x >= MinX; x-=PNG_BYTES_PER_PIXEL){
-      if(!this->CheckPixel((char *)&mRowPointers[y][x])){
-        break;
-      }
-    }
-  }
-  //Generate cutouts from top to bottom
-  for (size_t x = MaxX; x >= MinX; x-=PNG_BYTES_PER_PIXEL){
+  if(!mWasBw)
+  {
+    //Generate cutouts from left to right
     for (size_t y = MinY; y < MaxY; y++){
-      if(!this->CheckPixel((char *)&mRowPointers[y][x])){
-        break;
+       for (size_t x = MinX; x < MaxX; x+=PNG_BYTES_PER_PIXEL){
+        if(!this->CheckPixel((char *)&mRowPointers[y][x])){
+          break;
+        }
       }
     }
-  }
-  //Generate cutouts from bottom to top
-  for (size_t x = MaxX; x >= MinX; x-=PNG_BYTES_PER_PIXEL){
-    for (size_t y = MaxY; y > MinY; y--){
-      if(!this->CheckPixel((char *)&mRowPointers[y][x])){
-        break;
+    //Generate cutouts from right to left
+    for (size_t y = MinY; y < MaxY; y++){
+       for (size_t x = MaxX; x >= MinX; x-=PNG_BYTES_PER_PIXEL){
+        if(!this->CheckPixel((char *)&mRowPointers[y][x])){
+          break;
+        }
       }
     }
-  }
-
-  //Transparent vias/drills
-  for (size_t y = MinY; y < MaxY; y++){
-    for (size_t x = MinX; x < MaxX; x+=PNG_BYTES_PER_PIXEL){
-      char *red   = (char *)&mRowPointers[y][x + 0];
-      char *green = (char *)&mRowPointers[y][x + 1];
-      char *blue  = (char *)&mRowPointers[y][x + 2];
-      char *alpha = (char *)&mRowPointers[y][x + 3];
-
-      //If we detect a black outline
-      if(*red == 0x00 && *green == 0x00 && *blue == 0x00){  
-        *red =   0xFF;
-        *green = 0xFF;
-        *blue  = 0xFF;   
-        *alpha = 0x00;      
-      }      
+    //Generate cutouts from top to bottom
+    for (size_t x = MaxX; x >= MinX; x-=PNG_BYTES_PER_PIXEL){
+      for (size_t y = MinY; y < MaxY; y++){
+        if(!this->CheckPixel((char *)&mRowPointers[y][x])){
+          break;
+        }
+      }
     }
+    //Generate cutouts from bottom to top
+    for (size_t x = MaxX; x >= MinX; x-=PNG_BYTES_PER_PIXEL){
+      for (size_t y = MaxY; y > MinY; y--){
+        if(!this->CheckPixel((char *)&mRowPointers[y][x])){
+          break;
+        }
+      }
+    }
+
+    //Transparent vias/drills
+    for (size_t y = MinY; y < MaxY; y++){
+      for (size_t x = MinX; x < MaxX; x+=PNG_BYTES_PER_PIXEL){
+        char *red   = (char *)&mRowPointers[y][x + 0];
+        char *green = (char *)&mRowPointers[y][x + 1];
+        char *blue  = (char *)&mRowPointers[y][x + 2];
+        char *alpha = (char *)&mRowPointers[y][x + 3];
+
+        //If we detect a black outline
+        if(*red == 0x00 && *green == 0x00 && *blue == 0x00){  
+          *red =   0xFF;
+          *green = 0xFF;
+          *blue  = 0xFF;   
+          *alpha = 0x00;      
+        }      
+      }
+    }
+
   }
+
   
   //Move to origin
   size_t x, y, orgx, orgy;

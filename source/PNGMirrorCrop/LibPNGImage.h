@@ -32,6 +32,8 @@ public:
 private:
   int CheckPixel(char *data); //Check the pixel
 
+  int mWasBw;                 //Indicate that the image was Black and white
+
   char * mPngData;            //Single block allocation for the entire PNG data memory (may be > 1 GB)
 
   png_structp mpPNG;          //PNG pointer - name in LibPNG-documentation: 'png_ptr'
