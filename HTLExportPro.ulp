@@ -1015,7 +1015,7 @@ string pdfExport(string folder, string index){
 	return 	"DISPLAY NONE; "+
 			"DISPLAY " + fields[2] + "; " + 
 			"DISPLAY " + fields[4] + "; " + 
-			"PRINT SHEETS ALL HIERARCHY PAPER "+board_format?"297x420mm LANDSCAPE":"A4 PORTRAIT"+" BLACK FILE '" + folder + stringTrim(fields[1]) + ".pdf';";
+			"PRINT SHEETS ALL HIERARCHY PAPER "+(board_format?"A3 landscape":"A4 portrait")+" BLACK FILE '" + folder + stringTrim(fields[1]) + ".pdf';";
 } //HERE
 
 string exportLayer(int export_layer, int export_png, int export_pdf, string folder_png, string folder_pdf, string index) {
