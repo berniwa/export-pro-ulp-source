@@ -88,7 +88,9 @@ eagle_export, ec_export, gerber_format = 0,
 pnp_export = 0, pnp_top = 1, pnp_bot = 1, pnp_flip = 0, pnp_auto_offset = 0,
 fabrication = 1, stackup = 1, boardInfo = 1,
 enable_export_pdf = 1, pdf_keep_frame = 1, pdf_merge = 1,
-enable_export_image = 1;
+enable_export_image = 1,
+bomToPDF = 1,
+board_format = 0;
 ;
 
 real board_thickness = 0.0, board_copper_thickness = 0.0,bom_quantity, pnp_offset_x = 0.0, pnp_offset_y = 0.0;
@@ -110,7 +112,10 @@ output_file_gerber_spec, output_folder_eagle,
 output_file_eagle_spec, ecpanel_path
 ;
 
-string textLanguage = "";
+string 
+textLanguage = "", 
+userName = "", shortUserName = ""
+;
 
 string layer_fill[];
 
@@ -501,6 +506,12 @@ void loadUsersettings(){
 			else if (con=="enable_export_image") {
 				enable_export_image = strtol(stringTrim(strsub(data[i],(strchr(data[i],'=')+1))));
 			}
+			else if (con=="bomToPDF") {
+				bomToPDF = strtol(stringTrim(strsub(data[i],(strchr(data[i],'=')+1))));
+			}
+			else if (con=="board_format") {
+				board_format = strtol(stringTrim(strsub(data[i],(strchr(data[i],'=')+1))));
+			}
 			else {
 				for(int l=0; l<16;l++){
 					string s;
@@ -656,6 +667,12 @@ void loadUsersettings(){
 			if (con=="language") {
 				 textLanguage = stringTrim(strsub(data[i],(strchr(data[i],'=')+1)));
 			}
+			if (con=="userName") {
+				 userName = stringTrim(strsub(data[i],(strchr(data[i],'=')+1)));
+			}
+			if (con=="shortUserName") {
+				 shortUserName = stringTrim(strsub(data[i],(strchr(data[i],'=')+1)));
+			}
 		}
 	}
 }
@@ -775,10 +792,15 @@ void saveUsersettings(){
 		for(int i=0;i<16;i++){
 			printf("copper_layer_thickness.Nr.%d = %f\n",i,copper_layer_thickness[i]);
 		}
+
+		printf("bomToPDF = %d\n", bomToPDF);
+		printf("board_format = %d\n", board_format);
 	}
 
 	output(getUlpDir("../"+config_file)) {
 		printf("language = %s\n",textLanguage);
+		printf("userName = %s\n",userName);
+		printf("shortUserName = %s\n",shortUserName);
 	}
 }
 
@@ -890,12 +912,6 @@ string updateFrameInformation(string drawing){
 		if(strstr(attribute,"SUBTITLE")==-1) {
 			cmd += "ATTRIBUTE " + name + " SUBTITLE '';";
 		}
-		if(strstr(attribute,"USERNAME")==-1) {
-			cmd += "ATTRIBUTE " + name + " USERNAME '';";
-		}
-		if(strstr(attribute,"SHORTNAME")==-1) {
-			cmd += "ATTRIBUTE " + name + " SHORTNAME '';";
-		}
 
 	 	if(strstr(attribute,"DRAWING")!=-1) {
 			cmd += "ATTRIBUTE " + name + " DRAWING DELETE;";
@@ -906,6 +922,22 @@ string updateFrameInformation(string drawing){
 		if(strstr(attribute,"FILENAME")!=-1) {
 			cmd += "ATTRIBUTE " + name + " FILENAME DELETE;";
 		}
+		if(strstr(attribute,"USERNAME")!=-1) {
+			cmd += "ATTRIBUTE " + name + " USERNAME DELETE;";
+		}
+		if(strstr(attribute,"SHORTNAME")!=-1) {
+			cmd += "ATTRIBUTE " + name + " SHORTNAME DELETE;";
+		}
+		if (board_format){
+			if(strstr(attribute,"OBJECT_NO")==-1) {
+				cmd += "ATTRIBUTE " + name + " OBJECT_NO '';";
+			}
+			if(strstr(attribute,"CREATE_DATE")==-1) {
+				cmd += "ATTRIBUTE " + name + " CREATE_DATE '';";
+			}
+		}
+
+
 
 	 	int t = time();
 	 	if(UI_LESS){
@@ -914,6 +946,8 @@ string updateFrameInformation(string drawing){
 	 	sprintf(cmd, "%sATTRIBUTE %s LAST_EDIT \'%s\'; ", cmd, name, t2string(t, "dd.MM.yy"));
 	 	sprintf(cmd, "%sATTRIBUTE %s DRAWING \'%s\'; ", cmd, name, stringTrim(drawing));
 	 	sprintf(cmd, "%sATTRIBUTE %s FILENAME \'%s.brd\'; ", cmd, name, boardname);
+	 	sprintf(cmd, "%sATTRIBUTE %s USERNAME \'%s\'; ", cmd, name, userName);
+	 	sprintf(cmd, "%sATTRIBUTE %s SHORTNAME \'%s\'; ", cmd, name, shortUserName);
 
 	 	if(EAGLE_VERSION>=9){
 	 		cmd += "REPOSITION " + name + "; ";
@@ -994,7 +1028,7 @@ string pdfExport(string folder, string index){
 	return 	"DISPLAY NONE; "+
 			"DISPLAY " + fields[2] + "; " + 
 			"DISPLAY " + fields[4] + "; " + 
-			"PRINT SHEETS ALL HIERARCHY PAPER A4 portrait BLACK FILE '" + folder + stringTrim(fields[1]) + ".pdf';";
+			"PRINT SHEETS ALL HIERARCHY PAPER "+(board_format?"A3 landscape":"A4 portrait")+" BLACK FILE '" + folder + stringTrim(fields[1]) + ".pdf';";
 } //HERE
 
 string exportLayer(int export_layer, int export_png, int export_pdf, string folder_png, string folder_pdf, string index) {
@@ -1009,24 +1043,15 @@ string exportLayer(int export_layer, int export_png, int export_pdf, string fold
 
 void export(){
 
-	if(EAGLE_VERSION<9){
-		//read EAGLE config
-		eaglercOptions[0] = getEAGLEconfig("Option.SignalNames");
-		eaglercOptions[1] = getEAGLEconfig("Option.PadNames");
-
-		cmd+="SET Option.SignalNames 0;";
-		cmd+="SET Option.PadNames 0;";
-	}
-	else{
-		//read EAGLE config
-		eaglercOptions[0] = getEAGLEconfig("Option.SignalNamesOnTraces");
-		eaglercOptions[1] = getEAGLEconfig("Option.SignalNamesOnPads");
-		
+	if(EAGLE_VERSION>=9){
 		cmd+="SET Option.SignalNamesOnTraces 0;";
 		cmd+="SET Option.SignalNamesOnPads 0;";
 	}
+	else{
+		cmd+="SET Option.SignalNames 0;";
+	}
+	cmd+="SET Option.PadNames 0;";
 
-	eaglercOptions[2] = getEAGLEconfig("Option.ViaLength");
 	cmd+="SET Option.ViaLength 0;";
 
 	output(getSystemFilename(".bat"), "wt"){
@@ -1063,8 +1088,7 @@ void export(){
 
 	string image_folder = "", pdf_folder = "", gerber_folder = "", eagle_folder = "", cad_folder = "", ecpanel_folder = "", pnp_folder = "";
 
-	if(output_date_folder)	//If a date folder and subfolders should be created
-	{
+	if(output_date_folder) {	//If a date folder and subfolders should be created
 		string date_folder 	= t2string(time(), "yyyy-MM-dd") + "/";
 		image_folder 		= "images";
 		pdf_folder 			= "pdf";
@@ -1218,9 +1242,7 @@ void export(){
 	}
 
 	if(pricing)	{
-		string tmp = "";
-		sprintf(tmp, "RUN '"  + include_path + "PriceRequest.ulp';");
-		cmd += tmp;		
+		sprintf(cmd, "%sRUN '%sPriceRequest.ulp';",cmd,include_path);	
 	}
 
 	cmd += "WRITE;";
@@ -1260,6 +1282,21 @@ void export(){
 			pcbSpecPlating[pcbimage_plating],
 			bname
 		);
+	}
+
+	if(bom)	{
+		sprintf(cmd, "%sRUN '"  + include_path + "BOM.ulp' '%s' -multiplier %f %s %s %s %s %s %s %s %s %d;",cmd, 
+			getFilename(output_file, "-bom"), bom_quantity,  bom_xls?"-xls":"", 
+			bom_xlsx?"-xlsx":"", bom_csv?"-csv":"", bom_dbase3?"-dbase3":"", 
+			bom_farnell?"-farnell":"", bom_shorten_names?"-short_names":"", 
+			(!bom_display_package_type)?"-display_package_type":"", 
+			bomToPDF?"-pdf":"", board_format
+		);
+
+		if(bomToPDF) {
+			ExportSetup[0] = "BOM;"+boardname+"-bom;155;;153; BOM";
+			cmd+=exportLayer(bomToPDF, 0, 1, "", output_folder,  "BOM");
+		}
 	}
 
 	if(silkscreen_enable) {
@@ -1405,17 +1442,15 @@ void export(){
 	}
 
 	if(pdf_merge){
-		sprintf(cmd,"%sRUN '%sMergePDF.ulp' %d '%s' '%s';\n",cmd,include_path,output_date_folder,output_folder_pdf,getSystemFilename(".bat"));
+		sprintf(cmd,"%sRUN '%sMergePDF.ulp' %d '%s' '%s' %d %d;\n", cmd, include_path, 
+			output_date_folder, output_folder_pdf,
+			getSystemFilename(".bat"), 
+			schematic_export, bomToPDF
+		);
 	}
 
 	if(idf_export) {
 		cmd += "RUN '"  + include_path + "IDF.ulp' '" + output_folder_idf + "';";
-	}
-
-	if(bom)	{
-		string tmp = "";
-		sprintf(tmp, "RUN '"  + include_path + "BOM.ulp' '%s' -multiplier %f %s %s %s %s %s %s %s;", getFilename(output_file, "-bom"), bom_quantity,  bom_xls?"-xls":"", bom_xlsx?"-xlsx":"", bom_csv?"-csv":"", bom_dbase3?"-dbase3":"", bom_farnell?"-farnell":"", bom_shorten_names?"-short_names":"", (!bom_display_package_type)?"-display_package_type":"");
-		cmd += tmp;
 	}
 
 	if(gerber_export) {
@@ -1495,16 +1530,15 @@ void export(){
 
 	cmd += "RUN '" + include_path + "RunBatch.ulp' '"+getSystemFilename(".bat")+"' '"+preCMD+"';";
 
-	if(EAGLE_VERSION<9){
-		cmd+="SET Option.SignalNames "+eaglercOptions[0]+";";
-		cmd+="SET Option.PadNames "+eaglercOptions[1]+";";
+	if(EAGLE_VERSION>=9){
+		cmd+="SET Option.SignalNamesOnTraces "+getEAGLEconfig("Option.SignalNamesOnTraces")+";";
+		cmd+="SET Option.SignalNamesOnPads "+getEAGLEconfig("Option.SignalNamesOnPads")+";";
 	}
-	else{
-		cmd+="SET Option.SignalNamesOnTraces "+eaglercOptions[0]+";";
-		cmd+="SET Option.SignalNamesOnPads "+eaglercOptions[1]+";";
+	else {
+		cmd+="SET Option.SignalNames "+getEAGLEconfig("Option.SignalNames")+";";
 	}
-	cmd+="SET Option.ViaLength "+eaglercOptions[2]+";";
-
+	cmd+="SET Option.PadNames "+getEAGLEconfig("Option.PadNames")+";";
+	cmd+="SET Option.ViaLength "+getEAGLEconfig("Option.ViaLength")+";";
 
 	if(filesize("\'"+filepath+"fabrication.lbr\'")){
 		cmd+="USE \'"+filepath+"fabrication.lbr\';";	//to prevent error messages the fabrication.lbr is loaded befor unloading
@@ -1591,6 +1625,9 @@ void dialogImageSettings(){
 		}
 		dlgGroup(lanGetText("headline.pdf")) {
 			dlgCheckBox(lanGetText("settings.pdf.Frame"), 	pdf_keep_frame);
+			dlgRadioButton("A4",board_format);
+			dlgRadioButton("A3",board_format);
+
 			if(strstr(OS_SIGNATURE,"Linux")>=0){
 				pdf_merge=0;
 			}
@@ -1608,8 +1645,6 @@ void dialogImageSettings(){
 void dialogBomSettings(){
 	dlgDialog(lanGetText("headline.exportDlg")){
 		dlgGroup(lanGetText("general.bom")){
-			
-			dlgCheckBox(lanGetText("settings.bom"), bom);
 
 			dlgGroup(lanGetText("general.filetype")) {
 				dlgHBoxLayout {
@@ -1622,6 +1657,7 @@ void dialogBomSettings(){
 				}
 				dlgHBoxLayout {
 					dlgCheckBox("Farnell Bom", bom_farnell);
+					dlgCheckBox("PDF", bomToPDF);
 				}
 			}
 			dlgGroup(lanGetText("general.options")) {
@@ -1726,7 +1762,6 @@ void mainManu(){
 	else if(argc > 1 && argv[1] == "execute"){
 		//Load the users project settings
 		loadUsersettings();
-		lanLoadText(textLanguage);
 
 		drcLoadRules(getSystemFilename(drc_file), 0);
 
@@ -1742,6 +1777,7 @@ void mainManu(){
 			}
 
 			if(error!=0){
+				lanLoadText(textLanguage);
 				int opt=dlgMessageBox(lanGetText("dlg.drcError"),lanGetText("button.continue"),lanGetText("button.cancel"));
 				if(opt){
 					exit("");
@@ -1800,6 +1836,25 @@ void mainManu(){
 	}
 
 	lanLoadText(textLanguage);
+
+	if(userName==""||shortUserName==""){
+		dlgDialog(lanGetText("grneral.userName")) {
+			dlgGridLayout {
+				dlgCell(0, 0, 0, 1) dlgLabel(lanGetText("dlg.username"));
+				dlgCell(1, 0) dlgLabel(lanGetText("grneral.userName")+":");
+				dlgCell(1, 1) dlgStringEdit(userName);
+				dlgCell(2, 0) dlgLabel(lanGetText("general.shortName")+":");
+				dlgCell(2, 1) dlgStringEdit(shortUserName);
+			}
+			dlgHBoxLayout{
+				dlgStretch(1);
+				dlgPushButton(lanGetText("button.ok")) {
+					dlgAccept();
+				};
+			}
+		};
+	}
+
 
 	//Create the main dialog
 	int dialog = dlgDialog(ULP_VERSION){

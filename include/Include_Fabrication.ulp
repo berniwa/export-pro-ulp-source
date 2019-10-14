@@ -585,6 +585,7 @@ void run(int info, int drilltable, int stackup, string PcbMaterial, string Stopm
 	sprintf(data, "%sCLOSE '%s';\n", data, LIBRARY_NAME);
 	sprintf(data, "%sGRID mm 0.1 1 mm;\n", data);
 	sprintf(data, "%sUSE '%s';\n", data, LIBRARY_NAME);
+	sprintf(data, "%sLAYER %s %d;\n", data, outputLayerName, outputLayer);
 
 
 	int replace = 0;

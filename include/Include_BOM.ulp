@@ -34,6 +34,7 @@ int 	bomExportFarnellBom 		= 0;
 int 	bomExportPnpBom				= 0;
 real	bomExportFarnellMultiplier	= 1.0;
 int 	bomExportPdf 				= 0;
+int 	bomPdfFormat 				= 0;
 
 int	bomInfoCount = 0;
 
@@ -611,6 +612,10 @@ void bomProcess() {
 		}
 		else if(argv[i] == "-pdf") {
 			bomExportPdf = 1;
+			if(i + 1 < argc) {
+				i++;
+				bomPdfFormat = strtol(argv[i]);
+			}
 		}
 	}	
 
@@ -640,7 +645,7 @@ void bomProcess() {
 		bomOutputPnpFile(ofilename + "-bom.csv");	//Eurocircuits BOM
 	}
 	if(bomExportPdf) {
-		bomOutputPdfFile();	//PDF BOM
+		bomOutputPdfFile(bomPdfFormat);	//PDF BOM
 	}
 }
 

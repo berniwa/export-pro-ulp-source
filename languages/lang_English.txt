@@ -13,6 +13,7 @@ dlg.pfd.footnote = * To merge the pdf-files we use pdftk_server. <br>You can get
 dlg.sisc.info = Upon the creation of the slicscreen every wire is copyed to the layers 121 (Top), 122 (Bottom) and 123 (Dimension). This allows for an easy export and suports multiple uses. <br>The ratio of the text will be altered to match the minimal with, if posible.
 dlg.drcError = :The DRC found some errors within this layout
 dlg.newVal.footnote = * might be overwriten when requesting the price over the internet
+dlg.username = Pleace enter your name and short-name
 
 general.copper = Copper
 general.side = Side
@@ -34,6 +35,8 @@ general.custom = Custom
 general.voltage = Voltage
 general.name = Name
 general.layer = Layer
+grneral.userName = Username
+general.shortName = Shortname
 
 headline.settings = Board settings
 headline.staps = Steps

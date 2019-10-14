@@ -9,14 +9,12 @@ int 	headHight 			= 51;		//in mm
 string 	outputLayerName 	= "FabDoc3";	//in mm
 int 	outputLayer 		= 155;		//in mm
 real 	lineWidth 			= 0.1016;	//in mm
+real 	offsetX				= 0.0;
 real 	textSize 			= 1.778;	//in mm
 real 	lineWidthBorder		= 0.2032; 	//in mm
 real 	distance  			= 0.5;		//in mm, from left cell edge
 int 	ratioNormal 		= 5;		//
 int 	ratioHeadline		= 8;		//
-real 	stackupWidth		= 10; 		//in mm
-real 	stackupXOffset 		= 5;		//in mm - X offset
-real 	tableOffset 		= 10;		//in mm
 real 	charWidth			= 1.64;		//in mm
 
 int 	spaceID				= 3;		//in %
@@ -35,11 +33,11 @@ void initVariables() {
 		BOARD_NAME = B.name;
 		LIBRARY_NAME = filedir(BOARD_NAME)+LIBRARY_NAME;
 		B.elements(E) {
-			if (strstr(E.footprint.name,"FRAME")!=-1){
-				startX = u2mm(E.footprint.area.x1)+frameWith;
-				startY = u2mm(E.footprint.area.y2)-frameWith;
+			if (strstr(E.package.name,"FRAME")!=-1){
+				startX = u2mm(E.package.area.x1)+frameWith+offsetX;
+				startY = u2mm(E.package.area.y2)-frameWith;
 
-				width = u2mm(E.footprint.area.x2) - u2mm(E.footprint.area.x1) - (2*frameWith);
+				width = u2mm(E.package.area.x2) - u2mm(E.package.area.x1) - (2*frameWith) - offsetX;
 
 				sprintf(cols,"%f;%f;%f;%f;%f;%f;%f",
 					width*(real(spaceID)/100),
@@ -74,8 +72,6 @@ real getTotalWidth(string cols) {
 	width += strtod(buffer);
 	return width;
 }
-
-
 
 /**
  * Draw a row of table
@@ -169,7 +165,12 @@ string drawBorder(real startx, real starty, int rows, string cols) {
 	return cmd;
 }
 
-void bomOutputPdfFile(){
+void bomOutputPdfFile(int format){
+	if(format==1){//A3
+		frameWith = 5.32;
+		offsetX = 0.7;
+	}
+
 	string cmd = "";
 	initVariables();
 
@@ -213,6 +214,7 @@ void bomOutputPdfFile(){
 	//sprintf(cmd, "%sCLOSE '%s';\n", cmd, LIBRARY_NAME);
 	sprintf(cmd, "%sGRID mm 0.1 1 mm;\n", cmd);
 	sprintf(cmd, "%sUSE '%s';\n", cmd, LIBRARY_NAME);
+	sprintf(cmd, "%sLAYER %s %d;\n", cmd, outputLayerName, outputLayer);
 
 	if(replace) {
 		cmd += "DELETE BOM;\n";

@@ -13,6 +13,7 @@ dlg.pfd.footnote = * Um die PDF-Dateien zusammen zu führen benutzen wir pdftk_s
 dlg.sisc.info = Beim Erstellen des Bestückungsdrucks werden alle Lienien auf die Layer 121 (Top), 122 (Bottom) und 123 (Dimension) kopiert, dies erleichtert den späteren Export und ermöglicht das einfachere Erstellen eines Mehrfachnutzen. <br>Das Ratio des kopierten Textes wird wenn möglich so bearbeitet um die erfoderliche minimale Breite zu erreichen.
 dlg.drcError = :Es wurden noch DRC-Fehler im Layout gefunden
 dlg.newVal.footnote = * könnte von dem Preis aus dem Internet überschrieben werden wenn dieser abgefragt wird
+dlg.username = Bitte geben Sie Ihren Namen und Ihr Kürzel an
 
 general.copper = Kupfer
 general.side = Seite
@@ -34,6 +35,8 @@ general.custom = Andere
 general.voltage = Spannung
 general.name = Name
 general.layer = Layer
+grneral.userName = Benutzername
+general.shortName = Kürzel
 
 headline.settings = Board Einstellungen
 headline.staps = Schritte
