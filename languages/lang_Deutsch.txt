@@ -35,7 +35,7 @@ general.custom = Andere
 general.voltage = Spannung
 general.name = Name
 general.layer = Layer
-grneral.userName = Bnuzername
+grneral.userName = Benutzername
 general.shortName = Kürzel
 
 headline.settings = Board Einstellungen
