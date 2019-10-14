@@ -213,6 +213,7 @@ void bomOutputPdfFile(){
 	//sprintf(cmd, "%sCLOSE '%s';\n", cmd, LIBRARY_NAME);
 	sprintf(cmd, "%sGRID mm 0.1 1 mm;\n", cmd);
 	sprintf(cmd, "%sUSE '%s';\n", cmd, LIBRARY_NAME);
+	sprintf(cmd, "%sLAYER %s %d;\n", cmd, outputLayerName, outputLayer);
 
 	if(replace) {
 		cmd += "DELETE BOM;\n";
