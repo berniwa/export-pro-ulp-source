@@ -1015,24 +1015,14 @@ string exportLayer(int export_layer, int export_png, int export_pdf, string fold
 
 void export(){
 
-	if(EAGLE_VERSION<9){
-		//read EAGLE config
-		eaglercOptions[0] = getEAGLEconfig("Option.SignalNames");
-		eaglercOptions[1] = getEAGLEconfig("Option.PadNames");
-
-		cmd+="SET Option.SignalNames 0;";
-		cmd+="SET Option.PadNames 0;";
-	}
-	else{
-		//read EAGLE config
-		eaglercOptions[0] = getEAGLEconfig("Option.SignalNamesOnTraces");
-		eaglercOptions[1] = getEAGLEconfig("Option.SignalNamesOnPads");
-		
+	if(EAGLE_VERSION>=9){
 		cmd+="SET Option.SignalNamesOnTraces 0;";
 		cmd+="SET Option.SignalNamesOnPads 0;";
 	}
 
-	eaglercOptions[2] = getEAGLEconfig("Option.ViaLength");
+	cmd+="SET Option.SignalNames 0;";
+	cmd+="SET Option.PadNames 0;";
+
 	cmd+="SET Option.ViaLength 0;";
 
 	output(getSystemFilename(".bat"), "wt"){
@@ -1514,16 +1504,13 @@ void export(){
 
 	cmd += "RUN '" + include_path + "RunBatch.ulp' '"+getSystemFilename(".bat")+"' '"+preCMD+"';";
 
-	if(EAGLE_VERSION<9){
-		cmd+="SET Option.SignalNames "+eaglercOptions[0]+";";
-		cmd+="SET Option.PadNames "+eaglercOptions[1]+";";
+	if(EAGLE_VERSION>=9){
+		cmd+="SET Option.SignalNamesOnTraces "+getEAGLEconfig("Option.SignalNamesOnTraces")+";";
+		cmd+="SET Option.SignalNamesOnPads "+getEAGLEconfig("Option.SignalNamesOnPads")+";";
 	}
-	else{
-		cmd+="SET Option.SignalNamesOnTraces "+eaglercOptions[0]+";";
-		cmd+="SET Option.SignalNamesOnPads "+eaglercOptions[1]+";";
-	}
-	cmd+="SET Option.ViaLength "+eaglercOptions[2]+";";
-
+	cmd+="SET Option.SignalNames "+getEAGLEconfig("Option.SignalNames")+";";
+	cmd+="SET Option.PadNames "+getEAGLEconfig("Option.PadNames")+";";
+	cmd+="SET Option.ViaLength "+getEAGLEconfig("Option.ViaLength")+";";
 
 	if(filesize("\'"+filepath+"fabrication.lbr\'")){
 		cmd+="USE \'"+filepath+"fabrication.lbr\';";	//to prevent error messages the fabrication.lbr is loaded befor unloading
