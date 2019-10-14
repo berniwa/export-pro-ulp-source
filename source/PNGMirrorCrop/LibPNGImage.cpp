@@ -6,29 +6,20 @@
 // please note that this is a C++ and C-mix due to the reason that the LibPNG-Library
 // is made for C on Linux
 
-#define PNG_HEADER_SIZE 4   //8 is the maximum size that can be checked by LibPNG
+#define PNG_HEADER_SIZE       4       //8 is the maximum size that can be checked by LibPNG
+#define PNG_BYTES_PER_PIXEL   4       //3 for RGB, 4 for RGBA
 
-void FreeRowPointers(png_bytep* rowPointers, png_uint_32 const height){
-  for (size_t y = 0; y < height; y++){
-    free(rowPointers[y]);
-    rowPointers[y] = 0;
-  }
-  free(rowPointers);
-  rowPointers = 0;
-}
 
 LibPNGImage::LibPNGImage()
 {
   mRowPointers = 0; //TODO: CTOR does not be executed
   mIsExpanded = 0;
   mIsCropped = 0;
+  mPngData = 0;
 }
 
 LibPNGImage::~LibPNGImage(){
-  if (mRowPointers != 0){
-    if (mIsCropped) FreeRowPointers(mRowPointers, moldHeight);
-    else            FreeRowPointers(mRowPointers, mHeight);
-  }  
+  if(mPngData != NULL){free(mPngData);}
 }
 
 
@@ -114,6 +105,11 @@ int LibPNGImage::ReadPNG(char* const fileName){
   }
   mNumOfPasses = png_set_interlace_handling(mpPNG);
   
+  //Add alpha channel
+  png_set_tRNS_to_alpha(mpPNG);
+  png_set_filler(mpPNG, 0xFF, PNG_FILLER_AFTER);
+  png_read_update_info(mpPNG, mpInfo);
+
   if (mIsExpanded){
     png_read_update_info(mpPNG, mpInfo);  // has to be done: Optional call to update the users info structure
     png_get_IHDR(mpPNG, mpInfo, &mWidth, &mHeight, &mBitDepth, &mColorType, &mInterlace, &mCompression, &mFilter);
@@ -134,18 +130,35 @@ int LibPNGImage::ReadPNG(char* const fileName){
     fclose(fp);
     return NOT_OK;
   }
-    
-  mRowPointers = (png_bytep*)malloc(sizeof(png_bytep)* mHeight);
-  for (size_t y = 0; y < mHeight; y++){
-    mRowPointers[y] = (png_byte*)malloc(mBytesPerRow);
+
+
+  //We will allocate quite a lot of memory
+  //depending on the image, it may well be >1Gb
+  //so memory allocation needs to be done carefully 
+  //to speed up the process
+
+  //Allocate an array of pointers for the vertical lines
+  mRowPointers = (png_bytep*)malloc(sizeof(png_bytep*) * mHeight);
+
+  //Allocate the entire memory block for the image in one go 
+  size_t memsize = (size_t)mWidth*mHeight*PNG_BYTES_PER_PIXEL;
+  mPngData = (char *)malloc(memsize);
+  if(mPngData == NULL) {
+    std::cerr << "[LibPNGImage::ReadPNG] - unable to allocate image memory: "<<(int)memsize << std::endl;
+    return NOT_OK;
   }
+
+  //Set the buffer pointers accordingly
+  for (size_t y = 0; y < mHeight; y++){
+    mRowPointers[y] = (png_byte*)(mPngData + (y * mBytesPerRow) );
+  }
+
   if (!mRowPointers){
     std::cerr << "[LibPNGImage::ReadPNG] - error during allocating memory for the image data" << std::endl;
     png_destroy_read_struct(&mpPNG, &mpInfo, &mpEndInfo);
     fclose(fp);
     return NOT_OK;
   }
-    
   png_read_image(mpPNG, mRowPointers);  //reading the data into the row_pointers
 
   png_destroy_read_struct(&mpPNG, &mpInfo, &mpEndInfo);
@@ -206,40 +219,9 @@ int LibPNGImage::WritePNG(char* const fileName)
     png_set_PLTE(mpPNG, mpInfo, mpPalette, mNumPalette);
   }
 
-  png_set_IHDR(mpPNG, mpInfo, mWidth, mHeight, mBitDepth, mColorType, mInterlace, mCompression, mFilter);
+  png_set_IHDR(mpPNG, mpInfo, mWidth, mHeight, mBitDepth, PNG_COLOR_TYPE_RGBA, mInterlace, mCompression, mFilter);
 
   png_write_info(mpPNG, mpInfo);
-  /* //THIS CODE DOES NOT FUNCTION !!!!- it's just an awful try
-  ////////////////////////
-  //SHRINK BACK TO 1-BiT
-  png_color_8 sig_bit;
-  png_color_8p psig_bit = &sig_bit;
-  png_get_sBIT(mpPNG, mpInfo, &psig_bit);
-  mColorType = 3;
-  // Set the true bit depth of the image data 
-  if (mColorType == 2)
-  {
-    sig_bit.red = 0;
-    sig_bit.green = 0;
-    sig_bit.blue = 0;
-  }
-  else
-  {
-    sig_bit.gray = 1;
-  }
-  if (mColorType & PNG_COLOR_MASK_ALPHA)
-  {
-    sig_bit.alpha = 0;
-  }
-  png_set_sBIT(mpPNG, mpInfo, &sig_bit);
-
-  png_read_update_info(mpPNG, mpInfo);  // has to be done: Optional call to update the users info structure
-
-  png_set_PLTE(mpPNG, mpInfo, mpPalette, mNumPalette);
-  png_set_IHDR(mpPNG, mpInfo, mWidth, mHeight, mBitDepth, mColorType, mInterlace,
-    mCompression, mFilter);
-
-  ///////////////////////*/
 
   /* start write bytes */
   if (setjmp(png_jmpbuf(mpPNG))){
@@ -270,75 +252,129 @@ int LibPNGImage::MirrorPNG()
   }
 
   for (size_t y = 0; y < mHeight; y++){
-    for (size_t x = 0; x < mBytesPerRow/2; x++){
-      png_byte tmp = mRowPointers[y][x];
-      mRowPointers[y][x] = mRowPointers[y][mBytesPerRow - 1 - x];
-      mRowPointers[y][mBytesPerRow - 1 - x] = tmp;
+    for (size_t x = 0; x < mBytesPerRow/2; x+=PNG_BYTES_PER_PIXEL){
+      //We need to modify 3 bytes at a time, in order to preserve the colors
+      png_byte tmp[PNG_BYTES_PER_PIXEL];
+      memcpy(tmp, &mRowPointers[y][x], PNG_BYTES_PER_PIXEL);
+      memcpy(&mRowPointers[y][x], &mRowPointers[y][mBytesPerRow - PNG_BYTES_PER_PIXEL - x], PNG_BYTES_PER_PIXEL);
+      memcpy(&mRowPointers[y][mBytesPerRow - PNG_BYTES_PER_PIXEL - x], tmp, PNG_BYTES_PER_PIXEL);
     }
   }
   return OK;
 }
 
+int LibPNGImage::CheckPixel(char *data){
+    char *red   = (char *)&data[0];
+    char *green = (char *)&data[1];
+    char *blue  = (char *)&data[2];
+    char *alpha = (char *)&data[3];
+
+    if(*red == 0x00 && *green == 0x00 && *blue == 0x00){
+      return 0;
+    } else {
+      *red =   0xFF;
+      *green = 0xFF;
+      *blue  = 0xFF;
+      *alpha = 0x00;
+      return 1;      
+    }
+}
+
 //crops the image in the class-buffer by seeking for the Maxima and Minima of the color black around it
 int LibPNGImage::CropPNG()
 {
+
   size_t MinX = mBytesPerRow;
   size_t MinY = mHeight;
   size_t MaxX = 0;
   size_t MaxY = 0;
-  int color0;     //simulates the access to a RGB-Pixel by adjusting offset
-  int color1;
-  int color2;
+
   for (size_t y = 0; y < mHeight; y++){
-    for (size_t x = 0; x < mBytesPerRow; x++){
-      color0 = x + 0;
-      color1 = x + 1;
-      color2 = x + 2;
-      if ((mRowPointers[y][color0] == 0x00) && (mRowPointers[y][color1] == 0x00)
-        && (mRowPointers[y][color2]) == 0x00 && (x < MinX)){
-        MinX = x;
+    //Run outline detection from top-left
+    for (size_t x = 0; x < mBytesPerRow; x+=PNG_BYTES_PER_PIXEL){
+      char *red   = (char *)&mRowPointers[y][x + 0];
+      char *green = (char *)&mRowPointers[y][x + 1];
+      char *blue  = (char *)&mRowPointers[y][x + 2];
+
+      //If we detect a black outline
+      if(*red == 0x00 && *green == 0x00 && *blue == 0x00){        
+        if(x < MinX){
+          MinX = x;
+        }
+        if(y < MinY){
+          MinY = y;
+        }
+        if(x > MaxX){
+          MaxX = x;
+        }
+        if(y > MaxY){
+          MaxY = y;
+        }
       }
-      if ((mRowPointers[y][color0] == 0x00) && (mRowPointers[y][color1] == 0x00)
-        && (mRowPointers[y][color2]) == 0x00 && (y < MinY)){
-        MinY = y;
-      }
-      if ((mRowPointers[y][color0] == 0x00) && (mRowPointers[y][color1] == 0x00)
-        && (mRowPointers[y][color2]) == 0x00 && (x > MaxX)){
-        MaxX = x;
-      }
-      if ((mRowPointers[y][color0] == 0x00) && (mRowPointers[y][color1] == 0x00)
-        && (mRowPointers[y][color2]) == 0x00 && (y > MaxY)){
-        MaxY = y;
-      }
-      x += 2;   //only plus two because one is standard-increment--> 1+2 = 3
     }
   }
 
-  int colororg0;
-  int colororg1;
-  int colororg2;
+  //Generate cutouts from left to right
+  for (size_t y = MinY; y < MaxY; y++){
+     for (size_t x = MinX; x < MaxX; x+=PNG_BYTES_PER_PIXEL){
+      if(!this->CheckPixel((char *)&mRowPointers[y][x])){
+        break;
+      }
+    }
+  }
+  //Generate cutouts from right to left
+  for (size_t y = MinY; y < MaxY; y++){
+     for (size_t x = MaxX; x >= MinX; x-=PNG_BYTES_PER_PIXEL){
+      if(!this->CheckPixel((char *)&mRowPointers[y][x])){
+        break;
+      }
+    }
+  }
+  //Generate cutouts from top to bottom
+  for (size_t x = MaxX; x >= MinX; x-=PNG_BYTES_PER_PIXEL){
+    for (size_t y = MinY; y < MaxY; y++){
+      if(!this->CheckPixel((char *)&mRowPointers[y][x])){
+        break;
+      }
+    }
+  }
+  //Generate cutouts from bottom to top
+  for (size_t x = MaxX; x >= MinX; x-=PNG_BYTES_PER_PIXEL){
+    for (size_t y = MaxY; y > MinY; y--){
+      if(!this->CheckPixel((char *)&mRowPointers[y][x])){
+        break;
+      }
+    }
+  }
 
+  //Transparent vias/drills
+  for (size_t y = MinY; y < MaxY; y++){
+    for (size_t x = MinX; x < MaxX; x+=PNG_BYTES_PER_PIXEL){
+      char *red   = (char *)&mRowPointers[y][x + 0];
+      char *green = (char *)&mRowPointers[y][x + 1];
+      char *blue  = (char *)&mRowPointers[y][x + 2];
+      char *alpha = (char *)&mRowPointers[y][x + 3];
+
+      //If we detect a black outline
+      if(*red == 0x00 && *green == 0x00 && *blue == 0x00){  
+        *red =   0xFF;
+        *green = 0xFF;
+        *blue  = 0xFF;   
+        *alpha = 0x00;      
+      }      
+    }
+  }
+  
+  //Move to origin
   size_t x, y, orgx, orgy;
   for (orgy = 0, y = MinY; y <= MaxY; orgy++, y++){
-    for (orgx = 0, x = MinX; x <= MaxX; orgx++, x++){
-      color0 = x + 0;
-      color1 = x + 1;
-      color2 = x + 2;
-      colororg0 = orgx + 0;
-      colororg1 = orgx + 1;
-      colororg2 = orgx + 2;
-
-      mRowPointers[orgy][colororg0] = mRowPointers[y][color0];
-      mRowPointers[orgy][colororg1] = mRowPointers[y][color1];
-      mRowPointers[orgy][colororg2] = mRowPointers[y][color2];
-
-      x += 2;   //only plus two because one is standard-increment --> 1+2 = 3
-      orgx += 2;
+    for (orgx = 0, x = MinX; x <= MaxX; orgx+=PNG_BYTES_PER_PIXEL, x+=PNG_BYTES_PER_PIXEL){
+      memcpy(&mRowPointers[orgy][orgx], &mRowPointers[y][x], PNG_BYTES_PER_PIXEL);
     }
   }
   moldHeight = mHeight;
   mIsCropped = 0xFF;
-  mWidth = MaxX/3 - MinX/3 + 1;
+  mWidth = MaxX/PNG_BYTES_PER_PIXEL - MinX/PNG_BYTES_PER_PIXEL + 1;
   mHeight = MaxY - MinY + 1;
 
   return OK;

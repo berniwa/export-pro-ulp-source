@@ -17,7 +17,7 @@ void ShowWrongName(){
 }
 
 int main(int argc, char** argv){
-  if (argc < 3 || argc > 4 || argv[1] == ""){
+  if (argc < 3 || argc > 4 || strlen(argv[1]) == 0){
     ShowWrongParams();
     ShowWrongName();
     getchar();
@@ -58,6 +58,7 @@ int main(int argc, char** argv){
             return 1;
           }
         }
+
         if(ImgObj.WritePNG(argv[1]) == NOT_OK){
           getchar();
           return 1;

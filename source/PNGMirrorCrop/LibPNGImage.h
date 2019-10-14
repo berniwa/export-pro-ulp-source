@@ -30,6 +30,9 @@ public:
   int CropPNG();                        //crops the image in the class-buffer by seeking for the Maxima and Minima of the color black around it
 
 private:
+  int CheckPixel(char *data); //Check the pixel
+
+  char * mPngData;            //Single block allocation for the entire PNG data memory (may be > 1 GB)
 
   png_structp mpPNG;          //PNG pointer - name in LibPNG-documentation: 'png_ptr'
   png_infop mpInfo;           //information pointer - name in LibPNG-documentation: 'info_ptr'
