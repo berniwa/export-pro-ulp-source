@@ -2105,7 +2105,7 @@ void mainManu(){
 					dlgGridLayout{ 
 						dlgCell(0,0) dlgLabel(lanGetText("settings.general.boardThickness"));
 						string tmp1;
-						sprintf(tmp1,"%fmm",board_thickness);
+						sprintf(tmp1,"%.3f mm",board_thickness);
 						dlgCell(0,1) dlgLabel(tmp1);
 					 
 						dlgCell(1,0) dlgLabel(lanGetText("settings.general.boardMaterial"));
@@ -2138,7 +2138,7 @@ void mainManu(){
 							if(board_layer[i]){
 								string nr, th;
 								sprintf(nr,"%02d",(i+1));
-								sprintf(th,"%0.1f",copper_layer_thickness[i]);
+								sprintf(th,"%0.1f µm",copper_layer_thickness[i]);
 								dlgCell(l,0) dlgLabel(nr);
 								dlgCell(l,1) dlgLabel(copper_layer_Name[i]);
 								dlgCell(l,2) dlgLabel(th);
