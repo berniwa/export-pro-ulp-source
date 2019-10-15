@@ -10,7 +10,7 @@ button.apply = Anwenden && Preise abfragen
 
 dlg.imag.footnote = * Dies kann je nach Boardgröße einige Zeit <br>(bis zu mehreren Minuten) dauern.
 dlg.pfd.footnote = * Um die PDF-Dateien zusammen zu führen benutzen wir pdftk_server <br>Sie können sich dieses Tool <a href=\"https://www.pdflabs.com/tools/pdftk-server/\">hier</a> heunterladen.
-dlg.sisc.info = Beim Erstellen des Bestückungsdrucks werden alle Lienien auf die Layer 121 (Top), 122 (Bottom) und 123 (Dimension) kopiert, dies erleichtert den späteren Export und ermöglicht das einfachere Erstellen eines Mehrfachnutzen. <br>Das Ratio des kopierten Textes wird, wenn möglich, so bearbeitet, um die erfoderliche minimale Breite zu erreichen.
+dlg.sisc.info = Beim Erstellen des Bestückungsdrucks werden alle Linien auf die Layer 121 (Top), 122 (Bottom) und 123 (Dimension) kopiert, dies erleichtert den späteren Export und ermöglicht das einfachere Erstellen eines Mehrfachnutzen. <br>Das Ratio des kopierten Textes wird, wenn möglich, so bearbeitet, um die erfoderliche minimale Breite zu erreichen.
 dlg.drcError = :Es wurden noch DRC-Fehler im Layout gefunden
 dlg.newVal.footnote = * könnte von dem Preis aus dem Internet überschrieben werden wenn dieser abgefragt wird
 dlg.username = Bitte geben Sie Ihren Namen und Ihr Kürzel an
