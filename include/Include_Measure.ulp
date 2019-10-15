@@ -362,6 +362,8 @@ void writeScr() {
 		printf("SET Wire_Bend 2;\n");
 
 		printf("CHANGE SIZE 70;\n");
+		printf("CHANGE FONT PROPORTIONAL;\n");
+		printf("CHANGE ALIGN BOTTOM LEFT;\n");
 
 		printf("GROUP ALL;\n");
 		printf("DELETE (>0 0);\n");
