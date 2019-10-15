@@ -18,6 +18,7 @@ dlg.drcError = :The DRC found some errors within this layout
 dlg.newVal.footnote = * might be overwriten when requesting the price over the internet
 dlg.username = Pleace enter your name and short-name
 dlg.cantEdit = Can not edit "Last"
+dlg.DrillError = :Not all diameters have asigned drill symbols. \nPlease assign drill symbol in EAGLE menu! 
 
 general.copper = Copper
 general.side = Side

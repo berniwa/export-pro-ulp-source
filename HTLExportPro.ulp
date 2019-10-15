@@ -193,7 +193,6 @@ project.board(B){
 		if(L.number<=16){
 			copper_layer_Name[L.number-1]=L.name;
 		}
-		
 	}
 
 	B.elements(E) {
@@ -1630,6 +1629,77 @@ void export(){
 	exit(cmd);
 }
 
+void detectLanguage(){
+	if(!filesize(getUlpDir("../Languages/"+textLanguage))){
+		string languages[];
+		int n = fileglob(languages,getUlpDir("../Languages/lang_*.txt"));
+
+		for(int i=0; i<n; i++){
+			languages[i] = filename(languages[i]);
+			languages[i] = strsub(languages[i],5,(strrstr(languages[i],".txt")-5));
+		}
+
+		dlgDialog("Language") {
+			dlgVBoxLayout {
+				dlgLabel("Choose your prefered language:");
+				dlgHBoxLayout {
+					dlgStretch(1);
+					dlgComboBox(languages,n);
+				}
+				dlgHBoxLayout {
+					dlgStretch(1);
+					dlgPushButton("OK") dlgAccept();
+				}
+			}
+		};
+		textLanguage = "lang_"+languages[n]+".txt";
+	}
+}
+
+void detectDrillsymbols(){
+	board(B){
+		char cDrillSymbols = 1;
+		B.holes(H) {
+			if(!H.drillsymbol){
+				cDrillSymbols=0;
+			}
+		}
+		B.signals(S){
+			S.vias(V){
+				if(!V.drillsymbol){
+					cDrillSymbols=0;
+				}
+			}
+		}
+
+		if(!cDrillSymbols){
+			int opt=dlgMessageBox(lanGetText("dlg.DrillError"),lanGetText("button.continue"),lanGetText("button.cancel"));
+			
+			if(opt){
+				exit("");
+			}
+		}
+	}
+}
+
+void dialogAskName(){
+	dlgDialog(lanGetText("grneral.userName")) {
+		dlgGridLayout {
+			dlgCell(0, 0, 0, 1) dlgLabel(lanGetText("dlg.username"));
+			dlgCell(1, 0) dlgLabel(lanGetText("grneral.userName")+":");
+			dlgCell(1, 1) dlgStringEdit(userName);
+			dlgCell(2, 0) dlgLabel(lanGetText("general.shortName")+":");
+			dlgCell(2, 1) dlgStringEdit(shortUserName);
+		}
+		dlgHBoxLayout{
+			dlgStretch(1);
+			dlgPushButton(lanGetText("button.ok")) {
+				dlgAccept();
+			};
+		}
+	};
+}
+
 void dialogSilkscreenSettings(){
 	dlgDialog(lanGetText("headline.exportDlg")){
 		dlgGroup(lanGetText("general.sisc")+" Top:") 
@@ -2017,51 +2087,15 @@ void mainManu(){
 
 	loadDRCSettings();
 
-	if(!filesize(getUlpDir("../Languages/"+textLanguage))){
-		string languages[];
-		int n = fileglob(languages,getUlpDir("../Languages/lang_*.txt"));
-
-		for(int i=0; i<n; i++){
-			languages[i] = filename(languages[i]);
-			languages[i] = strsub(languages[i],5,(strrstr(languages[i],".txt")-5));
-		}
-
-		dlgDialog("Language") {
-			dlgVBoxLayout {
-				dlgLabel("Choose your prefered language:");
-				dlgHBoxLayout {
-					dlgStretch(1);
-					dlgComboBox(languages,n);
-				}
-				dlgHBoxLayout {
-					dlgStretch(1);
-					dlgPushButton("OK") dlgAccept();
-				}
-			}
-		};
-		textLanguage = "lang_"+languages[n]+".txt";
-	}
+	detectLanguage();
 
 	lanLoadText(textLanguage);
 
 	if(userName==""||shortUserName==""){
-		dlgDialog(lanGetText("grneral.userName")) {
-			dlgGridLayout {
-				dlgCell(0, 0, 0, 1) dlgLabel(lanGetText("dlg.username"));
-				dlgCell(1, 0) dlgLabel(lanGetText("grneral.userName")+":");
-				dlgCell(1, 1) dlgStringEdit(userName);
-				dlgCell(2, 0) dlgLabel(lanGetText("general.shortName")+":");
-				dlgCell(2, 1) dlgStringEdit(shortUserName);
-			}
-			dlgHBoxLayout{
-				dlgStretch(1);
-				dlgPushButton(lanGetText("button.ok")) {
-					dlgAccept();
-				};
-			}
-		};
+		dialogAskName();
 	}
 
+	detectDrillsymbols();	
 
 	//Create the main dialog
 	int dialog = dlgDialog(ULP_VERSION){
