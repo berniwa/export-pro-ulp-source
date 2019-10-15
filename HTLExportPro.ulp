@@ -268,39 +268,6 @@ void loadDRCSettings(){
 
 void loadUsersettings(){
 	string data[];
-	if (filesize(getUlpDir("../"+config_file))){
-		int lines = fileread(data, getUlpDir("../"+config_file));
-
-		string con;
-		for (int i=0; i<lines; i++){
-			con = stringTrim(strsub(data[i],0,strchr(data[i],'=')));
-			if (con=="language") {
-				 textLanguage = stringTrim(strsub(data[i],(strchr(data[i],'=')+1)));
-			}
-			if (con=="userName") {
-				 userName = stringTrim(strsub(data[i],(strchr(data[i],'=')+1)));
-			}
-			if (con=="shortUserName") {
-				 shortUserName = stringTrim(strsub(data[i],(strchr(data[i],'=')+1)));
-			}
-			if (con=="bomPreset") {
-				string tmp = stringTrim(strsub(data[i],(strchr(data[i],'=')+1)));
-				string tmpa[];
-				string tmpb[];
-				bomPreCount = strsplit(tmpa,tmp,';');
-
-				for(int n=0; n<bomPreCount; n++){
-					strsplit(tmpb,tmpa[n],',');
-
-					bomPreNames[n]=tmpb[0];
-					bomPreOffX[n]=strtod(tmpb[1]);
-					bomPreOffY[n]=strtod(tmpb[2]);
-					bomPreWidth[n]=strtod(tmpb[3]);
-				}
-			}
-		}
-	}
-
 	if(filesize(getSystemFilename(config_file2))) {
 		int lines = fileread(data, getSystemFilename(config_file2));
 
@@ -735,6 +702,44 @@ void loadUsersettings(){
 			silkscreen_bplace = 1;
 		}
 	}
+
+	if (filesize(getUlpDir("../"+config_file))){
+		int lines = fileread(data, getUlpDir("../"+config_file));
+
+		string con;
+		for (int i=0; i<lines; i++){
+			con = stringTrim(strsub(data[i],0,strchr(data[i],'=')));
+			if (con=="language") {
+				 textLanguage = stringTrim(strsub(data[i],(strchr(data[i],'=')+1)));
+			}
+			if (con=="userName") {
+				 userName = stringTrim(strsub(data[i],(strchr(data[i],'=')+1)));
+			}
+			if (con=="shortUserName") {
+				 shortUserName = stringTrim(strsub(data[i],(strchr(data[i],'=')+1)));
+			}
+			if (con=="bomPreset") {
+				string tmp = stringTrim(strsub(data[i],(strchr(data[i],'=')+1)));
+				string tmpa[];
+				string tmpb[];
+				bomPreCount = strsplit(tmpa,tmp,';')+1;
+
+				bomPreNames[0]="zzzzz";
+				bomPreOffX[0]=bom_offsetX;
+				bomPreOffY[0]=bom_offsetY;
+				bomPreWidth[0]=bom_width;
+
+				for(int n=0; n<bomPreCount; n++){
+					strsplit(tmpb,tmpa[n],',');
+
+					bomPreNames[n+1]=tmpb[0];
+					bomPreOffX[n+1]=strtod(tmpb[1]);
+					bomPreOffY[n+1]=strtod(tmpb[2]);
+					bomPreWidth[n+1]=strtod(tmpb[3]);
+				}
+			}
+		}
+	}
 }
 
 void saveUsersettings(){
@@ -866,7 +871,7 @@ void saveUsersettings(){
 		printf("shortUserName = %s\n",shortUserName);
 
 		printf("bomPreset = ");
-		int i=0;
+		int i=1;
 		while(1){
 			printf("%s,%f,%f,%f", bomPreNames[i], bomPreOffX[i], bomPreOffY[i], bomPreWidth[i]);
 
@@ -1720,15 +1725,20 @@ void dialogImageSettings(){
 }
 
 void dialogAddEditBomPreset(int set){
-	string name = bomPreNames[set];
-	real offX = bomPreOffX[set];
-	real offY = bomPreOffY[set];
-	real width = bomPreWidth[set];
+	if (set==0){
+		dlgMessageBox(lanGetText("dlg.cantEdit"));
+		return;
+	}
+
+	string name = (set==bomPreCount)?lanGetText("general.newPreset"):bomPreNames[set];
+	real offX = (set==bomPreCount)?bom_offsetX:bomPreOffX[set];
+	real offY = (set==bomPreCount)?bom_offsetY:bomPreOffY[set];
+	real width = (set==bomPreCount)?bom_width:bomPreWidth[set];
 
 	dlgDialog(lanGetText("button."+(set==bomPreCount)?"add":"edit")) {
 		dlgVBoxLayout{
 			dlgHBoxLayout {
-				dlgLabel(lanGetText("settings.offset.x"));
+				dlgLabel(lanGetText("general.name"));
 				dlgStretch(1);
 				dlgStringEdit(name);
 			}
@@ -1758,6 +1768,7 @@ void dialogAddEditBomPreset(int set){
 					bomPreOffY[set] = offY;
 					bomPreWidth[set] = width;
 					if(set==bomPreCount) {
+						bomPreset=set;
 						bomPreCount++;
 					}
 					dlgAccept();
@@ -1800,19 +1811,51 @@ void dialogBomSettings(){
 			}
 			dlgGroup(lanGetText("headline.bom.pdf")) {
 				dlgHBoxLayout {
+					if(bomPreNames[0]=="zzzzz"){
+						bomPreNames[0]=lanGetText("general.last");
+					}
+
 					dlgComboBox(bomPreNames,bomPreset) {
 						bom_offsetX = bomPreOffX[bomPreset];
 						bom_offsetY = bomPreOffY[bomPreset];
 						bom_width 	= bomPreWidth[bomPreset];
 					};
 					dlgStretch(1);
-					dlgPushButton(lanGetText("button.add")){ dialogAddEditBomPreset(bomPreCount);};
+					dlgPushButton(lanGetText("button.add")){ 
+						dialogAddEditBomPreset(bomPreCount);
+						dlgRedisplay();
+					};
 					dlgPushButton(lanGetText("button.edit")){ 
 						dialogAddEditBomPreset(bomPreset); 
 						bom_offsetX = bomPreOffX[bomPreset];
 						bom_offsetY = bomPreOffY[bomPreset];
 						bom_width 	= bomPreWidth[bomPreset];
 					};
+					dlgPushButton(lanGetText("button.delete")){
+						if (bomPreset==0){
+							dlgMessageBox(lanGetText("dlg.cantEdit"));
+							return;
+						}
+
+						for(int l=0, n=0;l<bomPreCount;l++){
+							if(l!=bomPreset){
+								bomPreNames[n]=bomPreNames[l];
+								bomPreOffX[n]=bomPreOffX[l];
+								bomPreOffY[n]=bomPreOffY[l];
+								bomPreWidth[n]=bomPreWidth[l];
+								n++;
+							}
+						}
+
+						bomPreset--;
+						bomPreCount--;
+
+						bomPreNames[bomPreCount]="";
+
+						bom_offsetX = bomPreOffX[bomPreset];
+						bom_offsetY = bomPreOffY[bomPreset];
+						bom_width 	= bomPreWidth[bomPreset];
+					}
 				}
 
 				dlgHBoxLayout {

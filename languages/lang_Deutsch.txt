@@ -9,6 +9,7 @@ button.request = Preise abfragen
 button.apply = Anwenden && Preise abfragen
 button.add = Hinzufügen
 button.edit = Editiren
+button.delete = Löschen
 
 dlg.imag.footnote = * Dies kann je nach Boardgröße einige Zeit <br>(bis zu mehreren Minuten) dauern.
 dlg.pfd.footnote = * Um die PDF-Dateien zusammen zu führen benutzen wir pdftk_server <br>Sie können sich dieses Tool <a href=\"https://www.pdflabs.com/tools/pdftk-server/\">hier</a> heunterladen.
@@ -16,6 +17,7 @@ dlg.sisc.info = Beim Erstellen des Bestückungsdrucks werden alle Linien auf die
 dlg.drcError = :Es wurden noch DRC-Fehler im Layout gefunden
 dlg.newVal.footnote = * könnte von dem Preis aus dem Internet überschrieben werden wenn dieser abgefragt wird
 dlg.username = Bitte geben Sie Ihren Namen und Ihr Kürzel an
+dlg.cantEdit = Editiren von "Letztes" nicht möglich
 
 general.copper = Kupfer
 general.side = Seite
@@ -39,6 +41,8 @@ general.name = Name
 general.layer = Layer
 grneral.userName = Benutzername
 general.shortName = Kürzel
+general.last = Letztes
+general.newPreset = Neues Preset
 
 headline.settings = Board Einstellungen
 headline.staps = Schritte
