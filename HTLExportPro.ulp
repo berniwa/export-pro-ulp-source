@@ -90,12 +90,23 @@ fabrication = 1, stackup = 1, boardInfo = 1,
 enable_export_pdf = 1, pdf_keep_frame = 1, pdf_merge = 1,
 enable_export_image = 1,
 bomToPDF = 1,
-board_format = 0;
+board_format = 0,
+bomPreset=0;
 ;
 
 real board_thickness = 0.0, board_copper_thickness = 0.0,
 bom_quantity, pnp_offset_x = 0.0, pnp_offset_y = 0.0,
 bom_offsetX = 0.15, bom_offsetY = 0.15, bom_width = 179.6;
+
+
+//variables for bom export presets
+string 	bomPreNames[];
+real 	bomPreOffX[];
+real 	bomPreOffY[];
+real 	bomPreWidth[];
+int 	bomPreCount;
+
+
 
 real copper_layer_thickness[]={18, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 18};
 
@@ -158,6 +169,7 @@ string ExportSetup[];
 
 string eaglercOptions[];
 
+
 string getSystemFilename(string ends_with){
 	return filesetext(bname + boardname,ends_with);
 }
@@ -180,6 +192,28 @@ project.board(B){
 
 		if(L.number<=16){
 			copper_layer_Name[L.number-1]=L.name;
+		}
+		
+	}
+
+	B.elements(E) {
+		if (strstr(E.package.name,"FRAME")!=-1){
+			real minx=0,maxx=0;
+			E.package.wires(W){
+				if(minx > u2mm(W.x1)){
+					minx = u2mm(W.x1);
+				}
+				if(minx > u2mm(W.x2)){
+					minx = u2mm(W.x2);
+				}
+				if(maxx < u2mm(W.x1)){
+					maxx = u2mm(W.x1);
+				}
+				if(maxx < u2mm(W.x2)){
+					maxx = u2mm(W.x2);
+				}
+			}
+			bom_width=maxx-minx;
 		}
 	}
 }
@@ -234,6 +268,39 @@ void loadDRCSettings(){
 
 void loadUsersettings(){
 	string data[];
+	if (filesize(getUlpDir("../"+config_file))){
+		int lines = fileread(data, getUlpDir("../"+config_file));
+
+		string con;
+		for (int i=0; i<lines; i++){
+			con = stringTrim(strsub(data[i],0,strchr(data[i],'=')));
+			if (con=="language") {
+				 textLanguage = stringTrim(strsub(data[i],(strchr(data[i],'=')+1)));
+			}
+			if (con=="userName") {
+				 userName = stringTrim(strsub(data[i],(strchr(data[i],'=')+1)));
+			}
+			if (con=="shortUserName") {
+				 shortUserName = stringTrim(strsub(data[i],(strchr(data[i],'=')+1)));
+			}
+			if (con=="bomPreset") {
+				string tmp = stringTrim(strsub(data[i],(strchr(data[i],'=')+1)));
+				string tmpa[];
+				string tmpb[];
+				bomPreCount = strsplit(tmpa,tmp,';');
+
+				for(int n=0; n<bomPreCount; n++){
+					strsplit(tmpb,tmpa[n],',');
+
+					bomPreNames[n]=tmpb[0];
+					bomPreOffX[n]=strtod(tmpb[1]);
+					bomPreOffY[n]=strtod(tmpb[2]);
+					bomPreWidth[n]=strtod(tmpb[3]);
+				}
+			}
+		}
+	}
+
 	if(filesize(getSystemFilename(config_file2))) {
 		int lines = fileread(data, getSystemFilename(config_file2));
 
@@ -667,24 +734,6 @@ void loadUsersettings(){
 			silkscreen_tplace = 1;
 			silkscreen_bplace = 1;
 		}
-	}	
-
-	if (filesize(getUlpDir("../"+config_file))){
-		int lines = fileread(data, getUlpDir("../"+config_file));
-
-		string con;
-		for (int i=0; i<lines; i++){
-			con = stringTrim(strsub(data[i],0,strchr(data[i],'=')));
-			if (con=="language") {
-				 textLanguage = stringTrim(strsub(data[i],(strchr(data[i],'=')+1)));
-			}
-			if (con=="userName") {
-				 userName = stringTrim(strsub(data[i],(strchr(data[i],'=')+1)));
-			}
-			if (con=="shortUserName") {
-				 shortUserName = stringTrim(strsub(data[i],(strchr(data[i],'=')+1)));
-			}
-		}
 	}
 }
 
@@ -815,6 +864,20 @@ void saveUsersettings(){
 		printf("language = %s\n",textLanguage);
 		printf("userName = %s\n",userName);
 		printf("shortUserName = %s\n",shortUserName);
+
+		printf("bomPreset = ");
+		int i=0;
+		while(1){
+			printf("%s,%f,%f,%f", bomPreNames[i], bomPreOffX[i], bomPreOffY[i], bomPreWidth[i]);
+
+			if(bomPreNames[++i]){
+				printf(";");
+			}
+			else {
+				printf("\n");
+				break;
+			}
+		}
 	}
 }
 
@@ -1656,6 +1719,57 @@ void dialogImageSettings(){
 	};		
 }
 
+void dialogAddEditBomPreset(int set){
+	string name = bomPreNames[set];
+	real offX = bomPreOffX[set];
+	real offY = bomPreOffY[set];
+	real width = bomPreWidth[set];
+
+	dlgDialog(lanGetText("button."+(set==bomPreCount)?"add":"edit")) {
+		dlgVBoxLayout{
+			dlgHBoxLayout {
+				dlgLabel(lanGetText("settings.offset.x"));
+				dlgStretch(1);
+				dlgStringEdit(name);
+			}
+			dlgHBoxLayout {
+				dlgLabel(lanGetText("settings.offset.x"));
+				dlgStretch(1);
+				dlgRealEdit(offX);
+				dlgLabel("mm");
+			}
+			dlgHBoxLayout {
+				dlgLabel(lanGetText("settings.offset.y"));
+				dlgStretch(1);
+				dlgRealEdit(offY);
+				dlgLabel("mm");
+			}
+			dlgHBoxLayout {
+				dlgLabel(lanGetText("settings.bom.width"));
+				dlgStretch(1);
+				dlgRealEdit(width);
+				dlgLabel("mm");
+			}
+
+			dlgHBoxLayout {
+				dlgPushButton(lanGetText("button.save")){
+					bomPreNames[set] = name;
+					bomPreOffX[set] = offX;
+					bomPreOffY[set] = offY;
+					bomPreWidth[set] = width;
+					if(set==bomPreCount) {
+						bomPreCount++;
+					}
+					dlgAccept();
+				};
+				dlgPushButton(lanGetText("button.cancel")){
+					dlgAccept();
+				};
+			}
+		}
+	};
+}
+
 void dialogBomSettings(){
 	dlgDialog(lanGetText("headline.exportDlg")){
 		dlgGroup(lanGetText("general.bom")){
@@ -1685,6 +1799,22 @@ void dialogBomSettings(){
 				}
 			}
 			dlgGroup(lanGetText("headline.bom.pdf")) {
+				dlgHBoxLayout {
+					dlgComboBox(bomPreNames,bomPreset) {
+						bom_offsetX = bomPreOffX[bomPreset];
+						bom_offsetY = bomPreOffY[bomPreset];
+						bom_width 	= bomPreWidth[bomPreset];
+					};
+					dlgStretch(1);
+					dlgPushButton(lanGetText("button.add")){ dialogAddEditBomPreset(bomPreCount);};
+					dlgPushButton(lanGetText("button.edit")){ 
+						dialogAddEditBomPreset(bomPreset); 
+						bom_offsetX = bomPreOffX[bomPreset];
+						bom_offsetY = bomPreOffY[bomPreset];
+						bom_width 	= bomPreWidth[bomPreset];
+					};
+				}
+
 				dlgHBoxLayout {
 					dlgLabel(lanGetText("settings.offset.x"));
 					dlgStretch(1);
