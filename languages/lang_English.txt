@@ -7,6 +7,8 @@ button.priceRequest = Update all prices
 button.save = Save
 button.request = Request Price
 button.apply = Apply && request Price
+button.add = Add
+button.edit = Edit
 
 dlg.imag.footnote = * This may take a few minutes, depending on the size of the board
 dlg.pfd.footnote = * To merge the pdf-files we use pdftk_server. <br>You can get this tool <a href=\"https://www.pdflabs.com/tools/pdftk-server/\">here</a>.

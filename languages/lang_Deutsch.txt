@@ -7,6 +7,8 @@ button.priceRequest = Alle Preise aktualisieren
 button.save = Speichern
 button.request = Preise abfragen
 button.apply = Anwenden && Preise abfragen
+button.add = Hinzufügen
+button.edit = Editiren
 
 dlg.imag.footnote = * Dies kann je nach Boardgröße einige Zeit <br>(bis zu mehreren Minuten) dauern.
 dlg.pfd.footnote = * Um die PDF-Dateien zusammen zu führen benutzen wir pdftk_server <br>Sie können sich dieses Tool <a href=\"https://www.pdflabs.com/tools/pdftk-server/\">hier</a> heunterladen.
