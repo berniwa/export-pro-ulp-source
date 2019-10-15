@@ -556,6 +556,9 @@ void loadUsersettings(){
 			else if (con=="bom_width") {
 				bom_width = strtod(stringTrim(strsub(data[i],(strchr(data[i],'=')+1))));
 			}
+			else if (con=="boardInfo") {
+				boardInfo = strtol(stringTrim(strsub(data[i],(strchr(data[i],'=')+1))));
+			}
 			else {
 				for(int l=0; l<16;l++){
 					string s;
@@ -862,6 +865,7 @@ void saveUsersettings(){
 		printf("bom_offsetX = %f\n", bom_offsetX);
 		printf("bom_offsetY = %f\n", bom_offsetY);
 		printf("bom_width = %f\n", bom_width);
+		printf("boardInfo = %d\n", boardInfo);
 	}
 
 	output(getUlpDir("../"+config_file)) {
@@ -2171,7 +2175,7 @@ void mainManu(){
 				dlgGroup(lanGetText("headline.staps")){
 					dlgHBoxLayout {dlgCheckBox(lanGetText("settings.renumber"), renumber); dlgStretch(1);}
 					dlgHBoxLayout {dlgCheckBox(lanGetText("settings.schematic"),schematic_export); dlgPushButton(lanGetText("button.settings")){dialogSchematicSettings();}; };
-					dlgHBoxLayout {dlgCheckBox(lanGetText("settings.boardInfo"),stackup); dlgPushButton(lanGetText("button.settings")){dialogFabricationSettings();}; };
+					dlgHBoxLayout {dlgCheckBox(lanGetText("settings.boardInfo"),boardInfo); dlgPushButton(lanGetText("button.settings")){dialogFabricationSettings();}; };
 					dlgHBoxLayout {dlgCheckBox(lanGetText("settings.sisc"),silkscreen_enable); dlgPushButton(lanGetText("button.settings")){dialogSilkscreenSettings();}; };
 					dlgHBoxLayout {dlgCheckBox(lanGetText("settings.image"),enable_export_image); dlgPushButton(lanGetText("button.settings")){dialogImageSettings();}; };
 					dlgHBoxLayout {dlgCheckBox(lanGetText("settings.pricing"),pricing); dlgStretch(1); };
