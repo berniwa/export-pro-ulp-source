@@ -865,17 +865,19 @@ void saveUsersettings(){
 		printf("userName = %s\n",userName);
 		printf("shortUserName = %s\n",shortUserName);
 
-		printf("bomPreset = ");
-		int i=1;
-		while(1){
-			printf("%s,%f,%f,%f", bomPreNames[i], bomPreOffX[i], bomPreOffY[i], bomPreWidth[i]);
+		if(bomPreNames[1]!=""){
+			printf("bomPreset = ");
+			int i=1;
+			while(1){
+				printf("%s,%f,%f,%f", bomPreNames[i], bomPreOffX[i], bomPreOffY[i], bomPreWidth[i]);
 
-			if(bomPreNames[++i]){
-				printf(";");
-			}
-			else {
-				printf("\n");
-				break;
+				if(bomPreNames[++i]){
+					printf(";");
+				}
+				else {
+					printf("\n");
+					break;
+				}
 			}
 		}
 	}
