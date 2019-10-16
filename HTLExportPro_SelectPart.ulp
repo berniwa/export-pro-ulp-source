@@ -131,8 +131,8 @@ void loadUlpSettings() {
 	}
 }
 
-void saveUsersettings() {
-	output(config_file) {
+void addLanguage2UlpSettings() {
+	output(config_file,"at") {
 		printf("language = %s\n",textLanguage);
 	}
 }
@@ -401,9 +401,9 @@ int showListOfDevices(){
 			}
 		};
 		textLanguage = "lang_"+languages[n]+".txt";
+		addLanguage2UlpSettings();
 	}
 
-	saveUsersettings();
 
 	bomLoadData();
 	lanLoadText(textLanguage);
