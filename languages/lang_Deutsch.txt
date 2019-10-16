@@ -18,7 +18,7 @@ dlg.drcError = :Es wurden noch DRC-Fehler im Layout gefunden
 dlg.newVal.footnote = * könnte von dem Preis aus dem Internet überschrieben werden wenn dieser abgefragt wird
 dlg.username = Bitte geben Sie Ihren Namen und Ihr Kürzel an
 dlg.cantEdit = Editiren von "Letztes" nicht möglich
-dlg.DrillError = :Nicht alle Bohrungen haben zugehörige Bohrsymbole. \nBitte weisen sie die restlichen im EAGLE-Menu zu!
+dlg.DrillError = :Nicht alle Bohrungen haben zugehörige Bohrsymbole. <br>Bitte weisen sie die restlichen im EAGLE-Menu zu!
 
 general.copper = Kupfer
 general.side = Seite
