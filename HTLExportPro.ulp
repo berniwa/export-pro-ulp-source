@@ -1667,6 +1667,18 @@ void detectDrillsymbols(){
 				}
 			}
 		}
+		B.elements(E) {
+			E.package.contacts(C) {
+				if(C.pad && (!C.pad.drillsymbol)){
+					cDrillSymbols=0;
+				}
+			}
+			E.package.holes(H) {
+				if(!H.drillsymbol){
+					cDrillSymbols=0;
+				}
+			}
+		}
 
 		if(!cDrillSymbols){
 			int opt=dlgMessageBox(lanGetText("dlg.DrillError"),lanGetText("button.continue"),lanGetText("button.cancel"));
