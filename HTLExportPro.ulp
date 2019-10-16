@@ -2024,6 +2024,44 @@ void dialogFabricationSettings() {
 	};
 }
 
+char dialogUlpSettings(){
+	char update=0;
+	string languages[];
+	int languageCount = fileglob(languages,getUlpDir("../Languages/lang_*.txt"));
+	int n = 0;
+
+	for(int i=0; i<languageCount; i++){
+		languages[i] = filename(languages[i]);
+		languages[i] = strsub(languages[i],5,(strrstr(languages[i],".txt")-5));
+
+		if(strstr(textLanguage,languages[i])!=-1){
+			n=i;
+		}
+	}
+
+	dlgDialog(lanGetText("settings.general")) {
+		dlgVBoxLayout {
+			dlgGroup(lanGetText("settings.general")) {
+				dlgGridLayout {
+					dlgCell(0, 0) dlgLabel(lanGetText("general.language")+":");
+					dlgCell(0, 1) dlgComboBox(languages,n){
+						textLanguage = "lang_"+languages[n]+".txt";
+						update=1;
+					};
+
+					dlgCell(1, 0) dlgLabel(lanGetText("grneral.userName")+":");
+					dlgCell(1, 1) dlgStringEdit(userName);
+					dlgCell(2, 0) dlgLabel(lanGetText("general.shortName")+":");
+					dlgCell(2, 1) dlgStringEdit(shortUserName);
+				}
+			}
+
+			dlgPushButton(lanGetText("button.ok")){dlgAccept();};
+		}
+	};
+	return update;
+}
+
 void mainManu(){
 	//In Eagle Version > 7, we need to have a fixed
 	//an absolute Path to our ULPs as Eagle otherwhise
@@ -2169,15 +2207,15 @@ void mainManu(){
 			dlgVBoxLayout {
 				dlgGroup(lanGetText("headline.staps")){
 					dlgHBoxLayout {dlgCheckBox(lanGetText("settings.renumber"), renumber); dlgStretch(1);}
-					dlgHBoxLayout {dlgCheckBox(lanGetText("settings.schematic"),schematic_export); dlgPushButton(lanGetText("button.settings")){dialogSchematicSettings();}; };
-					dlgHBoxLayout {dlgCheckBox(lanGetText("settings.boardInfo"),boardInfo); dlgPushButton(lanGetText("button.settings")){dialogFabricationSettings();}; };
-					dlgHBoxLayout {dlgCheckBox(lanGetText("settings.sisc"),silkscreen_enable); dlgPushButton(lanGetText("button.settings")){dialogSilkscreenSettings();}; };
-					dlgHBoxLayout {dlgCheckBox(lanGetText("settings.image"),enable_export_image); dlgPushButton(lanGetText("button.settings")){dialogImageSettings();}; };
+					dlgHBoxLayout {dlgCheckBox(lanGetText("settings.schematic"),schematic_export); dlgStretch(1); dlgPushButton("⚙"){dialogSchematicSettings();}; };
+					dlgHBoxLayout {dlgCheckBox(lanGetText("settings.boardInfo"),boardInfo); dlgStretch(1); dlgPushButton("⚙"){dialogFabricationSettings();}; };
+					dlgHBoxLayout {dlgCheckBox(lanGetText("settings.sisc"),silkscreen_enable); dlgStretch(1); dlgPushButton("⚙"){dialogSilkscreenSettings();}; };
+					dlgHBoxLayout {dlgCheckBox(lanGetText("settings.image"),enable_export_image); dlgStretch(1); dlgPushButton("⚙"){dialogImageSettings();}; };
 					dlgHBoxLayout {dlgCheckBox(lanGetText("settings.pricing"),pricing); dlgStretch(1); };
-					dlgHBoxLayout {dlgCheckBox(lanGetText("settings.bom"),bom); dlgPushButton(lanGetText("button.settings")){dialogBomSettings();}; };
+					dlgHBoxLayout {dlgCheckBox(lanGetText("settings.bom"),bom); dlgStretch(1); dlgPushButton("⚙"){dialogBomSettings();}; };
 					dlgHBoxLayout {dlgCheckBox(lanGetText("settings.idf"),idf_export); dlgStretch(1); };
-					dlgHBoxLayout {dlgCheckBox(lanGetText("settings.gerber"),gerber_export); dlgPushButton(lanGetText("button.settings")){dialogGerberSettings();}; };
-					dlgHBoxLayout {dlgCheckBox(lanGetText("settings.pnp"),pnp_export); dlgPushButton(lanGetText("button.settings")){dialogPnpSettings();}; };		
+					dlgHBoxLayout {dlgCheckBox(lanGetText("settings.gerber"),gerber_export); dlgStretch(1); dlgPushButton("⚙"){dialogGerberSettings();}; };
+					dlgHBoxLayout {dlgCheckBox(lanGetText("settings.pnp"),pnp_export); dlgStretch(1); dlgPushButton("⚙"){dialogPnpSettings();}; };		
 					dlgHBoxLayout {dlgCheckBox(lanGetText("settings.eagle"),eagle_export); dlgStretch(1); };
 					dlgHBoxLayout {dlgCheckBox(lanGetText("settings.panel"),ec_export); dlgStretch(1); };
 				}
@@ -2185,7 +2223,7 @@ void mainManu(){
 					dlgHBoxLayout {
 			 			dlgLabel(lanGetText("settings.output"));
 			  			dlgStringEdit(output_folder);
-						dlgPushButton(lanGetText("button.select")){
+						dlgPushButton("📁"){
 							if(output_folder == "./"){
 								output_folder = bname;
 							}
@@ -2193,7 +2231,7 @@ void mainManu(){
 							output_folder += "/";
 						}
 			  		}
-					dlgHBoxLayout {dlgCheckBox(lanGetText("settings.DateFolder"), output_date_folder); dlgStretch(1);}		
+					//dlgHBoxLayout {dlgCheckBox(lanGetText("settings.DateFolder"), output_date_folder); dlgStretch(1);}		
 				}
 				dlgStretch(1);
 			}
@@ -2208,6 +2246,12 @@ void mainManu(){
 			dlgPushButton(lanGetText("button.cancel")) {
 				saveUsersettings();
 				exit(EXIT_SUCCESS);
+			};
+			dlgPushButton("⚙") {
+				if(dialogUlpSettings()){
+					saveUsersettings();
+					exit("RUN " + getUlpDir("../HTLExportPro.ulp") + " drcLoaded;");
+				}
 			};
 			dlgStretch(1); 
 		}

@@ -8,7 +8,7 @@ button.save = Speichern
 button.request = Preise abfragen
 button.apply = Anwenden && Preise abfragen
 button.add = Hinzufügen
-button.edit = Editiren
+button.edit = Editieren
 button.delete = Löschen
 
 dlg.imag.footnote = * Dies kann je nach Boardgröße einige Zeit <br>(bis zu mehreren Minuten) dauern.
@@ -44,6 +44,7 @@ grneral.userName = Benutzername
 general.shortName = Kürzel
 general.last = Letztes
 general.newPreset = Neues Preset
+general.language = Sprache
 
 headline.settings = Board Einstellungen
 headline.staps = Schritte
