@@ -321,6 +321,7 @@ void editDevice(int selected){
 
 		dlgHBoxLayout{	
 			dlgStretch(1);
+			dlgPushButton(lanGetText("button.cancel")){dlgReject();}
 			dlgPushButton(lanGetText("button.save")){dlgAccept(); }
 		}
 	};
@@ -341,7 +342,6 @@ void editDevice(int selected){
 		bomUpdatePart(selected, mode);
 	}	
 }
-
 
 int showListOfDevices(){
 
