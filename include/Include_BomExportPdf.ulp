@@ -18,11 +18,12 @@ real 	charWidth			= 1.64;		//in mm
 
 int 	spaceID				= 3;		//in %
 int 	spacePartNr			= 3;		//in %
+int 	spaceName			= 14;		//in %
 int 	spaceDesinator		= 22;		//in %
-int 	spaceValue			= 15;		//in %
-int 	spaceManufacturer	= 23;		//in %
-int 	spaceMPN			= 26;		//in %
-int 	spacePackage		= 8;		//in %
+int 	spaceManufacturer	= 22;		//in %
+int 	spaceMPN			= 24;		//in %
+int 	spacePackage		= 7;		//in %
+int 	spacePop			= 5;		//in %
 						//+ =100
 
 char replace = 0;
@@ -58,14 +59,15 @@ void initVariables(real offsetX, real offsetY, real width) {
 	startX+=offsetX;
 	startY-=offsetY;
 
-	sprintf(cols,"%f;%f;%f;%f;%f;%f;%f",
+	sprintf(cols,"%f;%f;%f;%f;%f;%f;%f;%f",
 		width*(real(spaceID)/100),
 		width*(real(spacePartNr)/100),
+		width*(real(spaceName)/100),
 		width*(real(spaceDesinator)/100),
-		width*(real(spaceValue)/100),
 		width*(real(spaceManufacturer)/100),
 		width*(real(spaceMPN)/100),
-		width*(real(spacePackage)/100)
+		width*(real(spacePackage)/100),
+		width*(real(spacePop)/100)
 	);
 }
 
@@ -200,17 +202,18 @@ void bomOutputPdfFile(real offsetX, real offsetY, real width){
 	int row = 0;
 	string buffer;
 
-	cmd += drawRow(0, 0, row++, 1, 1, cols, "ID;CNT;DESIGNATOR;VALUE;MANUFACTURER;MPN;PACKAGE");
+	cmd += drawRow(0, 0, row++, 1, 1, cols, "ID;CNT;TYPE;DESIGNATOR;MANUFACTURER;MPN;PACKAGE;POP");
 
 	for(int i = 0; i < bomInfoCount; i++) {
-      	sprintf(buffer,"%d;%d;%s;%s;%s;%s;%s",
+      	sprintf(buffer,"%d;%d;%s;%s;%s;%s;%s;%s",
         	i+1, 
-        	bomInfoPartCount[i],
-        	bomCsvSafe(bomOutputParts[i]), 
-        	bomCsvSafe(bomInfoValue[i]), 
-        	bomCsvSafe(bomAttributeManufacturer[i]), 
-        	bomCsvSafe(bomAttributePartNo[i]), 
-        	bomCsvSafe(bomInfoPackage[i])
+        	bomInfoPartCount[i], 
+        	bomOutputName[i], 
+        	bomOutputParts[i],
+        	bomAttributeManufacturer[i], 
+        	bomAttributePartNo[i], 
+        	bomInfoPackage[i],
+        	bomAttributePopulate[i]
        	);
 
       	cmd += drawRow(0, 0, row++, 0, 0, cols, buffer);
