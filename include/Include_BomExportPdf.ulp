@@ -13,7 +13,7 @@ real 	textSize 			= 1.778;	//in mm
 real 	lineWidthBorder		= 0.2032; 	//in mm
 real 	distance  			= 0.5;		//in mm, from left cell edge
 int 	ratioNormal 		= 5;		//
-int 	ratioHeadline		= 8;		//
+int 	ratioHeadline		= 12;		//
 real 	charWidth			= 1.64;		//in mm
 
 int 	spaceID				= 3;		//in %
