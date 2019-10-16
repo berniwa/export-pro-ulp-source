@@ -370,7 +370,7 @@ void editDevice(int selected){
 int showListOfDevices(){
 
 	if(board){
-		exit("EDIT .sch; RUN HTLExportPro_SelectPart.ulp;");
+		exit("EDIT .sch; RUN "+argv[0]+";");
 	}
 
 	int selected = 0;
