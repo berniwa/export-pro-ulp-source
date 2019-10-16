@@ -3,6 +3,8 @@ string LIBRARY_NAME = "fabrication.lbr";
 string BOARD_NAME = ".brd";
 string cols="1;1;1;1;1;1;1";
 
+string newRow="";
+
 real 	frameWith			= 0.5;		//in mm
 real 	rowHeight 			= 2.5; 		//in mm
 int 	headHight 			= 51;		//in mm
@@ -135,8 +137,34 @@ string drawRow(real startx, real starty, int row, int isHeadline, int align, str
 		);
 
 		if(widths[i]<(real(strlen(texts[i]))*charWidth)){
-			texts[i] = strsub(texts[i],0,(int(widths[i]/charWidth)-2));
-			texts[i] += "...";
+			if(i==3){//designator
+				string tmp[],this[],next[];
+				int c=0;
+				int leangth=0;
+				int d = strsplit(tmp,texts[i],',');
+				for(int n=0; n<d; n++){
+					if((c==0) && (widths[i]<(real(leangth+strlen(tmp[n])+n)*charWidth))) {
+						c=n;
+					}
+					else{
+						leangth += strlen(tmp[n]);
+					}
+
+					if(c==0) {
+						this[n]=tmp[n];
+					}
+					else {
+						next[n-c]=tmp[n];
+					}
+				}
+
+				texts[i] = strjoin(this,',')+",";
+				newRow = strjoin(next,','); 
+			}
+			else{
+				texts[i] = strsub(texts[i],0,(int(widths[i]/charWidth)-2));
+				texts[i] += "...";
+			}
 		}
 
 		real x2 = 0.0;
@@ -215,8 +243,14 @@ void bomOutputPdfFile(real offsetX, real offsetY, real width){
         	bomInfoPackage[i],
         	bomAttributePopulate[i]
        	);
-
-      	cmd += drawRow(0, 0, row++, 0, 0, cols, buffer);
+       	newRow="";
+		cmd += drawRow(0, 0, row++, 0, 0, cols, buffer);
+       	
+       	while(newRow!=""){
+       		sprintf(buffer,";;;%s;;;;", newRow);
+       		newRow="";
+       		cmd += drawRow(0, 0, row++, 0, 0, cols, buffer);
+       	}
     }
     cmd += drawBorder(0, 0, row, cols);
 
