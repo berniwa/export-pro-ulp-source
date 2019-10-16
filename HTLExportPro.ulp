@@ -67,7 +67,7 @@ char UI_LESS=0;
 
 int 
 layout_bot = 1, layout_top = 1, layout_l3 = 0, layout_l2 = 0, parts_top = 1, parts_bot = 1, drills = 1, measure = 1, drilltable = 1, 
-construction = 1, reference = 1, enable_export_png = 1, bom = 1, mirror_bot = 1, crop_all = 1, no_measures = 0, auto_project = 1,
+construction = 1, reference = 0, enable_export_png = 1, bom = 1, mirror_bot = 1, crop_all = 1, no_measures = 0, auto_project = 1,
 bom_xls = 1, bom_csv = 0, bom_dbase3 = 0, bom_farnell = 0, bom_shorten_names = 1, bom_display_package_type = 1, 
 parts_display_names = 1, parts_display_values = 1, pricing = 0, idf_export = 1, pcbimage_top = 1, 
 pcbimage_bottom = 1, pcbimage_resolution = 2, pcbimage_crop = 1, pcbimage_mirror = 1, pcbimage_color = 0,
@@ -2068,7 +2068,6 @@ void mainManu(){
 				}
 				dlgStretch(1);
 			}
-
 			dlgVBoxLayout {
 				dlgGroup(lanGetText("headline.staps")){
 					dlgHBoxLayout {dlgCheckBox(lanGetText("settings.renumber"), renumber); dlgStretch(1);}
