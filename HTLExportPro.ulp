@@ -724,12 +724,9 @@ void loadUsersettings(){
 				string tmp = stringTrim(strsub(data[i],(strchr(data[i],'=')+1)));
 				string tmpa[];
 				string tmpb[];
-				bomPreCount = strsplit(tmpa,tmp,';')+1;
+				bomPreCount = strsplit(tmpa,tmp,';');
 
-				bomPreNames[0]="zzzzz";
-				bomPreOffX[0]=bom_offsetX;
-				bomPreOffY[0]=bom_offsetY;
-				bomPreWidth[0]=bom_width;
+				bomPreNames[0]="";
 
 				for(int n=0; n<bomPreCount; n++){
 					strsplit(tmpb,tmpa[n],',');
@@ -1885,8 +1882,12 @@ void dialogBomSettings(){
 			}
 			dlgGroup(lanGetText("headline.bom.pdf")) {
 				dlgHBoxLayout {
-					if(bomPreNames[0]=="zzzzz"){
+					if(bomPreNames[0]==""){
 						bomPreNames[0]=lanGetText("general.last");
+						bomPreOffX[0]=bom_offsetX;
+						bomPreOffY[0]=bom_offsetY;
+						bomPreWidth[0]=bom_width;
+						bomPreCount++;
 					}
 
 					dlgComboBox(bomPreNames,bomPreset) {
