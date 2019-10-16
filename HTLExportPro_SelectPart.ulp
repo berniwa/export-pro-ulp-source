@@ -421,7 +421,7 @@ int showListOfDevices(){
 					dlgStretch(1); 
 					dlgPushButton("⚙") {
 						if(editUserConfig()){
-							saveUsersettings();
+							saveConfig();
 							exit("RUN " + argv[0] + ";");
 						}
 					};

@@ -1,4 +1,6 @@
-string 	DOWNLOAD_URL 			= "http://eagle.berniwa.com/price.php";
+#include "Include/Include_Config.ulp";
+
+//string 	DOWNLOAD_URL 			= "http://eagle.berniwa.com/price.php";
 //string 	DOWNLOAD_URL 			= "http://localhost/EaglePriceRequester/price.php";
 
 string bomPricingTsv = "";
@@ -48,8 +50,9 @@ void bomPricingRequestPart(int part)
 
 void bomPricingRequestDo()
 {
+	loadConfig();
 	string lines[];
-	int nlines = netpost(lines, DOWNLOAD_URL, "tsv=" + escapeString(bomPricingTsv));
+	int nlines = netpost(lines, cfg_pricingURL, "tsv=" + escapeString(bomPricingTsv));
 
 	/*
 	output("W:\\Hardware\\ulptest\\input.txt", "wt")

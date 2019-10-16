@@ -45,6 +45,7 @@ general.shortName = Shortname
 general.last = Last
 general.newPreset = New preset
 general.language = Language
+general.pricingURL = Pricing URL
 
 headline.settings = Board settings
 headline.staps = Steps

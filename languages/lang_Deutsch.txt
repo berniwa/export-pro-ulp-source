@@ -45,6 +45,7 @@ general.shortName = Kürzel
 general.last = Letztes
 general.newPreset = Neues Preset
 general.language = Sprache
+general.pricingURL = URL zur Preisabfrage
 
 headline.settings = Board Einstellungen
 headline.staps = Schritte

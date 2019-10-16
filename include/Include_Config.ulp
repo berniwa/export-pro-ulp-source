@@ -1,6 +1,11 @@
+#include "Include/Include_Misc.ulp";
+#include "Include/Include_Language.ulp";
+
 string 
 cfg_textLanguage = "", 
-cfg_userName = "", cfg_shortUserName = ""
+cfg_userName = "", 
+cfg_shortUserName = "",
+cfg_pricingURL = "http://eagle.berniwa.com/price.php"
 ;
 
 //variables for bom export presets
@@ -15,6 +20,7 @@ void saveConfig() {
 		printf("language = %s\n",cfg_textLanguage);
 		printf("userName = %s\n",cfg_userName);
 		printf("shortUserName = %s\n",cfg_shortUserName);
+		printf("pricingURL = %s\n",cfg_pricingURL);
 
 		if(cfg_bomPreNames[1]!=""){
 			printf("bomPreset = ");
@@ -36,10 +42,15 @@ void saveConfig() {
 
 char editUserConfig(){
 	char set=!(strlen(cfg_textLanguage));
+	lanLoadText(cfg_textLanguage);
 	char update=0;
 	string languages[];
 	int languageCount = fileglob(languages,getUlpDir("../Languages/lang_*.txt"));
 	int n = 0;
+
+	if(!set){
+		lanLoadText(cfg_textLanguage);
+	}
 
 	for(int i=0; i<languageCount; i++){
 		languages[i] = filename(languages[i]);
@@ -64,6 +75,8 @@ char editUserConfig(){
 					dlgCell(1, 1) dlgStringEdit(cfg_userName);
 					dlgCell(2, 0) dlgLabel(set?"Shortname:":lanGetText("general.shortName")+":");
 					dlgCell(2, 1) dlgStringEdit(cfg_shortUserName);
+					dlgCell(2, 0) dlgLabel(set?"Pricing URL:":lanGetText("general.pricingURL")+":");
+					dlgCell(2, 1) dlgStringEdit(cfg_pricingURL);
 				}
 			}
 
@@ -90,6 +103,9 @@ void loadConfig(){
 			}
 			if (con=="shortUserName") {
 				 cfg_shortUserName = stringTrim(strsub(data[i],(strchr(data[i],'=')+1)));
+			}
+			if (con=="pricingURL") {
+				 cfg_pricingURL = stringTrim(strsub(data[i],(strchr(data[i],'=')+1)));
 			}
 			if (con=="bomPreset") {
 				string tmp = stringTrim(strsub(data[i],(strchr(data[i],'=')+1)));
