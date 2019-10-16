@@ -1,0 +1,116 @@
+string 
+cfg_textLanguage = "", 
+cfg_userName = "", cfg_shortUserName = ""
+;
+
+//variables for bom export presets
+string 	cfg_bomPreNames[];
+real 	cfg_bomPreOffX[];
+real 	cfg_bomPreOffY[];
+real 	cfg_bomPreWidth[];
+int 	cfg_bomPreCount;
+
+void saveConfig() {
+	output(getUlpDir("../exportpro.cfg")) {
+		printf("language = %s\n",cfg_textLanguage);
+		printf("userName = %s\n",cfg_userName);
+		printf("shortUserName = %s\n",cfg_shortUserName);
+
+		if(cfg_bomPreNames[1]!=""){
+			printf("bomPreset = ");
+			int i=1;
+			while(1){
+				printf("%s,%f,%f,%f", cfg_bomPreNames[i], cfg_bomPreOffX[i], cfg_bomPreOffY[i], cfg_bomPreWidth[i]);
+
+				if(cfg_bomPreNames[++i]){
+					printf(";");
+				}
+				else {
+					printf("\n");
+					break;
+				}
+			}
+		}
+	}
+}
+
+char editUserConfig(){
+	char set=!(strlen(cfg_textLanguage));
+	char update=0;
+	string languages[];
+	int languageCount = fileglob(languages,getUlpDir("../Languages/lang_*.txt"));
+	int n = 0;
+
+	for(int i=0; i<languageCount; i++){
+		languages[i] = filename(languages[i]);
+		languages[i] = strsub(languages[i],5,(strrstr(languages[i],".txt")-5));
+
+		if(strstr(cfg_textLanguage,languages[i])!=-1){
+			n=i;
+		}
+	}
+
+	dlgDialog(set?"Settings":lanGetText("settings.general")) {
+		dlgVBoxLayout {
+			dlgGroup(set?"Initialice settings":lanGetText("settings.general")) {
+				dlgGridLayout {
+					dlgCell(0, 0) dlgLabel(set?"Language:":lanGetText("general.language")+":");
+					dlgCell(0, 1) dlgComboBox(languages,n){
+						cfg_textLanguage = "lang_"+languages[n]+".txt";
+						update=1;
+					};
+
+					dlgCell(1, 0) dlgLabel(set?"Username:":lanGetText("grneral.userName")+":");
+					dlgCell(1, 1) dlgStringEdit(cfg_userName);
+					dlgCell(2, 0) dlgLabel(set?"Shortname:":lanGetText("general.shortName")+":");
+					dlgCell(2, 1) dlgStringEdit(cfg_shortUserName);
+				}
+			}
+
+			dlgPushButton(set?"OK":lanGetText("button.ok")){dlgAccept();};
+		}
+	};
+	saveConfig();
+	return update;
+}
+
+void loadConfig(){
+	string data[];
+	if (filesize(getUlpDir("../exportpro.cfg"))){
+		int lines = fileread(data, getUlpDir("../exportpro.cfg"));
+
+		string con;
+		for (int i=0; i<lines; i++){
+			con = stringTrim(strsub(data[i],0,strchr(data[i],'=')));
+			if (con=="language") {
+				 cfg_textLanguage = stringTrim(strsub(data[i],(strchr(data[i],'=')+1)));
+			}
+			if (con=="userName") {
+				 cfg_userName = stringTrim(strsub(data[i],(strchr(data[i],'=')+1)));
+			}
+			if (con=="shortUserName") {
+				 cfg_shortUserName = stringTrim(strsub(data[i],(strchr(data[i],'=')+1)));
+			}
+			if (con=="bomPreset") {
+				string tmp = stringTrim(strsub(data[i],(strchr(data[i],'=')+1)));
+				string tmpa[];
+				string tmpb[];
+				cfg_bomPreCount = strsplit(tmpa,tmp,';');
+
+				cfg_bomPreNames[0]="";
+
+				for(int n=0; n<cfg_bomPreCount; n++){
+					strsplit(tmpb,tmpa[n],',');
+
+					cfg_bomPreNames[n+1]=tmpb[0];
+					cfg_bomPreOffX[n+1]=strtod(tmpb[1]);
+					cfg_bomPreOffY[n+1]=strtod(tmpb[2]);
+					cfg_bomPreWidth[n+1]=strtod(tmpb[3]);
+				}
+			}
+		}
+	}
+	else{
+		editUserConfig();
+	}
+}

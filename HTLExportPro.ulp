@@ -41,6 +41,7 @@
 #include "Include/Include_Misc.ulp";
 #include "Include/Include_Dru.ulp";
 #include "Include/Include_Language.ulp";
+#include "Include/Include_Config.ulp";
 
 void debugMsg(string msg){
 	//to prevent debug messages to apear in releace
@@ -67,7 +68,7 @@ char UI_LESS=0;
 int 
 layout_bot = 1, layout_top = 1, layout_l3 = 0, layout_l2 = 0, parts_top = 1, parts_bot = 1, drills = 1, measure = 1, drilltable = 1, 
 construction = 1, reference = 1, enable_export_png = 1, bom = 1, mirror_bot = 1, crop_all = 1, no_measures = 0, auto_project = 1,
-bom_xls = 1, bom_csv = 0, bom_dbase3 = 1, bom_farnell = 1, bom_shorten_names = 1, bom_display_package_type = 1, 
+bom_xls = 1, bom_csv = 0, bom_dbase3 = 0, bom_farnell = 0, bom_shorten_names = 1, bom_display_package_type = 1, 
 parts_display_names = 1, parts_display_values = 1, pricing = 0, idf_export = 1, pcbimage_top = 1, 
 pcbimage_bottom = 1, pcbimage_resolution = 2, pcbimage_crop = 1, pcbimage_mirror = 1, pcbimage_color = 0,
 pcbimage_silkscreen_color = 0, pcbimage_plating = 0,
@@ -99,12 +100,7 @@ bom_quantity, pnp_offset_x = 0.0, pnp_offset_y = 0.0,
 bom_offsetX = 0.15, bom_offsetY = 0.15, bom_width = 179.6;
 
 
-//variables for bom export presets
-string 	bomPreNames[];
-real 	bomPreOffX[];
-real 	bomPreOffY[];
-real 	bomPreWidth[];
-int 	bomPreCount;
+
 
 
 
@@ -125,10 +121,7 @@ output_file_gerber_spec, output_folder_eagle,
 output_file_eagle_spec, ecpanel_path
 ;
 
-string 
-textLanguage = "", 
-userName = "", shortUserName = ""
-;
+
 
 string layer_fill[];
 
@@ -700,41 +693,6 @@ void loadUsersettings(){
 			silkscreen_bplace = 1;
 		}
 	}
-
-	if (filesize(getUlpDir("../"+config_file))){
-		int lines = fileread(data, getUlpDir("../"+config_file));
-
-		string con;
-		for (int i=0; i<lines; i++){
-			con = stringTrim(strsub(data[i],0,strchr(data[i],'=')));
-			if (con=="language") {
-				 textLanguage = stringTrim(strsub(data[i],(strchr(data[i],'=')+1)));
-			}
-			if (con=="userName") {
-				 userName = stringTrim(strsub(data[i],(strchr(data[i],'=')+1)));
-			}
-			if (con=="shortUserName") {
-				 shortUserName = stringTrim(strsub(data[i],(strchr(data[i],'=')+1)));
-			}
-			if (con=="bomPreset") {
-				string tmp = stringTrim(strsub(data[i],(strchr(data[i],'=')+1)));
-				string tmpa[];
-				string tmpb[];
-				bomPreCount = strsplit(tmpa,tmp,';');
-
-				bomPreNames[0]="";
-
-				for(int n=0; n<bomPreCount; n++){
-					strsplit(tmpb,tmpa[n],',');
-
-					bomPreNames[n+1]=tmpb[0];
-					bomPreOffX[n+1]=strtod(tmpb[1]);
-					bomPreOffY[n+1]=strtod(tmpb[2]);
-					bomPreWidth[n+1]=strtod(tmpb[3]);
-				}
-			}
-		}
-	}
 }
 
 void saveUsersettings(){
@@ -858,28 +816,6 @@ void saveUsersettings(){
 		printf("bom_offsetY = %f\n", bom_offsetY);
 		printf("bom_width = %f\n", bom_width);
 		printf("boardInfo = %d\n", boardInfo);
-	}
-
-	output(getUlpDir("../"+config_file)) {
-		printf("language = %s\n",textLanguage);
-		printf("userName = %s\n",userName);
-		printf("shortUserName = %s\n",shortUserName);
-
-		if(bomPreNames[1]!=""){
-			printf("bomPreset = ");
-			int i=1;
-			while(1){
-				printf("%s,%f,%f,%f", bomPreNames[i], bomPreOffX[i], bomPreOffY[i], bomPreWidth[i]);
-
-				if(bomPreNames[++i]){
-					printf(";");
-				}
-				else {
-					printf("\n");
-					break;
-				}
-			}
-		}
 	}
 }
 
@@ -1025,8 +961,8 @@ string updateFrameInformation(string drawing){
 	 	sprintf(cmd, "%sATTRIBUTE %s LAST_EDIT \'%s\'; ", cmd, name, t2string(t, "dd.MM.yy"));
 	 	sprintf(cmd, "%sATTRIBUTE %s DRAWING \'%s\'; ", cmd, name, stringTrim(drawing));
 	 	sprintf(cmd, "%sATTRIBUTE %s FILENAME \'%s.brd\'; ", cmd, name, boardname);
-	 	sprintf(cmd, "%sATTRIBUTE %s USERNAME \'%s\'; ", cmd, name, userName);
-	 	sprintf(cmd, "%sATTRIBUTE %s SHORTNAME \'%s\'; ", cmd, name, shortUserName);
+	 	sprintf(cmd, "%sATTRIBUTE %s USERNAME \'%s\'; ", cmd, name, cfg_userName);
+	 	sprintf(cmd, "%sATTRIBUTE %s SHORTNAME \'%s\'; ", cmd, name, cfg_shortUserName);
 
 	 	if(EAGLE_VERSION>=9){
 	 		cmd += "REPOSITION " + name + "; ";
@@ -1627,33 +1563,6 @@ void export(){
 	exit(cmd);
 }
 
-void detectLanguage(){
-	if(!filesize(getUlpDir("../Languages/"+textLanguage))){
-		string languages[];
-		int n = fileglob(languages,getUlpDir("../Languages/lang_*.txt"));
-
-		for(int i=0; i<n; i++){
-			languages[i] = filename(languages[i]);
-			languages[i] = strsub(languages[i],5,(strrstr(languages[i],".txt")-5));
-		}
-
-		dlgDialog("Language") {
-			dlgVBoxLayout {
-				dlgLabel("Choose your prefered language:");
-				dlgHBoxLayout {
-					dlgStretch(1);
-					dlgComboBox(languages,n);
-				}
-				dlgHBoxLayout {
-					dlgStretch(1);
-					dlgPushButton("OK") dlgAccept();
-				}
-			}
-		};
-		textLanguage = "lang_"+languages[n]+".txt";
-	}
-}
-
 void detectDrillsymbols(){
 	board(B){
 		char cDrillSymbols = 1;
@@ -1690,24 +1599,6 @@ void detectDrillsymbols(){
 			}
 		}
 	}
-}
-
-void dialogAskName(){
-	dlgDialog(lanGetText("grneral.userName")) {
-		dlgGridLayout {
-			dlgCell(0, 0, 0, 1) dlgLabel(lanGetText("dlg.username"));
-			dlgCell(1, 0) dlgLabel(lanGetText("grneral.userName")+":");
-			dlgCell(1, 1) dlgStringEdit(userName);
-			dlgCell(2, 0) dlgLabel(lanGetText("general.shortName")+":");
-			dlgCell(2, 1) dlgStringEdit(shortUserName);
-		}
-		dlgHBoxLayout{
-			dlgStretch(1);
-			dlgPushButton(lanGetText("button.ok")) {
-				dlgAccept();
-			};
-		}
-	};
 }
 
 void dialogSilkscreenSettings(){
@@ -1810,12 +1701,12 @@ void dialogAddEditBomPreset(int set){
 		return;
 	}
 
-	string name = (set==bomPreCount)?lanGetText("general.newPreset"):bomPreNames[set];
-	real offX = (set==bomPreCount)?bom_offsetX:bomPreOffX[set];
-	real offY = (set==bomPreCount)?bom_offsetY:bomPreOffY[set];
-	real width = (set==bomPreCount)?bom_width:bomPreWidth[set];
+	string name = (set==cfg_bomPreCount)?lanGetText("general.newPreset"):cfg_bomPreNames[set];
+	real offX = (set==cfg_bomPreCount)?bom_offsetX:cfg_bomPreOffX[set];
+	real offY = (set==cfg_bomPreCount)?bom_offsetY:cfg_bomPreOffY[set];
+	real width = (set==cfg_bomPreCount)?bom_width:cfg_bomPreWidth[set];
 
-	dlgDialog(lanGetText("button."+(set==bomPreCount)?"add":"edit")) {
+	dlgDialog(lanGetText("button."+(set==cfg_bomPreCount)?"add":"edit")) {
 		dlgVBoxLayout{
 			dlgHBoxLayout {
 				dlgLabel(lanGetText("general.name"));
@@ -1843,14 +1734,15 @@ void dialogAddEditBomPreset(int set){
 
 			dlgHBoxLayout {
 				dlgPushButton(lanGetText("button.save")){
-					bomPreNames[set] = name;
-					bomPreOffX[set] = offX;
-					bomPreOffY[set] = offY;
-					bomPreWidth[set] = width;
-					if(set==bomPreCount) {
+					cfg_bomPreNames[set] = name;
+					cfg_bomPreOffX[set] = offX;
+					cfg_bomPreOffY[set] = offY;
+					cfg_bomPreWidth[set] = width;
+					if(set==cfg_bomPreCount) {
 						bomPreset=set;
-						bomPreCount++;
+						cfg_bomPreCount++;
 					}
+					saveConfig();
 					dlgAccept();
 				};
 				dlgPushButton(lanGetText("button.cancel")){
@@ -1890,29 +1782,29 @@ void dialogBomSettings(){
 			}
 			dlgGroup(lanGetText("headline.bom.pdf")) {
 				dlgHBoxLayout {
-					if(bomPreNames[0]==""){
-						bomPreNames[0]=lanGetText("general.last");
-						bomPreOffX[0]=bom_offsetX;
-						bomPreOffY[0]=bom_offsetY;
-						bomPreWidth[0]=bom_width;
-						bomPreCount++;
+					if(cfg_bomPreNames[0]==""){
+						cfg_bomPreNames[0]=lanGetText("general.last");
+						cfg_bomPreOffX[0]=bom_offsetX;
+						cfg_bomPreOffY[0]=bom_offsetY;
+						cfg_bomPreWidth[0]=bom_width;
+						cfg_bomPreCount++;
 					}
 
-					dlgComboBox(bomPreNames,bomPreset) {
-						bom_offsetX = bomPreOffX[bomPreset];
-						bom_offsetY = bomPreOffY[bomPreset];
-						bom_width 	= bomPreWidth[bomPreset];
+					dlgComboBox(cfg_bomPreNames,bomPreset) {
+						bom_offsetX = cfg_bomPreOffX[bomPreset];
+						bom_offsetY = cfg_bomPreOffY[bomPreset];
+						bom_width 	= cfg_bomPreWidth[bomPreset];
 					};
 					dlgStretch(1);
 					dlgPushButton(lanGetText("button.add")){ 
-						dialogAddEditBomPreset(bomPreCount);
+						dialogAddEditBomPreset(cfg_bomPreCount);
 						dlgRedisplay();
 					};
 					dlgPushButton(lanGetText("button.edit")){ 
 						dialogAddEditBomPreset(bomPreset); 
-						bom_offsetX = bomPreOffX[bomPreset];
-						bom_offsetY = bomPreOffY[bomPreset];
-						bom_width 	= bomPreWidth[bomPreset];
+						bom_offsetX = cfg_bomPreOffX[bomPreset];
+						bom_offsetY = cfg_bomPreOffY[bomPreset];
+						bom_width 	= cfg_bomPreWidth[bomPreset];
 					};
 					dlgPushButton(lanGetText("button.delete")){
 						if (bomPreset==0){
@@ -1920,24 +1812,24 @@ void dialogBomSettings(){
 							return;
 						}
 
-						for(int l=0, n=0;l<bomPreCount;l++){
+						for(int l=0, n=0;l<cfg_bomPreCount;l++){
 							if(l!=bomPreset){
-								bomPreNames[n]=bomPreNames[l];
-								bomPreOffX[n]=bomPreOffX[l];
-								bomPreOffY[n]=bomPreOffY[l];
-								bomPreWidth[n]=bomPreWidth[l];
+								cfg_bomPreNames[n]=cfg_bomPreNames[l];
+								cfg_bomPreOffX[n]=cfg_bomPreOffX[l];
+								cfg_bomPreOffY[n]=cfg_bomPreOffY[l];
+								cfg_bomPreWidth[n]=cfg_bomPreWidth[l];
 								n++;
 							}
 						}
 
 						bomPreset--;
-						bomPreCount--;
+						cfg_bomPreCount--;
 
-						bomPreNames[bomPreCount]="";
+						cfg_bomPreNames[cfg_bomPreCount]="";
 
-						bom_offsetX = bomPreOffX[bomPreset];
-						bom_offsetY = bomPreOffY[bomPreset];
-						bom_width 	= bomPreWidth[bomPreset];
+						bom_offsetX = cfg_bomPreOffX[bomPreset];
+						bom_offsetY = cfg_bomPreOffY[bomPreset];
+						bom_width 	= cfg_bomPreWidth[bomPreset];
 					}
 				}
 
@@ -2038,44 +1930,6 @@ void dialogFabricationSettings() {
 	};
 }
 
-char dialogUlpSettings(){
-	char update=0;
-	string languages[];
-	int languageCount = fileglob(languages,getUlpDir("../Languages/lang_*.txt"));
-	int n = 0;
-
-	for(int i=0; i<languageCount; i++){
-		languages[i] = filename(languages[i]);
-		languages[i] = strsub(languages[i],5,(strrstr(languages[i],".txt")-5));
-
-		if(strstr(textLanguage,languages[i])!=-1){
-			n=i;
-		}
-	}
-
-	dlgDialog(lanGetText("settings.general")) {
-		dlgVBoxLayout {
-			dlgGroup(lanGetText("settings.general")) {
-				dlgGridLayout {
-					dlgCell(0, 0) dlgLabel(lanGetText("general.language")+":");
-					dlgCell(0, 1) dlgComboBox(languages,n){
-						textLanguage = "lang_"+languages[n]+".txt";
-						update=1;
-					};
-
-					dlgCell(1, 0) dlgLabel(lanGetText("grneral.userName")+":");
-					dlgCell(1, 1) dlgStringEdit(userName);
-					dlgCell(2, 0) dlgLabel(lanGetText("general.shortName")+":");
-					dlgCell(2, 1) dlgStringEdit(shortUserName);
-				}
-			}
-
-			dlgPushButton(lanGetText("button.ok")){dlgAccept();};
-		}
-	};
-	return update;
-}
-
 void mainManu(){
 	//In Eagle Version > 7, we need to have a fixed
 	//an absolute Path to our ULPs as Eagle otherwhise
@@ -2090,6 +1944,7 @@ void mainManu(){
 	else if(argc > 1 && argv[1] == "execute"){
 		//Load the users project settings
 		loadUsersettings();
+		loadConfig();
 
 		drcLoadRules(getSystemFilename(drc_file), 0);
 
@@ -2105,7 +1960,7 @@ void mainManu(){
 			}
 
 			if(error!=0){
-				lanLoadText(textLanguage);
+				lanLoadText(cfg_textLanguage);
 				int opt=dlgMessageBox(lanGetText("dlg.drcError"),lanGetText("button.continue"),lanGetText("button.cancel"));
 				if(opt){
 					exit("");
@@ -2138,13 +1993,9 @@ void mainManu(){
 
 	loadDRCSettings();
 
-	detectLanguage();
+	loadConfig();
 
-	lanLoadText(textLanguage);
-
-	if(userName==""||shortUserName==""){
-		dialogAskName();
-	}
+	lanLoadText(cfg_textLanguage);
 
 	detectDrillsymbols();	
 
@@ -2262,7 +2113,7 @@ void mainManu(){
 				exit(EXIT_SUCCESS);
 			};
 			dlgPushButton("⚙") {
-				if(dialogUlpSettings()){
+				if(editUserConfig()){
 					saveUsersettings();
 					exit("RUN " + getUlpDir("../HTLExportPro.ulp") + " drcLoaded;");
 				}
