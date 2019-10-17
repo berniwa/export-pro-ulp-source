@@ -83,7 +83,7 @@ format_revision = 0,
 gerber_export = 1, 
 gerber_copper = 1, gerber_stc = 1, gerber_sts = 1, gerber_plc = 1, 
 gerber_pls = 1, gerber_crc = 1, gerber_crs = 1, gerber_drd = 1, gerber_otl = 1,
-gerber_ref = 1, gerber_fab = 1, parts_top_docu = 1, parts_bot_docu = 1,
+gerber_ref = 0, gerber_fab = 1, parts_top_docu = 1, parts_bot_docu = 1,
 board_type = 0,
 eagle_export = 1, ec_export, gerber_format = 0,
 pnp_export = 0, pnp_top = 1, pnp_bot = 1, pnp_flip = 0, pnp_auto_offset = 0,
@@ -1086,7 +1086,6 @@ void export(){
 		cmd+="REMOVE \'"+filepath +"fabrication.lbr\';";
 	}
 
-
 	if(strstr(output_folder, "./") == 0){
 		output_folder = bname + strsub(output_folder, 2);
 	}
@@ -1151,7 +1150,6 @@ void export(){
 
 	string output_file_extension = "";
 	
-
 	//Output files to image directory
 	string output_folder_image 	= output_folder + image_folder + getFilename(boardname, "");
 	string output_folder_pdf    = output_folder + pdf_folder   + getFilename(boardname, "");
