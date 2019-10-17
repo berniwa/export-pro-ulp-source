@@ -47,6 +47,7 @@ void saveConfig() {
 char editUserConfig(){
 	char set=!(strlen(cfg_textLanguage));
 	lanLoadText(cfg_textLanguage);
+	string lastLanguage = cfg_textLanguage;
 	char update=0;
 	string languages[];
 	int languageCount = fileglob(languages,getUlpDir("../Languages/lang_*.txt"));
@@ -84,18 +85,27 @@ char editUserConfig(){
 					dlgCell(2, 1) dlgStringEdit(cfg_shortUserName);
 					dlgCell(3, 0) dlgLabel(set?"Pricing URL:":lanGetText("general.pricingURL")+":");
 					dlgCell(3, 1) dlgStringEdit(cfg_pricingURL);
-					dlgCell(4, 0) dlgLabel(set?"Default tolerance for Res:":lanGetText("settings.default.tolerance")+":");
+					dlgCell(4, 0) dlgLabel(set?"Default resistor tolerance:":lanGetText("settings.default.tolerance")+":");
 					dlgCell(4, 1) dlgHBoxLayout {dlgRealEdit(tol); dlgLabel("%");}
-					dlgCell(5, 0) dlgLabel(set?"Default max Voltage:":lanGetText("settings.default.voltage")+":");
+					dlgCell(5, 0) dlgLabel(set?"Default capacitor voltage:":lanGetText("settings.default.voltage")+":");
 					dlgCell(5, 1) dlgHBoxLayout {dlgRealEdit(volt); dlgLabel("V");}
 				}
 			}
 
+			dlgHBoxLayout{
 			dlgPushButton(set?"OK":lanGetText("button.ok")){dlgAccept();};
+				if(!set){
+					dlgPushButton(lanGetText("button.cancel")){
+						update=0;
+						cfg_textLanguage = lastLanguage;
+						dlgReject();
+					};
+				}
+			}
 		}
 	};
 
-	sprintf(cfg_defaultTolerance,"%g%",tol);
+	sprintf(cfg_defaultTolerance,"%g%%",tol);
 	sprintf(cfg_defaultVoltage,"%gV",volt);
 
 	saveConfig();
