@@ -5,7 +5,9 @@ string
 cfg_textLanguage = "", 
 cfg_userName = "", 
 cfg_shortUserName = "",
-cfg_pricingURL = "http://eagle.berniwa.com/price.php"
+cfg_pricingURL = "http://eagle.berniwa.com/price.php",
+cfg_defaultTolerance = "1%",
+cfg_defaultVoltage = "50V"
 ;
 
 //variables for bom export presets
@@ -21,6 +23,8 @@ void saveConfig() {
 		printf("userName = %s\n",cfg_userName);
 		printf("shortUserName = %s\n",cfg_shortUserName);
 		printf("pricingURL = %s\n",cfg_pricingURL);
+		printf("defaultTolerance = %s\n",cfg_defaultTolerance);
+		printf("defaultVoltage = %s\n",cfg_defaultVoltage);
 
 		if(cfg_bomPreNames[1]!=""){
 			printf("bomPreset = ");
@@ -61,6 +65,9 @@ char editUserConfig(){
 		}
 	}
 
+	real tol = strtod(cfg_defaultTolerance);
+	real volt = strtod(cfg_defaultVoltage);
+
 	dlgDialog(set?"Settings":lanGetText("settings.general")) {
 		dlgVBoxLayout {
 			dlgGroup(set?"Initialice settings":lanGetText("settings.general")) {
@@ -77,12 +84,20 @@ char editUserConfig(){
 					dlgCell(2, 1) dlgStringEdit(cfg_shortUserName);
 					dlgCell(3, 0) dlgLabel(set?"Pricing URL:":lanGetText("general.pricingURL")+":");
 					dlgCell(3, 1) dlgStringEdit(cfg_pricingURL);
+					dlgCell(4, 0) dlgLabel(set?"Default tolerance for Res:":lanGetText("settings.default.tolerance")+":");
+					dlgCell(4, 1) dlgHBoxLayout {dlgRealEdit(tol); dlgLabel("%");}
+					dlgCell(5, 0) dlgLabel(set?"Default max Voltage:":lanGetText("settings.default.voltage")+":");
+					dlgCell(5, 1) dlgHBoxLayout {dlgRealEdit(volt); dlgLabel("V");}
 				}
 			}
 
 			dlgPushButton(set?"OK":lanGetText("button.ok")){dlgAccept();};
 		}
 	};
+
+	sprintf(cfg_defaultTolerance,"%g%",tol);
+	sprintf(cfg_defaultVoltage,"%gV",volt);
+
 	saveConfig();
 	return update;
 }
@@ -106,6 +121,12 @@ void loadConfig(){
 			}
 			if (con=="pricingURL") {
 				 cfg_pricingURL = stringTrim(strsub(data[i],(strchr(data[i],'=')+1)));
+			}
+			if (con=="defaultTolerance") {
+				 cfg_defaultTolerance = stringTrim(strsub(data[i],(strchr(data[i],'=')+1)));
+			}
+			if (con=="defaultVoltage") {
+				 cfg_defaultVoltage = stringTrim(strsub(data[i],(strchr(data[i],'=')+1)));
 			}
 			if (con=="bomPreset") {
 				string tmp = stringTrim(strsub(data[i],(strchr(data[i],'=')+1)));

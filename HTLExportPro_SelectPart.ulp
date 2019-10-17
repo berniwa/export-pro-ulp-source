@@ -49,7 +49,7 @@ string getTolerance(int select){
 
 	if(category[select]==0){
 		if(strchr(values[select],'%')==-1){
-			tol = "1%";
+			tol = cfg_defaultTolerance;
 		}
 		else{
 			tol = strsub(values[select],(strchr(values[select],' ')+1));
@@ -67,7 +67,7 @@ string getVoltage(int select){
 		return strsub(values[select],(tmp+1));
 	}
 	else {
-		return "50V";
+		return cfg_defaultVoltage;
 	}
 }
 

@@ -144,6 +144,8 @@ settings.boardInfo = Add board info
 settings.offset.x = Offset X
 settings.offset.y = Offset Y
 settings.bom.width = Bom width
+settings.default.tolerance = Default resistor tolerance 
+settings.default.voltage = Default capacitor voltage
 
 comb.res = 600dpi - normal resolution;1200dpi - high resolution;2400dpi - very high resolution
 comb.pcbColor = Green;Red;Black;White;Polyimid
