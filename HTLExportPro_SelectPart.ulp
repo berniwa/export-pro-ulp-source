@@ -44,6 +44,22 @@ void debug(string msg, real val){
 	dlgMessageBox(msg);
 }
 
+string getTolerance(int select){
+	string tol="";
+
+	if(category[select]==0){
+		if(strchr(values[select],'%')==-1){
+			tol = "1%";
+		}
+		else{
+			tol = strsub(values[select],(strchr(values[select],' ')+1));
+		}
+	}
+	
+
+	return tol;
+}
+
 string getVoltage(int select){
 	int tmp = strchr(values[select],'/');
 
@@ -257,9 +273,13 @@ void editDevice(int selected){
 		if (category[selected]==0||category[selected]==2){
 			string orderNr = "";
 			string volt = "";
+			string tol = "";
 
+			tol = getTolerance(selected);
+			if (tol) tol+="/";
 			volt = getVoltage(selected);
 			orderNr=getOrderNo(selected);
+
 
 			dlgGroup(lanGetText("headline.AutoDetect")){
 				dlgVBoxLayout{
@@ -279,7 +299,7 @@ void editDevice(int selected){
 							distributor[selected]=stdDistributor;
 							order_no[selected]=orderNr;
 							manufacturer[selected]="any";
-							part_no[selected]=values[selected]+"/"+volt+"/"+strsub(orderNr,strrchr(orderNr,'-')+1);
+							part_no[selected]=strsub(values[selected],0,strchr(values[selected],' '))+"/"+volt+"/"+tol+orderNr;
 							bomPricingRequest(selected);
 						}
 					}
