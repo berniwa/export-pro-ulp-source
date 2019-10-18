@@ -168,3 +168,5 @@ tab.QuantityMulti = Qty. Mul.
 tab.populate = Bestückt
 tab.category = Kategorie
 tab.note = Notizen
+
+button.setpopulate = Aktualisieren
