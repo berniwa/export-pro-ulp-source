@@ -24,7 +24,15 @@
 string stdDistributor = "xdevelop";
 
 int rerun = 1, save = 1;
+
+//GUI variables
 string 	list[];
+string partsWithOrderNo 	= "";
+string partsWithPrice 		= "";
+string availableParts 		= "";
+string priceInformatiom 	= "";
+
+
 
 string type[] = {
 	"0201", 
@@ -132,17 +140,7 @@ string getOrderNo(int select){
 	return orderNo;
 }
 
-void updateAttributeList(){
-	for(int i = 0; i < partcount; i++){
-		sprintf(list[i], "%s\t%s\t%s\t%d\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s", 
-			names[i], values[i], packages[i] , pages[i], 
-			distributor[i], order_no[i], 
-			manufacturer[i], part_no[i],
-			price[i], available[i], per_pkg[i], min_qty[i], qty_mul[i], 
-			populate[i], BOM_PART_CATEGORIES[category[i]], note[i]
-		);	
-	}
-}
+
 
 real calculatePrice(){
 	real mprice = 0;
@@ -196,6 +194,23 @@ int calculatePartsWithPrice(){
 
 void requestAllPrices(){
 	bomPricingRequestAll();
+}
+
+void updateAttributeList(){
+	for(int i = 0; i < partcount; i++){
+		sprintf(list[i], "%s\t%s\t%s\t%d\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s", 
+			names[i], values[i], packages[i] , pages[i], 
+			distributor[i], order_no[i], 
+			manufacturer[i], part_no[i],
+			price[i], available[i], per_pkg[i], min_qty[i], qty_mul[i], 
+			populate[i], BOM_PART_CATEGORIES[category[i]], note[i]
+		);	
+	}
+		
+	sprintf(partsWithOrderNo, 	"%d %s %d", calculatePartsWithOrderNo(), lanGetText("general.of"), partcount);
+	sprintf(partsWithPrice, 	"%d %s %d", calculatePartsWithPrice(), lanGetText("general.of"), partcount);
+	sprintf(availableParts, 	"%d %s %d", calculateAvailableParts(), lanGetText("general.of"), partcount);
+	sprintf(priceInformatiom, 	"%.3f (%.3f) Euro", calculatePriceWOUnpopulated(), calculatePrice());
 }
 
 void editDevice(int selected){
@@ -405,37 +420,33 @@ int showListOfDevices(){
 					list, selected, sorted)
 				{
 					editDevice(selected);
-					//dlgRedisplay();
-					dlgAccept();
+					updateAttributeList();
 				}
 			}
 			dlgHBoxLayout{
+				dlgVBoxLayout dlgSpacing(100);
 				dlgGroup(lanGetText("general.info")){
 					dlgGridLayout{
-						string tmp = "", tmp2 = "", tmp4 = "";
-						sprintf(tmp, "%d %s %d", calculatePartsWithOrderNo(), lanGetText("general.of"), partcount);
-						sprintf(tmp2, "%d %s %d", calculatePartsWithPrice(), lanGetText("general.of"), partcount);
-						sprintf(tmp4, "%d %s %d", calculateAvailableParts(), lanGetText("general.of"), partcount);
-
+									
 						dlgCell(0, 1) dlgLabel(lanGetText("settings.orderInfo")+":");
-						dlgCell(0, 2) dlgLabel(tmp);
+						dlgCell(0, 2) dlgLabel(partsWithOrderNo, 1);
 						dlgCell(1, 1) dlgLabel(lanGetText("settings.priceInfo")+":");
-						dlgCell(1, 2) dlgLabel(tmp2);
+						dlgCell(1, 2) dlgLabel(partsWithPrice, 1);
 						dlgCell(2, 1) dlgLabel(lanGetText("settings.available")+":");
-						dlgCell(2, 2) dlgLabel(tmp4);
+						dlgCell(2, 2) dlgLabel(availableParts, 1);
 					}
 				}
 				dlgGroup(lanGetText("headline.pricing")){
 					dlgGridLayout{
-						string tmp3 = "";
-						sprintf(tmp3, "%f (%f) Euro", calculatePriceWOUnpopulated(), calculatePrice());
-
 						dlgCell(0, 3) dlgLabel(lanGetText("settings.quanttity")+":");
 						dlgCell(0, 4) dlgIntEdit(quantity);
 						dlgCell(1, 3) dlgLabel(lanGetText("settings.requPrice")+":");
-						dlgCell(1, 4) dlgPushButton(lanGetText("button.priceRequest")){bomPricingRequestAllWithMultiplier(quantity);dlgAccept();};
+						dlgCell(1, 4) dlgPushButton(lanGetText("button.priceRequest")){
+							bomPricingRequestAllWithMultiplier(quantity);
+							updateAttributeList();
+						};
 						dlgCell(2, 3) dlgLabel(lanGetText("settings.overPrice")+"*:");
-						dlgCell(2, 4) dlgLabel(tmp3);
+						dlgCell(2, 4) dlgLabel(priceInformatiom, 1);
 					}
 				}				
 				dlgStretch(1);
