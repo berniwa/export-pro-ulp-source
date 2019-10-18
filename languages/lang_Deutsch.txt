@@ -144,6 +144,8 @@ settings.boardInfo = Board-Info hinzufügen
 settings.offset.x = Abstand X
 settings.offset.y = Abstand Y
 settings.bom.width = Bom Breite
+settings.default.tolerance = Standard Wiederstadstoleranz  
+settings.default.voltage = Standard Kondensatorspannung
 
 comb.res = 600dpi - normale Auflösung;1200dpi - hohe Auflösung;2400dpi - extrem hohe Auflösung
 comb.pcbColor = Grüne PCB;Rote PCB;Schwarze PCB;Weiße PCB;Polyimid
@@ -155,7 +157,7 @@ tab.value = Wert
 tab.pac = Bauform
 tab.sheet = Blatt
 tab.distriputor = Lieferant
-tab.order.No = Ordnungs Nr.
+tab.order.No = Bestell Nr.
 tab.manufacturer = Hersteller
 tab.part.No = Bauteil Nr.
 tab.price = Preis

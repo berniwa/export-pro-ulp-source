@@ -2005,7 +2005,7 @@ void mainManu(){
 					dlgGridLayout{ 
 						dlgCell(0,0) dlgLabel(lanGetText("settings.general.boardThickness"));
 						string tmp1;
-						sprintf(tmp1,"%.3f mm",board_thickness);
+						sprintf(tmp1,"%g mm",board_thickness);
 						dlgCell(0,1) dlgLabel(tmp1);
 					 
 						dlgCell(1,0) dlgLabel(lanGetText("settings.general.boardMaterial"));
