@@ -13,6 +13,8 @@
 #include "Include_FastExecute.ulp";
 #include "Include_Misc.ulp";
 
+//string defaultLayerStackup7 = "48t 49t 19t 47t 20t 46t 23 27 25 59 57 55 53 50 51 21 44t 45t 37 35 31 29 33 39 41 43t 18t 17t 1-16 17b 18b 43b 42 40 34 30 32 36 38 45b 44b 22 52 54 56 58 60 26 28 24 46b 20b 47b 19b 49b 48b 61-99";
+//string LayerStackup9 = "20 51 52 29 30 21 22 25 26 27 28 1 16 17 18";
 string getFilename(string basename, string ends_with)
 {
 	return filesetext(basename,ends_with);
@@ -28,8 +30,21 @@ void exportImages(int imgExport, int exportBot, string botImage, int exportTop, 
 	{
 		bname = B.name;
 	}
+	string layerV9="";
 
-	cmd += "SET PALETTE COLORED;\n";
+	if(EAGLE_VERSION>=9){
+		cmd += "SET PALETTE WHITE;\n";
+		cmd += "SET COLOR_LAYER 123 20;\n";
+		cmd += "SET COLOR_LAYER 124 22;\n";
+		cmd += "SET COLOR_LAYER 127 8;\n";
+		cmd += "SET PALETTE 22 " + colorPcb + ";\n";
+		cmd += "SET Option.LayerSequence 124;\n";
+		layerV9= " 123 124 127";
+	}
+	else{
+		cmd += "SET PALETTE COLORED;\n";
+		cmd += "SET PALETTE 0 " + colorPcb + ";\n";
+	}
 
 	cmd += "SET COLOR_LAYER 1 16;\n";
 	cmd += "SET COLOR_LAYER 16 17;\n";
@@ -39,22 +54,31 @@ void exportImages(int imgExport, int exportBot, string botImage, int exportTop, 
 	cmd += "SET FILL_LAYER 29 solid;\n";
 	cmd += "SET COLOR_LAYER 30 18;\n";
 	cmd += "SET FILL_LAYER 30 solid;\n";
-	cmd += "SET COLOR_LAYER 124 18;\n";
-	cmd += "SET COLOR_LAYER 120 20;\n";
-	cmd += "SET COLOR_LAYER 121 21;\n";
-	cmd += "SET COLOR_LAYER 122 21;\n";
-	cmd += "SET COLOR_LAYER 125 18;\n";
-	cmd += "SET COLOR_LAYER 126 18;\n";
-	cmd += "SET COLOR_LAYER 127 20;\n";
+	//cmd += "SET COLOR_LAYER 124 18;\n";
+	//cmd += "SET COLOR_LAYER 120 20;\n";
+	cmd += "SET COLOR_LAYER 26 21;\n";
+	//cmd += "SET COLOR_LAYER 121 21;\n";
+	cmd += "SET COLOR_LAYER 21 21;\n";
+	cmd += "SET COLOR_LAYER 25 21;\n";
+	cmd += "SET COLOR_LAYER 27 21;\n";
+	cmd += "SET COLOR_LAYER 51 21;\n";
+	//cmd += "SET COLOR_LAYER 122 21;\n";
+	cmd += "SET COLOR_LAYER 22 21;\n";
+	cmd += "SET COLOR_LAYER 26 21;\n";
+	cmd += "SET COLOR_LAYER 28 21;\n";
+	cmd += "SET COLOR_LAYER 52 21;\n";
+	cmd += "SET COLOR_LAYER 20 20;\n";
+
+	//cmd += "SET COLOR_LAYER 125 18;\n";
+	//cmd += "SET COLOR_LAYER 126 18;\n";
+	//cmd += "SET COLOR_LAYER 127 20;\n";
 
 	cmd += "SET PALETTE 16 " + colorCopper + ";\n";
 	cmd += "SET PALETTE 17 " + colorCopper + ";\n";
 	cmd += "SET PALETTE 18 " + colorPlating + ";\n";
 	cmd += "SET PALETTE 20 0xFF000000;\n";
 	cmd += "SET PALETTE 21 " + colorSilkscreen + ";\n";
-	cmd += "SET PALETTE 0 " + colorPcb + ";\n";
 	cmd += "SET PALETTE 8 0xFFFFFFFF;\n";
-
 
 	if(EAGLE_VERSION > 5 || (EAGLE_VERSION == 5 && EAGLE_RELEASE >= 11) ) //Support for SET CONFIRM form Eagle 5.11 on
 	{
@@ -63,14 +87,14 @@ void exportImages(int imgExport, int exportBot, string botImage, int exportTop, 
 
 	if(exportTop)
 	{
-		cmd += "DISPLAY NONE;DISPLAY 1 18 29 121 123 124 125 127 ;\n";
+		cmd += "DISPLAY NONE;DISPLAY 1 18 29 21 25 27 51"+layerV9+";\n";
 		if (imgExport) {
 			sprintf(cmd, "%s EXPORT IMAGE '%s' %d;\n", cmd, topImage, resolution);
 		}
 	}
 	if(exportBot)
 	{
-		cmd += "DISPLAY NONE;DISPLAY 16 18 30 122 123 124 126 127;\n";
+		cmd += "DISPLAY NONE;DISPLAY 16 18 30 22 26 28 52"+layerV9+";\n";
 		if (imgExport) {
 			sprintf(cmd, "%s EXPORT IMAGE '%s' %d;\n", cmd, botImage, resolution);
 		}
@@ -82,7 +106,7 @@ void exportImages(int imgExport, int exportBot, string botImage, int exportTop, 
 		cmd += "SET CONFIRM NO;\n";
 	}
 
-	cmd += "SET PALETTE 0 0xFFFFFFFF;\n";
+	//cmd += "SET PALETTE 0 0xFFFFFFFF;\n";
 
 	cmd += "SET COLOR_LAYER 1 4;\n";
 	cmd += "SET COLOR_LAYER 16 1;\n";

@@ -46,41 +46,20 @@
 // OR IMPLIED.
 
 // You can change these values to modify the ULP's behaviour:
-int tsilknum = 121;          // Number of the top silkscreen layer.
-string tsilkname = "_tsilk"; // Name of the top silkscreen layer.
-string tsilkcolor = "21";// Color of the top silkscreen layer.
-int bsilknum = 122;          // Number of the bottom silkscreen layer.
-string bsilkname = "_bsilk"; // Name of the bottom silkscreen layer.
-string bsilkcolor = "21";// Color of the bottom silkscreen layer.
-int dimensionnum = 123;          // Number of the bottom silkscreen layer.
-string dimensionname = "_dimension"; // Name of the bottom silkscreen layer.
-string dimensioncolor = "20";// Color of the bottom silkscreen layer.
-int vianum = 124;          // Number of the bottom silkscreen layer.
-string vianame = "_via"; // Name of the bottom silkscreen layer.
-string viacolor = "18";// Color of the bottom silkscreen layer.
-int tsmdnum = 125;          // Number of the bottom silkscreen layer.
-string tsmdname = "_tsmd"; // Name of the bottom silkscreen layer.
-string tsmdcolor = "18";// Color of the bottom silkscreen layer.
-int bsmdnum = 126;          // Number of the bottom silkscreen layer.
-string bsmdname = "_bsmd"; // Name of the bottom silkscreen layer.
-string bsmdcolor = "18";// Color of the bottom silkscreen layer.
-int emptynum = 127;          // Number of the bottom silkscreen layer.
-string emptyname = "_empty"; // Name of the bottom silkscreen layer.
-string emptycolor = "20";// Color of the bottom silkscreen layer.
-real minwidth = strtol(argv[0]);   // Default minimum silk screen line width (mils).
+int dimensionnum = 123;          // Number of the dimension silkscreen layer.
+string dimensionname = "_dimension"; // Name of the dimension silkscreen layer.
+string dimensioncolor = "20";// Color of the dimension silkscreen layer.
+int backgroundnum = 124;          // Number of the background silkscreen layer.
+string backgroundname = "_background"; // Name of the background silkscreen layer.
+string backgroundcolor = "21";// Color of the background silkscreen layer.
+int emptynum = 127;          // Number of the empty silkscreen layer.
+string emptyname = "_empty"; // Name of the empty silkscreen layer.
+string emptycolor = "20";// Color of the empty silkscreen layer.
+real minwidth = 0.1;   // Default minimum silk screen line width (mils).
 real maxwidth = 0.0;         // Default maximum width (0 = no limit).
 int delete_old = 1;          // Whether to clear old silk screen layers.
 
-int copy_tdimension = strtol(argv[2]);      		   // Whether to copy the Dimension layer.
-int copy_tplace  = strtol(argv[2]);         		   // Whether to copy the tPlace layer.
-int copy_tnames  = strtol(argv[2]) && strtol(argv[3]);         // Whether to copy the tNames layer.
-int copy_tvalues = strtol(argv[2]) && strtol(argv[4]);         // Whether to copy the tValues layer.
-int copy_tdocu   = strtol(argv[2]) && strtol(argv[5]);         // Whether to copy the tDocu layer.
-int copy_bplace  = strtol(argv[6]);         		   // Whether to copy the bPlace layer.
-int copy_bnames  = strtol(argv[6]) && strtol(argv[7]);         // Whether to copy the bNames layer.
-int copy_bvalues = strtol(argv[6]) && strtol(argv[8]);         // Whether to copy the bValues layer.
-int copy_bdocu   = strtol(argv[6]) && strtol(argv[9]);;        // Whether to copy the bDocu layer.
-int copy_bdimension = strtol(argv[6]);      // Whether to copy the Dimension layer.
+int copy_tdimension = 1;      		   // Whether to copy the Dimension layer.
 int hatch_fill = 0;          // Whether to use the hatch fill style.
 int no_fill = 0;             // Whether to draw rectangles and discs in outline.
 int hide_sources = 1;        // Whether to hide the source layers.
@@ -95,57 +74,52 @@ real cursize = -1.0;
 int clearsilks = 0, saved_grid_unit = GRID_UNIT_MIL;
 string saved_visible_layers[], textorientation, h, cmd;
 int destlayer, curdestlayer = -1, curlinestyle = -1, curratio = -1;
+int poliX=0.0, poliY=0.0;
 
-void header()
-{
+void header() {
   string s;
   if(disable_undo) cmd += "set undo_log off;\n";
-  h = "";sprintf(h, "layer %d %s;\n", tsilknum, tsilkname);cmd += h;
-  h = "";sprintf(h, "layer %d %s;\n", bsilknum, bsilkname);cmd += h;
   h = "";sprintf(h, "layer %d %s;\n", dimensionnum, dimensionname);cmd += h;
-  h = "";sprintf(h, "layer %d %s;\n", vianum, vianame);cmd += h;
-  h = "";sprintf(h, "layer %d %s;\n", bsmdnum, bsmdname);cmd += h;
-  h = "";sprintf(h, "layer %d %s;\n", tsmdnum, tsmdname);cmd += h;
+  h = "";sprintf(h, "layer %d %s;\n", backgroundnum, backgroundname);cmd += h;
   h = "";sprintf(h, "layer %d %s;\n", emptynum, emptyname);cmd += h;
-  h = "";sprintf(h, "set color_layer %d %s;\n", tsilknum, tsilkcolor);cmd += h;
-  h = "";sprintf(h, "set color_layer %d %s;\n", bsilknum, bsilkcolor);cmd += h;
   h = "";sprintf(h, "set color_layer %d %s;\n", dimensionnum, dimensioncolor);cmd += h;
-  h = "";sprintf(h, "set color_layer %d %s;\n", vianum, viacolor);cmd += h;
-  h = "";sprintf(h, "set color_layer %d %s;\n", bsmdnum, bsmdcolor);cmd += h;
-  h = "";sprintf(h, "set color_layer %d %s;\n", tsmdnum, tsmdcolor);cmd += h;
+  h = "";sprintf(h, "set color_layer %d %s;\n", backgroundnum, backgroundcolor);cmd += h;
   h = "";sprintf(h, "set color_layer %d %s;\n", emptynum, emptycolor);cmd += h;
   cmd += "set wire_bend 2;\n";
   cmd += "change font vector;\n";
   if(hatch_fill) s = "hatch";
   else s = "solid";
   h = "";sprintf(h, "change pour %s;\n", s);cmd += h;
-  cmd += "grid mil;\n";
+  cmd += "grid mm;\n";
 }
 
-real calctextwidth(int size, int ratio)
-{
-  return u2mil(size) * (ratio/100.0);
+real calctextwidth(int size, int ratio) {
+  return u2mm(size) * (ratio/100.0);
 }
 
-int calctextratio(int size, real width)
-{
+int calctextratio(int size, real width) {
   if(size == 0)
   {
 	return 8;
   }
-  return ceil((width / u2mil(size)) * 100);
+  return ceil((width / u2mm(size)) * 100);
 }
 
-void set_layer()
-{
+void set_poligonizePos(int x, int y){
+  if(x+y>poliX+poliY){
+    poliX=x;
+    poliY=y;
+  }
+}
+
+void set_layer() {
   if(destlayer != curdestlayer) {
     h = "";sprintf(h, "layer %d;\n", destlayer);cmd += h;
     curdestlayer = destlayer;
   }
 }
 
-void set_line_style(int newlinestyle)
-{
+void set_line_style(int newlinestyle) {
   string s;
   if(newlinestyle != curlinestyle) {
     switch(newlinestyle) {
@@ -166,57 +140,55 @@ void set_line_style(int newlinestyle)
   }
 }
 
-void set_ratio(int newratio)
-{
+void set_ratio(int newratio) {
   if(newratio != curratio) {
     h = "";sprintf(h, "change ratio %d;\n", newratio);cmd += h;
     curratio = newratio;
   }
 }
 
-void set_size(real newsize)
-{
+void set_size(real newsize) {
   if(newsize != cursize) {
     h = "";sprintf(h, "change size %5.3f;\n", newsize);cmd += h;
     cursize = newsize;
   }
 }
 
-real calcwidth(int width)
-{
-  real w = u2mil(width);
+real calcwidth(int width) {
+  real w = u2mm(width);
   if(minwidth && w < minwidth) return minwidth;
   else if(maxwidth && w > maxwidth) return maxwidth;
   else return w;
 }
 
-void do_wire(UL_WIRE W, int sourcelayer)
-{
+void do_wire(UL_WIRE W, int sourcelayer) {
   string style;
 
   if(W.arc) {
     if(W.arc.layer == sourcelayer) {
+      set_poligonizePos(W.arc.x1, W.arc.y1);
+      set_poligonizePos(W.arc.x2, W.arc.y2);
       set_layer();
-      h = "";sprintf(h, "arc %5.3f ccw (%5.3f %5.3f) (%5.3f %5.3f) "
+      h = "";sprintf(h, "wire %5.3f (%5.3f %5.3f) @%+5.3f  "
                         "(%5.3f %5.3f);\n", calcwidth(W.arc.width),
-                        u2mil(W.arc.x1), u2mil(W.arc.y1),
-                        u2mil(2*(W.arc.xc)-W.arc.x1),
-                        u2mil(2*(W.arc.yc) - W.arc.y1),
-                        u2mil(W.arc.x2), u2mil(W.arc.y2));cmd += h;
+                        u2mm(W.arc.x1), u2mm(W.arc.y1),
+                        u2mm(W.arc.radius),
+                        u2mm(W.arc.x2), u2mm(W.arc.y2));cmd += h;
     }
   } else {
     if(W.layer == sourcelayer) {
+      set_poligonizePos(W.x1, W.y1);
+      set_poligonizePos(W.x2, W.y2);
       set_layer();
       set_line_style(W.style);
       h = "";sprintf(h, "wire %5.3f (%5.3f %5.3f) (%5.3f %5.3f);\n",
-                        calcwidth(W.width), u2mil(W.x1), u2mil(W.y1),
-                        u2mil(W.x2), u2mil(W.y2));cmd += h;
+                        calcwidth(W.width), u2mm(W.x1), u2mm(W.y1),
+                        u2mm(W.x2), u2mm(W.y2));cmd += h;
     }
   }
 }
 
-void do_circle(UL_CIRCLE C)
-{
+void do_circle(UL_CIRCLE C) {
   real width;
 
   // Circles with a width of 0 are filled.
@@ -225,12 +197,11 @@ void do_circle(UL_CIRCLE C)
 
   set_layer();
   h = "";sprintf(h, "circle %5.3f (%5.3f %5.3f) (%5.3f %5.3f);\n", width,
-                    u2mil(C.x), u2mil(C.y), u2mil(C.x + C.radius),
-                    u2mil(C.y));cmd += h;
+                    u2mm(C.x), u2mm(C.y), u2mm(C.x + C.radius),
+                    u2mm(C.y));cmd += h;
 }
 
-void do_rectangle(UL_RECTANGLE R)
-{
+void do_rectangle(UL_RECTANGLE R) {
   real x1, x2, x3, x4, y1, y2, y3, y4, halfmin;
   real xt, yt, xll, xur, yll, yur, a;  /* Angle transformation for outlines */
   set_layer();
@@ -238,10 +209,10 @@ void do_rectangle(UL_RECTANGLE R)
     set_line_style(WIRE_STYLE_CONTINUOUS);
     halfmin = minwidth / 2.0;
 
-    xll = u2mil(R.x1) + halfmin;  /* Original LL, UR coords */
-    xur = u2mil(R.x2) - halfmin;
-    yll = u2mil(R.y1) + halfmin;
-    yur = u2mil(R.y2) - halfmin;
+    xll = u2mm(R.x1) + halfmin;  /* Original LL, UR coords */
+    xur = u2mm(R.x2) - halfmin;
+    yll = u2mm(R.y1) + halfmin;
+    yur = u2mm(R.y2) - halfmin;
 
     xt = xll + ((xur-xll)/2);  /* Translation params to origin */
     yt = yll + (yur-yll)/2;
@@ -270,21 +241,20 @@ void do_rectangle(UL_RECTANGLE R)
                       x2, y2, x3, y3, x4, y4, x1, y1);cmd += h;
   } else {
     h = "";sprintf(h, "rect R%1.0f (%5.3f %5.3f) (%5.3f %5.3f);\n", R.angle,
-                   u2mil(R.x1), u2mil(R.y1), u2mil(R.x2), u2mil(R.y2));cmd += h;
+                   u2mm(R.x1), u2mm(R.y1), u2mm(R.x2), u2mm(R.y2));cmd += h;
   }
 }
 
-void do_polygon(UL_POLYGON P)
-{
+void do_polygon(UL_POLYGON P) {
   set_layer();
   P.wires(WP) {
     h = "";sprintf(h, "polygon %5.3f (%5.3f %5.3f)\n ", calcwidth(WP.width),
-                      u2mil(WP.x1), u2mil(WP.y1));cmd += h;
+                      u2mm(WP.x1), u2mm(WP.y1));cmd += h;
     break;
   }
   P.wires(WP) {
-    h = "";sprintf(h, " %+f (%5.3f %5.3f)", WP.curve, u2mil(WP.x2),
-                      u2mil(WP.y2));cmd += h;
+    h = "";sprintf(h, " %5.3f (%5.3f %5.3f)", WP.curve, u2mm(WP.x2),
+                      u2mm(WP.y2));cmd += h;
   }
   h = "";sprintf(h, ";\n");cmd += h;
 }
@@ -307,198 +277,23 @@ string str_replace(string search, string replace, string subject) {
 }
 
 
-void do_text(UL_TEXT T)
-{
-  int newratio;
-  real origwidth;
-  string textorientation;
-  string tvalue = T.value;
-  if(destlayer == tsilknum) textorientation = "R";
-  else textorientation = "MR";
-
-  origwidth = calctextwidth(T.size, T.ratio);
-  if(minwidth && origwidth < minwidth)
-    newratio = calctextratio(T.size, minwidth);
-  else if(maxwidth && origwidth > maxwidth)
-    newratio = calctextratio(T.size, maxwidth);
-  else newratio = T.ratio;
-
-  if(T.align == ALIGN_BOTTOM_LEFT)
-  	cmd += "CHANGE ALIGN BOTTOM LEFT;\n";
-  else if(T.align == ALIGN_BOTTOM_CENTER)
-  	cmd += "CHANGE ALIGN BOTTOM CENTER;\n";
-  else if(T.align == ALIGN_BOTTOM_RIGHT)
-  	cmd += "CHANGE ALIGN BOTTOM RIGHT;\n";
-  else if(T.align == ALIGN_CENTER_LEFT)
-  	cmd += "CHANGE ALIGN CENTER LEFT;\n";
-  else if(T.align == ALIGN_CENTER)
-  	cmd += "CHANGE ALIGN CENTER CENTER;\n";
-  else if(T.align == ALIGN_CENTER_RIGHT)
-  	cmd += "CHANGE ALIGN CENTER RIGHT;\n";
-  else if(T.align == ALIGN_TOP_LEFT)
-  	cmd += "CHANGE ALIGN TOP LEFT;\n";
-  else if(T.align == ALIGN_TOP_CENTER)
-  	cmd += "CHANGE ALIGN TOP CENTER;\n";
-  else if(T.align == ALIGN_TOP_RIGHT)
-  	cmd += "CHANGE ALIGN TOP RIGHT;\n";
-
-
-  if(newratio > 31) {
-    ///sprintf(h, "!Text \"%s\" is too small to support the requested minimum "
-    //          "line width.\nText size is %5.3f mils; a ratio of %d is needed,"
-    //           " but the maximum possible ratio is 31.\n", T.value,
-    //           u2mil(T.size), newratio);
-    //if(dlgMessageBox(h, "OK", "Cancel") == 1) exit(1);
-    newratio = 31;
-  }
-
-  if(T.spin > 0) {textorientation = "S"+textorientation;}
-   
-  tvalue = str_replace("\n", "\\n", tvalue);
-
-  set_layer();
-  set_ratio(newratio);
-  set_size(u2mil(T.size));
-  h = "";sprintf(h, "text '%s' %s%1.0f (%5.3f %5.3f);\n", tvalue,
-                    textorientation, T.angle, u2mil(T.x), u2mil(T.y));cmd += h;
-}
-
-void do_element(UL_ELEMENT E, int sourcelayer) 
-{
-  E.package.wires(W) do_wire(W, sourcelayer);
+void do_element(UL_ELEMENT E, int sourcelayer) {
+  E.package.wires(W) if(W.layer == sourcelayer) do_wire(W, sourcelayer);
   E.package.circles(C) if(C.layer == sourcelayer) do_circle(C);
   E.package.rectangles(R) if(R.layer == sourcelayer) do_rectangle(R);
   E.package.polygons(P) if(P.layer == sourcelayer) do_polygon(P);
-  E.package.texts(T) if(T.layer == sourcelayer) do_text(T);
-  E.texts(T) if(T.layer == sourcelayer) do_text(T);
 }
 
-void create_via(int x, int y, int drill, int diameter_top, int diameter_bottom, int shape, real angle)
-{
+void create_via(int x, int y, int drill, int diameter_top, int diameter_bottom, int shape, real angle) {
 	string h = "";
 	real octagonFactor = 4.83;
 	
 	//Via is unfilled
-	if(diameter_top == diameter_bottom && diameter_bottom > 0.0)
-	{	
+	if(diameter_top == diameter_bottom && diameter_bottom > 0.0) {	
 		int diameter = diameter_top;
 		//Center hole
 		sprintf(h, "CHANGE LAYER %s;\n", emptyname); cmd += h;
-		sprintf(h, "CIRCLE 0 (%f %f) (%f %f);\n", u2mil(x), u2mil(y), u2mil(x + (drill/2)), u2mil(y)); cmd += h;
-		sprintf(h, "CHANGE LAYER %s;\n", vianame); cmd += h;
-		if(shape == PAD_SHAPE_SQUARE)
-		{
-			sprintf(h, "RECT (%f %f) (%f %f);\n", u2mil(x - (diameter/2)), u2mil(y - (diameter/2)), u2mil(x + (diameter/2)), u2mil(y + (diameter/2))); cmd += h;		
-		}
-		else if(shape == PAD_SHAPE_LONG)
-		{
-			
-			sprintf(h, "RECT (%f %f) (%f %f);\n", u2mil(x - (diameter/2)), u2mil(y - (diameter/2)), u2mil(x + (diameter/2)), u2mil(y + (diameter/2))); cmd += h;
-
-			if(angle == 0 || angle == 180)
-			{
-				sprintf(h, "CIRCLE 0 (%f %f) (%f %f);\n", u2mil(x  + (diameter/2)), u2mil(y), u2mil(x + diameter), u2mil(y)); cmd += h;
-				sprintf(h, "CIRCLE 0 (%f %f) (%f %f);\n", u2mil(x  - (diameter/2)), u2mil(y), u2mil(x - diameter), u2mil(y)); cmd += h;
-			}
-			else
-			{
-				sprintf(h, "CIRCLE 0 (%f %f) (%f %f);\n", u2mil(x), u2mil(y + (diameter/2)), u2mil(x), u2mil(y + diameter)); cmd += h;
-				sprintf(h, "CIRCLE 0 (%f %f) (%f %f);\n", u2mil(x), u2mil(y - (diameter/2)), u2mil(x), u2mil(y - diameter)); cmd += h;			
-			}
-
-		}
-		else if(shape == PAD_SHAPE_OCTAGON)
-		{
-			
-			sprintf(h, "RECT (%f %f) (%f %f);\n", u2mil(x - (diameter/2)), u2mil(y - int(diameter/octagonFactor)), u2mil(x + (diameter/2)), u2mil(y + int(diameter/octagonFactor))); cmd += h;
-			sprintf(h, "RECT R45 (%f %f) (%f %f);\n", u2mil(x - (diameter/2)), u2mil(y - int(diameter/octagonFactor)), u2mil(x + (diameter/2)), u2mil(y + int(diameter/octagonFactor))); cmd += h;
-			sprintf(h, "RECT (%f %f) (%f %f);\n", u2mil(x - int(diameter/octagonFactor)), u2mil(y - (diameter/2)), u2mil(x + int(diameter/octagonFactor)), u2mil(y + (diameter/2))); cmd += h;	
-			sprintf(h, "RECT R45 (%f %f) (%f %f);\n", u2mil(x - int(diameter/octagonFactor)), u2mil(y - (diameter/2)), u2mil(x + int(diameter/octagonFactor)), u2mil(y + (diameter/2))); cmd += h;	
-		}
-		else	/* if(shape == PAD_SHAPE_ROUND) */
-		{		
-			sprintf(h, "CIRCLE 0 (%f %f) (%f %f);\n", u2mil(x), u2mil(y), u2mil(x + (diameter/2)), u2mil(y)); cmd += h;
-		}
-	}
-	else
-	{	
-		//No Center hole
-		if(diameter_top > 0)
-		{
-			int diameter = diameter_top;
-			sprintf(h, "CHANGE LAYER %s;\n", tsmdname); cmd += h;
-			if(shape == PAD_SHAPE_SQUARE)
-			{
-				sprintf(h, "RECT (%f %f) (%f %f);\n", u2mil(x - (diameter/2)), u2mil(y - (diameter/2)), u2mil(x + (diameter/2)), u2mil(y + (diameter/2))); cmd += h;		
-			}
-			else if(shape == PAD_SHAPE_LONG)
-			{
-				
-				sprintf(h, "RECT (%f %f) (%f %f);\n", u2mil(x - (diameter/2)), u2mil(y - (diameter/2)), u2mil(x + (diameter/2)), u2mil(y + (diameter/2))); cmd += h;
-
-				if(angle == 0 || angle == 180)
-				{
-					sprintf(h, "CIRCLE 0 (%f %f) (%f %f);\n", u2mil(x  + (diameter/2)), u2mil(y), u2mil(x + diameter), u2mil(y)); cmd += h;
-					sprintf(h, "CIRCLE 0 (%f %f) (%f %f);\n", u2mil(x  - (diameter/2)), u2mil(y), u2mil(x - diameter), u2mil(y)); cmd += h;
-				}
-				else
-				{
-					sprintf(h, "CIRCLE 0 (%f %f) (%f %f);\n", u2mil(x), u2mil(y + (diameter/2)), u2mil(x), u2mil(y + diameter)); cmd += h;
-					sprintf(h, "CIRCLE 0 (%f %f) (%f %f);\n", u2mil(x), u2mil(y - (diameter/2)), u2mil(x), u2mil(y - diameter)); cmd += h;			
-				}
-
-			}
-			else if(shape == PAD_SHAPE_OCTAGON)
-			{
-				
-				sprintf(h, "RECT (%f %f) (%f %f);\n", u2mil(x - (diameter/2)), u2mil(y - int(diameter/octagonFactor)), u2mil(x + (diameter/2)), u2mil(y + int(diameter/octagonFactor))); cmd += h;
-				sprintf(h, "RECT R45 (%f %f) (%f %f);\n", u2mil(x - (diameter/2)), u2mil(y - int(diameter/octagonFactor)), u2mil(x + (diameter/2)), u2mil(y + int(diameter/octagonFactor))); cmd += h;
-				sprintf(h, "RECT (%f %f) (%f %f);\n", u2mil(x - int(diameter/octagonFactor)), u2mil(y - (diameter/2)), u2mil(x + int(diameter/octagonFactor)), u2mil(y + (diameter/2))); cmd += h;	
-				sprintf(h, "RECT R45 (%f %f) (%f %f);\n", u2mil(x - int(diameter/octagonFactor)), u2mil(y - (diameter/2)), u2mil(x + int(diameter/octagonFactor)), u2mil(y + (diameter/2))); cmd += h;	
-			}
-			else	/* if(shape == PAD_SHAPE_ROUND) */
-			{		
-				sprintf(h, "CIRCLE 0 (%f %f) (%f %f);\n", u2mil(x), u2mil(y), u2mil(x + (diameter/2)), u2mil(y)); cmd += h;
-			}
-		}
-		if(diameter_bottom > 0)
-		{
-			int diameter = diameter_bottom;
-			sprintf(h, "CHANGE LAYER %s;", bsmdname); cmd += h;
-			if(shape == PAD_SHAPE_SQUARE)
-			{
-				sprintf(h, "RECT (%f %f) (%f %f);\n", u2mil(x - (diameter/2)), u2mil(y - (diameter/2)), u2mil(x + (diameter/2)), u2mil(y + (diameter/2))); cmd += h;		
-			}
-			else if(shape == PAD_SHAPE_LONG)
-			{
-				
-				sprintf(h, "RECT (%f %f) (%f %f);\n", u2mil(x - (diameter/2)), u2mil(y - (diameter/2)), u2mil(x + (diameter/2)), u2mil(y + (diameter/2))); cmd += h;
-
-				if(angle == 0 || angle == 180)
-				{
-					sprintf(h, "CIRCLE 0 (%f %f) (%f %f);\n", u2mil(x  + (diameter/2)), u2mil(y), u2mil(x + diameter), u2mil(y)); cmd += h;
-					sprintf(h, "CIRCLE 0 (%f %f) (%f %f);\n", u2mil(x  - (diameter/2)), u2mil(y), u2mil(x - diameter), u2mil(y)); cmd += h;
-				}
-				else
-				{
-					sprintf(h, "CIRCLE 0 (%f %f) (%f %f);\n", u2mil(x), u2mil(y + (diameter/2)), u2mil(x), u2mil(y + diameter)); cmd += h;
-					sprintf(h, "CIRCLE 0 (%f %f) (%f %f);\n", u2mil(x), u2mil(y - (diameter/2)), u2mil(x), u2mil(y - diameter)); cmd += h;			
-				}
-
-			}
-			else if(shape == PAD_SHAPE_OCTAGON)
-			{
-				
-				sprintf(h, "RECT (%f %f) (%f %f);\n", u2mil(x - (diameter/2)), u2mil(y - int(diameter/octagonFactor)), u2mil(x + (diameter/2)), u2mil(y + int(diameter/octagonFactor))); cmd += h;
-				sprintf(h, "RECT R45 (%f %f) (%f %f);\n", u2mil(x - (diameter/2)), u2mil(y - int(diameter/octagonFactor)), u2mil(x + (diameter/2)), u2mil(y + int(diameter/octagonFactor))); cmd += h;
-				sprintf(h, "RECT (%f %f) (%f %f);\n", u2mil(x - int(diameter/octagonFactor)), u2mil(y - (diameter/2)), u2mil(x + int(diameter/octagonFactor)), u2mil(y + (diameter/2))); cmd += h;	
-				sprintf(h, "RECT R45 (%f %f) (%f %f);\n", u2mil(x - int(diameter/octagonFactor)), u2mil(y - (diameter/2)), u2mil(x + int(diameter/octagonFactor)), u2mil(y + (diameter/2))); cmd += h;	
-			}
-			else	/* if(shape == PAD_SHAPE_ROUND) */
-			{		
-				sprintf(h, "CIRCLE 0 (%f %f) (%f %f);\n", u2mil(x), u2mil(y), u2mil(x + (diameter/2)), u2mil(y)); cmd += h;
-			}
-		}
+		sprintf(h, "CIRCLE 0 (%5.3f %5.3f) (%5.3f %5.3f);\n", u2mm(x), u2mm(y), u2mm(x + (drill/2)), u2mm(y)); cmd += h;
 	}
 }
 
@@ -541,7 +336,7 @@ void transform(int xi, int yi, real ri,  int center_x, int center_y){
 
   if(ri < 0){
     string tmp;
-    sprintf(tmp, "Rotate %f", ri);
+    sprintf(tmp, "Rotate %5.3f", ri);
     dlgMessageBox(tmp);
   }
 
@@ -564,9 +359,7 @@ void transform(int xi, int yi, real ri,  int center_x, int center_y){
   y = cy + ry2; 
 }
 
-
-void create_smd(int layer, int cx, int cy, int dx, int dy, real angle, int roundness)
-{
+void create_smd(int layer, int cx, int cy, int dx, int dy, real angle, int roundness) {
 	string h = "";
 	int rx, ry, rdx, rdy;
 	
@@ -587,43 +380,43 @@ void create_smd(int layer, int cx, int cy, int dx, int dy, real angle, int round
 
   sprintf(h, "POLYGON "); cmd += h;
   if(radius == 0){
-    transform(-dx/2,        -dy/2,          angle, cx, cy);   sprintf(h, "(%f %f) ", u2mil(x), u2mil(y)); cmd += h;
-    transform(-dx/2,        dy/2,           angle, cx, cy);   sprintf(h, "(%f %f) ", u2mil(x), u2mil(y)); cmd += h;
-    transform(+dx/2,        dy/2,           angle, cx, cy);   sprintf(h, "(%f %f) ", u2mil(x), u2mil(y)); cmd += h;
-    transform(+dx/2,        -dy/2,          angle, cx, cy);   sprintf(h, "(%f %f) ", u2mil(x), u2mil(y)); cmd += h;
-    transform(-dx/2,        -dy/2,          angle, cx, cy);   sprintf(h, "(%f %f) ", u2mil(x), u2mil(y)); cmd += h;
+    transform(-dx/2,        -dy/2,          angle, cx, cy);   sprintf(h, "(%5.3f %5.3f) ", u2mm(x), u2mm(y)); cmd += h;
+    transform(-dx/2,        dy/2,           angle, cx, cy);   sprintf(h, "(%5.3f %5.3f) ", u2mm(x), u2mm(y)); cmd += h;
+    transform(+dx/2,        dy/2,           angle, cx, cy);   sprintf(h, "(%5.3f %5.3f) ", u2mm(x), u2mm(y)); cmd += h;
+    transform(+dx/2,        -dy/2,          angle, cx, cy);   sprintf(h, "(%5.3f %5.3f) ", u2mm(x), u2mm(y)); cmd += h;
+    transform(-dx/2,        -dy/2,          angle, cx, cy);   sprintf(h, "(%5.3f %5.3f) ", u2mm(x), u2mm(y)); cmd += h;
   } else if(dx==dy && dx/2 == radius){
-    transform(-dx/2,        0,              angle, cx, cy);   sprintf(h, "(%f %f) ", u2mil(x), u2mil(y)); cmd += h;
-    transform(0,            dy/2,           angle, cx, cy);   sprintf(h, "-90 (%f %f) ", u2mil(x), u2mil(y)); cmd += h;
-    transform(+dx/2,        0,              angle, cx, cy);   sprintf(h, "-90 (%f %f) ", u2mil(x), u2mil(y)); cmd += h;
-    transform(0,            -dy/2,          angle, cx, cy);   sprintf(h, "-90 (%f %f) ", u2mil(x), u2mil(y)); cmd += h;
-    transform(-dx/2,        -dy/2+radius,   angle, cx, cy);   sprintf(h, "-90 (%f %f) ", u2mil(x), u2mil(y)); cmd += h; 
+    transform(-dx/2,        0,              angle, cx, cy);   sprintf(h, "(%5.3f %5.3f) ", u2mm(x), u2mm(y)); cmd += h;
+    transform(0,            dy/2,           angle, cx, cy);   sprintf(h, "-90 (%5.3f %5.3f) ", u2mm(x), u2mm(y)); cmd += h;
+    transform(+dx/2,        0,              angle, cx, cy);   sprintf(h, "-90 (%5.3f %5.3f) ", u2mm(x), u2mm(y)); cmd += h;
+    transform(0,            -dy/2,          angle, cx, cy);   sprintf(h, "-90 (%5.3f %5.3f) ", u2mm(x), u2mm(y)); cmd += h;
+    transform(-dx/2,        -dy/2+radius,   angle, cx, cy);   sprintf(h, "-90 (%5.3f %5.3f) ", u2mm(x), u2mm(y)); cmd += h; 
   } else if(dx/2 == radius){
-    transform(-dx/2,        -dy/2+radius,   angle, cx, cy);   sprintf(h, "(%f %f) ", u2mil(x), u2mil(y)); cmd += h;
-    transform(-dx/2,        dy/2-radius,    angle, cx, cy);   sprintf(h, "(%f %f) ", u2mil(x), u2mil(y)); cmd += h;
-    transform(0,            dy/2,           angle, cx, cy);   sprintf(h, "-90 (%f %f) ", u2mil(x), u2mil(y)); cmd += h;
-    transform(+dx/2,        dy/2-radius,    angle, cx, cy);   sprintf(h, "-90 (%f %f) ", u2mil(x), u2mil(y)); cmd += h;
-    transform(+dx/2,        -dy/2+radius,   angle, cx, cy);   sprintf(h, "(%f %f) ", u2mil(x), u2mil(y)); cmd += h;
-    transform(0,            -dy/2,          angle, cx, cy);   sprintf(h, "-90 (%f %f) ", u2mil(x), u2mil(y)); cmd += h;
-    transform(-dx/2,        -dy/2+radius,   angle, cx, cy);   sprintf(h, "-90 (%f %f) ", u2mil(x), u2mil(y)); cmd += h;    
+    transform(-dx/2,        -dy/2+radius,   angle, cx, cy);   sprintf(h, "(%5.3f %5.3f) ", u2mm(x), u2mm(y)); cmd += h;
+    transform(-dx/2,        dy/2-radius,    angle, cx, cy);   sprintf(h, "(%5.3f %5.3f) ", u2mm(x), u2mm(y)); cmd += h;
+    transform(0,            dy/2,           angle, cx, cy);   sprintf(h, "-90 (%5.3f %5.3f) ", u2mm(x), u2mm(y)); cmd += h;
+    transform(+dx/2,        dy/2-radius,    angle, cx, cy);   sprintf(h, "-90 (%5.3f %5.3f) ", u2mm(x), u2mm(y)); cmd += h;
+    transform(+dx/2,        -dy/2+radius,   angle, cx, cy);   sprintf(h, "(%5.3f %5.3f) ", u2mm(x), u2mm(y)); cmd += h;
+    transform(0,            -dy/2,          angle, cx, cy);   sprintf(h, "-90 (%5.3f %5.3f) ", u2mm(x), u2mm(y)); cmd += h;
+    transform(-dx/2,        -dy/2+radius,   angle, cx, cy);   sprintf(h, "-90 (%5.3f %5.3f) ", u2mm(x), u2mm(y)); cmd += h;    
   } else if(dy/2 == radius){
-    transform(-dx/2,        0,              angle, cx, cy);   sprintf(h, "(%f %f) ", u2mil(x), u2mil(y)); cmd += h;
-    transform(-dx/2+radius, dy/2,           angle, cx, cy);   sprintf(h, "-90 (%f %f) ", u2mil(x), u2mil(y)); cmd += h;
-    transform(+dx/2-radius, dy/2,           angle, cx, cy);   sprintf(h, "(%f %f) ", u2mil(x), u2mil(y)); cmd += h;
-    transform(+dx/2,        0,              angle, cx, cy);   sprintf(h, "-90 (%f %f) ", u2mil(x), u2mil(y)); cmd += h;
-    transform(+dx/2-radius, -dy/2,          angle, cx, cy);   sprintf(h, "-90 (%f %f) ", u2mil(x), u2mil(y)); cmd += h;
-    transform(-dx/2+radius, -dy/2,          angle, cx, cy);   sprintf(h, "(%f %f) ", u2mil(x), u2mil(y)); cmd += h;
-    transform(-dx/2,        0,              angle, cx, cy);   sprintf(h, "-90 (%f %f) ", u2mil(x), u2mil(y)); cmd += h;       
+    transform(-dx/2,        0,              angle, cx, cy);   sprintf(h, "(%5.3f %5.3f) ", u2mm(x), u2mm(y)); cmd += h;
+    transform(-dx/2+radius, dy/2,           angle, cx, cy);   sprintf(h, "-90 (%5.3f %5.3f) ", u2mm(x), u2mm(y)); cmd += h;
+    transform(+dx/2-radius, dy/2,           angle, cx, cy);   sprintf(h, "(%5.3f %5.3f) ", u2mm(x), u2mm(y)); cmd += h;
+    transform(+dx/2,        0,              angle, cx, cy);   sprintf(h, "-90 (%5.3f %5.3f) ", u2mm(x), u2mm(y)); cmd += h;
+    transform(+dx/2-radius, -dy/2,          angle, cx, cy);   sprintf(h, "-90 (%5.3f %5.3f) ", u2mm(x), u2mm(y)); cmd += h;
+    transform(-dx/2+radius, -dy/2,          angle, cx, cy);   sprintf(h, "(%5.3f %5.3f) ", u2mm(x), u2mm(y)); cmd += h;
+    transform(-dx/2,        0,              angle, cx, cy);   sprintf(h, "-90 (%5.3f %5.3f) ", u2mm(x), u2mm(y)); cmd += h;       
   } else {
-    transform(-dx/2,        -dy/2+radius,   angle, cx, cy);   sprintf(h, "(%f %f) ", u2mil(x), u2mil(y)); cmd += h;
-    transform(-dx/2,        dy/2-radius,    angle, cx, cy);   sprintf(h, "(%f %f) ", u2mil(x), u2mil(y)); cmd += h;
-    transform(-dx/2+radius, dy/2,           angle, cx, cy);   sprintf(h, "-90 (%f %f) ", u2mil(x), u2mil(y)); cmd += h;
-    transform(+dx/2-radius, dy/2,           angle, cx, cy);   sprintf(h, "(%f %f) ", u2mil(x), u2mil(y)); cmd += h;
-    transform(+dx/2,        dy/2-radius,    angle, cx, cy);   sprintf(h, "-90 (%f %f) ", u2mil(x), u2mil(y)); cmd += h;
-    transform(+dx/2,        -dy/2+radius,   angle, cx, cy);   sprintf(h, "(%f %f) ", u2mil(x), u2mil(y)); cmd += h;
-    transform(+dx/2-radius, -dy/2,          angle, cx, cy);   sprintf(h, "-90 (%f %f) ", u2mil(x), u2mil(y)); cmd += h;
-    transform(-dx/2+radius, -dy/2,          angle, cx, cy);   sprintf(h, "(%f %f) ", u2mil(x), u2mil(y)); cmd += h;
-    transform(-dx/2,        -dy/2+radius,   angle, cx, cy);   sprintf(h, "-90 (%f %f) ", u2mil(x), u2mil(y)); cmd += h;    
+    transform(-dx/2,        -dy/2+radius,   angle, cx, cy);   sprintf(h, "(%5.3f %5.3f) ", u2mm(x), u2mm(y)); cmd += h;
+    transform(-dx/2,        dy/2-radius,    angle, cx, cy);   sprintf(h, "(%5.3f %5.3f) ", u2mm(x), u2mm(y)); cmd += h;
+    transform(-dx/2+radius, dy/2,           angle, cx, cy);   sprintf(h, "-90 (%5.3f %5.3f) ", u2mm(x), u2mm(y)); cmd += h;
+    transform(+dx/2-radius, dy/2,           angle, cx, cy);   sprintf(h, "(%5.3f %5.3f) ", u2mm(x), u2mm(y)); cmd += h;
+    transform(+dx/2,        dy/2-radius,    angle, cx, cy);   sprintf(h, "-90 (%5.3f %5.3f) ", u2mm(x), u2mm(y)); cmd += h;
+    transform(+dx/2,        -dy/2+radius,   angle, cx, cy);   sprintf(h, "(%5.3f %5.3f) ", u2mm(x), u2mm(y)); cmd += h;
+    transform(+dx/2-radius, -dy/2,          angle, cx, cy);   sprintf(h, "-90 (%5.3f %5.3f) ", u2mm(x), u2mm(y)); cmd += h;
+    transform(-dx/2+radius, -dy/2,          angle, cx, cy);   sprintf(h, "(%5.3f %5.3f) ", u2mm(x), u2mm(y)); cmd += h;
+    transform(-dx/2,        -dy/2+radius,   angle, cx, cy);   sprintf(h, "-90 (%5.3f %5.3f) ", u2mm(x), u2mm(y)); cmd += h;    
   }
 
   sprintf(h, ";\n"); cmd += h;
@@ -632,75 +425,44 @@ void create_smd(int layer, int cx, int cy, int dx, int dy, real angle, int round
   /*
 	if(roundness != 100 || (dx != dy))
 	{
-		sprintf(h, "RECT R%f (%f %f) (%f %f);", angle, u2mil(rx), u2mil(ry), u2mil(rdx), u2mil(rdy)); cmd += h;
+		sprintf(h, "RECT R%f (%f %f) (%f %f);", angle, u2mm(rx), u2mm(ry), u2mm(rdx), u2mm(rdy)); cmd += h;
 	}
 	else	//Simple fix for round fiducials
 	{
-		sprintf(h, "CIRCLE 0 (%f %f) (%f %f);", u2mil( cx ), u2mil( cy ), u2mil(x+(dx/2)), u2mil(cy)); cmd += h;	
+		sprintf(h, "CIRCLE 0 (%f %f) (%f %f);", u2mm( cx ), u2mm( cy ), u2mm(x+(dx/2)), u2mm(cy)); cmd += h;	
 	}
   */
 }
 
-void do_hole(UL_HOLE hole)
-{
+void do_hole(UL_HOLE hole) {
 	string h = "";
 	sprintf(h, "CHANGE LAYER %s;\n", emptyname); cmd += h;
-	sprintf(h, "CIRCLE 0 (%f %f) (%f %f);\n", u2mil(hole.x), u2mil(hole.y), u2mil(hole.x + (hole.drill/2)), u2mil(hole.y)); cmd += h;
+	sprintf(h, "CIRCLE 0 (%5.3f %5.3f) (%5.3f %5.3f);\n", u2mm(hole.x), u2mm(hole.y), u2mm(hole.x + (hole.drill/2)), u2mm(hole.y)); cmd += h;
 } 
 
-void do_via(UL_VIA v)
-{
+void do_via(UL_VIA v) {
 	create_via(v.x, v.y, v.drill, v.diameter[LAYER_TSTOP], v.diameter[LAYER_BSTOP], v.shape[1], 0.0); //We use Layer one for all via symbols
 }
 
-void do_pad(UL_PAD p)
-{
-	if(p)
-	{
+void do_pad(UL_PAD p) {
+	if(p) {
 		create_via(p.x, p.y, p.drill, p.diameter[LAYER_TSTOP], p.diameter[LAYER_BSTOP], p.shape[1], p.angle);
 	}
 }
 
-void do_smd(UL_SMD s)
-{
-	if(s)
-	{
-		/*if(s.roundness != 0){
-			string h;
-			sprintf(h, "Roundness == %d", s.roundness);
-			dlgMessageBox(h);
-		}*/
-		if(s.layer == 1)
-		{
-			create_smd(tsmdnum, s.x, s.y, s.dx, s.dy, s.angle, s.roundness);
-		}
-		if(s.layer == 16)
-		{
-			create_smd(bsmdnum, s.x, s.y, s.dx, s.dy, s.angle, s.roundness);
-		}
-	}
-}
-
-
-
-
-
-int silkscreens_already_exist(UL_BOARD B)
-{
+int silkscreens_already_exist(UL_BOARD B) {
   int found = 0;
-  B.layers(L) if(L.number == tsilknum || L.number == bsilknum) found = 1;
+  B.layers(L) if(L.number == emptynum || L.number == dimensionnum) found = 1;
   return found;
 }
 
-void save_visible_layers(UL_BOARD B)
-{
+void save_visible_layers(UL_BOARD B) {
   int i = 0;
   B.layers(L) if(L.visible) saved_visible_layers[i++] = L.name;
   saved_visible_layers[i] = "";
 }
 
-void restore_visible_layers(UL_BOARD B)
-{
+void restore_visible_layers(UL_BOARD B) {
   int i;
   cmd += "display none";
   for(i = 0; saved_visible_layers[i] != ""; i++) {
@@ -709,14 +471,13 @@ void restore_visible_layers(UL_BOARD B)
   cmd += ";\n";
 }
 
-void clear_silkscreen_layers(UL_BOARD B)
-{
-  real x1 = u2mil(B.area.x1);
-  real x2 = u2mil(B.area.x2);
-  real y1 = u2mil(B.area.y1);
-  real y2 = u2mil(B.area.y2);
+void clear_silkscreen_layers(UL_BOARD B) {
+  real x1 = u2mm(B.area.x1);
+  real x2 = u2mm(B.area.x2);
+  real y1 = u2mm(B.area.y1);
+  real y2 = u2mm(B.area.y2);
   save_visible_layers(B);
-  h = "";sprintf(h, "display ?? none %s %s %s %s %s %s %s;\n", tsilkname, bsilkname, dimensionname, vianame, tsmdname, bsmdname, emptyname);cmd += h;
+  h = "";sprintf(h, "display ?? none %s %s %s;\n", dimensionname, backgroundname, emptyname);cmd += h;
   h = "";sprintf(h, "group (%5.3f %5.3f) (%5.3f %5.3f) (%5.3f %5.3f) "
                     "(%5.3f %5.3f) (%5.3f %5.3f);\n", x1, y1, x2, y1,
                     x2, y2, x1, y2, x1, y1);cmd += h;
@@ -724,33 +485,9 @@ void clear_silkscreen_layers(UL_BOARD B)
   restore_visible_layers(B);
 }
 
-void hide_source_layers()
-{
+void hide_source_layers() {
   cmd += "display";
-  if(copy_tplace) cmd += " -tPlace";
-  if(copy_tnames) cmd += " -tNames";
-  if(copy_tvalues) cmd += " -tValues";
-  if(copy_tdocu) cmd += " -tDocu";
-  if(copy_bplace) cmd += " -bPlace";
-  if(copy_bnames) cmd += " -bNames";
-  if(copy_bvalues) cmd += " -bValues";
-  if(copy_bdocu) cmd += " -bDocu";
-  if(copy_tdimension || copy_bdimension) cmd += " -Dimension";
-  cmd += ";\n";
-}
-
-void show_source_layers()
-{
-  cmd += "display";
-  if(copy_tplace) cmd += " tPlace -tNames -tValues";
-  if(copy_tnames) cmd += " tNames";
-  if(copy_tvalues) cmd += " tValues";
-  if(copy_tdocu) cmd += " tDocu";
-  if(copy_bplace) cmd += " bPlace -bNames -bValues";
-  if(copy_bnames) cmd += " bNames";
-  if(copy_bvalues) cmd += " bValues";
-  if(copy_bdocu) cmd += " bDocu";
-  if(copy_tdimension || copy_bdimension) cmd += " Dimension";
+  if(copy_tdimension) cmd += " -Dimension";
   cmd += ";\n";
 }
 
@@ -759,61 +496,26 @@ void show_source_layers()
 // Dimension, sets a destlayer of tsilknum, and you then have to do the copy
 // a second time with the destlayer set to bsilknum because Dimension gets
 // copied to both silk screens.
-int setdestlayer(int sourcelayer)
-{
-  destlayer = tsilknum;
-  switch(sourcelayer) {
-    case LAYER_DIMENSION:
-      return (copy_tdimension || copy_bdimension);
-    case LAYER_TPLACE:
-      return copy_tplace;
-    case LAYER_TNAMES:
-      return copy_tnames;
-    case LAYER_TVALUES:
-      return copy_tvalues;
-    case LAYER_TDOCU:
-      return copy_tdocu;
-    case LAYER_BPLACE:
-      destlayer = bsilknum;
-      return copy_bplace;
-    case LAYER_BNAMES:
-      destlayer = bsilknum;
-      return copy_bnames;
-    case LAYER_BVALUES:
-      destlayer = bsilknum;
-      return copy_bvalues;
-    case LAYER_BDOCU:
-      destlayer = bsilknum;
-      return copy_bdocu;
-    default:
-      return 0;
-  }
-}
 
-void run_script()
-{
+void run_script() {
 	string working_dir = "";
 	
-	board(B)
-	{
+	board(B) {
 		working_dir = filedir(B.name);	
 	}
 	string scr = working_dir + "tmp.scr";
 
-	output(scr, "w")
-	{
+	output(scr, "w") {
 		printf("%s", cmd);
 	}
 	exit(";SCRIPT '" + scr + "';");	
 }
 
-void save_grid(UL_BOARD B)
-{
+void save_grid(UL_BOARD B) {
   saved_grid_unit = B.grid.unit;
 }
 
-void restore_grid()
-{
+void restore_grid() {
   switch(saved_grid_unit) {
     case GRID_UNIT_MIC:
       cmd += "grid mic;\n";
@@ -829,22 +531,6 @@ void restore_grid()
       cmd += "grid mil;\n";
       break;
   }
-}
-
-void remove_silks(UL_BOARD B)
-{
-  if(silkscreens_already_exist(B)) {
-    // clear_silkscreen_layers() needs the grid unit to be mils.
-    save_grid(B);
-    cmd += "grid mil;\n";
-    clear_silkscreen_layers(B);
-    restore_grid();
-    h = ""; sprintf(h, "layer ?? -%d -%d;\n", tsilknum, bsilknum);cmd += h;
-  }
-  // The meaning of the "Hide source layers" option is inverted when removing
-  // the silk screens.
-  if(hide_sources) show_source_layers();
-  run_script(); // Doesn't return.
 }
 
 if(board) {
@@ -866,104 +552,67 @@ if(board) {
     if(hide_sources) hide_source_layers();
 
     B.elements(E) {
-      destlayer = tsilknum;
-      if(copy_tdimension) do_element(E, LAYER_DIMENSION);
-      if(copy_tplace) do_element(E, LAYER_TPLACE);
-      if(copy_tnames) do_element(E, LAYER_TNAMES);
-      if(copy_tvalues) do_element(E, LAYER_TVALUES);
-      if(copy_tdocu) do_element(E, LAYER_TDOCU);
-      destlayer = bsilknum;
-      if(copy_bdimension) do_element(E, LAYER_DIMENSION);
-      if(copy_bplace) do_element(E, LAYER_BPLACE);
-      if(copy_bnames) do_element(E, LAYER_BNAMES);
-      if(copy_bvalues) do_element(E, LAYER_BVALUES);
-      if(copy_bdocu) do_element(E, LAYER_BDOCU);
+        destlayer = dimensionnum;
+        do_element(E, LAYER_DIMENSION);
+        destlayer = backgroundnum;
+        do_element(E, LAYER_DIMENSION);
     }
     B.wires(W) {
-      if(setdestlayer(W.layer)) {
+    	if(W.layer == LAYER_DIMENSION) {
+        destlayer = dimensionnum;
         do_wire(W, W.layer);
-	if(W.layer == LAYER_DIMENSION) {
-	  destlayer = bsilknum;
-	  do_wire(W, W.layer);
-	  destlayer = dimensionnum;
-	  do_wire(W, W.layer);
-	}
-      }
+        destlayer = backgroundnum;
+        do_wire(W, W.layer);
+    	}
     }
     B.circles(C) {
-      if(setdestlayer(C.layer)) {
+    	if(C.layer == LAYER_DIMENSION) {
+        destlayer = dimensionnum;
         do_circle(C);
-	if(C.layer == LAYER_DIMENSION) {
-	  destlayer = bsilknum;
-	  do_circle(C);
-	  destlayer = dimensionnum;
-	  do_circle(C);
-	}
-      }
+        destlayer = backgroundnum;
+        do_circle(C);
+    	}
     }
     B.rectangles(R) {
-      if(setdestlayer(R.layer)) {
+    	if(R.layer == LAYER_DIMENSION) {
+        destlayer = dimensionnum;
         do_rectangle(R);
-	if(R.layer == LAYER_DIMENSION) {
-	  destlayer = bsilknum;
-	  do_rectangle(R);
-	  destlayer = dimensionnum;
-	  do_rectangle(R);
-	}
-      }
+        destlayer = backgroundnum;
+        do_rectangle(R);
+    	}
     }
     B.polygons(P) {
-      if(setdestlayer(P.layer)) {
-        do_polygon(P);
-	if(P.layer == LAYER_DIMENSION) {
-	  destlayer = bsilknum;
-	  do_polygon(P);
-	  destlayer = dimensionnum;
-	  do_polygon(P);		
-	}
-      }
-    }
-    B.texts(T) {
-      if(setdestlayer(T.layer)) {
-        do_text(T);
-        if(T.layer == LAYER_DIMENSION) {
-	  destlayer = bsilknum;
-            do_text(T);
-	  destlayer = dimensionnum;
-	  do_text(T);
-	}
-      }
-    }
-	B.holes(H)
-	{
-		do_hole(H);
-	}
-	B.signals(S) 
-	{
-		S.vias(V) 
-		{
-			do_via(V);
-		}
-	}
-
-    	B.elements(E) 
-    	{
-		E.package.holes(H)
-		{
-			do_hole(H);
-		}
-		E.package.contacts(C)
-		{
-			do_pad(C.pad);
-			do_smd(C.smd);
-		}
+    	if(P.layer == LAYER_DIMENSION) {
+        destlayer = dimensionnum;
+        do_polygon(P);    
+        destlayer = backgroundnum;
+        do_polygon(P);    
     	}
+    }
+  	B.holes(H) {
+  		do_hole(H);
+  	}
+  	B.signals(S) {
+  		S.vias(V) {
+  			do_via(V);
+  		}
+  	}
 
+  	B.elements(E)  {
+  		E.package.holes(H) {
+  			do_hole(H);
+  		}
+  		E.package.contacts(C) {
+  			do_pad(C.pad);
+  		}
+  	}
   }
+
+  cmd+="display none 124;\n";
+  sprintf(cmd,"%spolygonize (%f %f);\n",cmd ,u2mm(poliX),u2mm(poliY));
 
   if(disable_undo) cmd += "set undo_log on;\n";
   restore_grid();
 
   run_script(); // Doesn't return.
-
 } else dlgMessageBox(":Error: this ULP only works on board layouts.");

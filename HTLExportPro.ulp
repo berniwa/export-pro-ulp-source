@@ -101,7 +101,8 @@ bom_offsetX = 0.15, bom_offsetY = 0.15, bom_width = 179.6;
 
 
 
-
+string silkTLayer = "20 21 25 27 ";
+string silkBLayer = "20 22 26 28 ";
 
 
 real copper_layer_thickness[]={18, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 18};
@@ -1312,13 +1313,12 @@ void export(){
 		}
 	}
 
-	if(silkscreen_enable) {
-		sprintf(cmd, "%s RUN '"  + include_path + "SilkGen.ulp' %d %d %d %d %d %d %d %d %d;", cmd, 
-			silkscreen_width, silkscreen_top, silkscreen_tnames, silkscreen_tvalues, 
-			silkscreen_tdocu, silkscreen_bottom, silkscreen_bnames, silkscreen_bvalues, silkscreen_bdocu
-		);
-		cmd += "DISPLAY -121 -122 -123;";
+	
+	if(silkscreen_enable && EAGLE_VERSION>=9) {
+		sprintf(cmd, "%s RUN '"  + include_path + "SilkGen.ulp';", cmd);
+		cmd += "DISPLAY -123 -124 -127;";
 	}
+	
 
 	//We drop support for eagle < 7, so set confirm is ok
 	cmd += "SET CONFIRM YES;";
@@ -1361,8 +1361,8 @@ void export(){
 		ExportSetup[row++] = "L14 	;-l14 			;14 17 18 20 " + mt + "			;" + layer_image + ";" + layer_pdf + "; Copper L14";
 		ExportSetup[row++] = "L15 	;-l15 			;15 17 18 20 " + mt + "			;" + layer_image + ";" + layer_pdf + "; Copper L15";
 		ExportSetup[row++] = "L16	;-l16-bot		;16 17 18 20 " + mb + "			;" + layer_image + ";" + layer_pdf + "; Copper L16 - Bottom";
-		ExportSetup[row++] = "PT 	;-parts-top		; " + ltx + "121 123 " + mt + "	;" + layer_image + ";" + layer_pdf + "; Silkscreen - Top";
-		ExportSetup[row++] = "PB 	;-parts-bottom	; " + lbx + "122 123 " + mb + "	;" + layer_image + ";" + layer_pdf + "; Silkscreen - Bottom";
+		ExportSetup[row++] = "PT 	;-parts-top		; " + ltx + silkTLayer + mt + "	;" + layer_image + ";" + layer_pdf + "; Silkscreen - Top";
+		ExportSetup[row++] = "PB 	;-parts-bottom	; " + lbx + silkBLayer + mb + "	;" + layer_image + ";" + layer_pdf + "; Silkscreen - Bottom";
 		ExportSetup[row++] = "ST 	;-stop-top		;20 29 " + mt + "				;" + layer_image + ";" + layer_pdf + "; Stopmask - Top";
 		ExportSetup[row++] = "SB 	;-stop-bottom	;20 30 " + mb + "				;" + layer_image + ";" + layer_pdf + "; Stopmask - Bottom";
 		ExportSetup[row++] = "CT 	;-paste-top		;20 31 " + mt + "				;" + layer_image + ";" + layer_pdf + "; Paste - Top";
