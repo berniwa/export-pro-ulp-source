@@ -21,7 +21,7 @@ string getFilename(string basename, string ends_with)
 }
 
 
-void exportImages(int imgExport, int exportBot, string botImage, int exportTop, string topImage, int resolution, int crop, int mirror, string colorPcb, string colorCopper, string colorSilkscreen, string colorPlating)
+void exportImages(int imgExport, int exportBot, string botImage, int exportTop, string topImage, int resolution, int crop, int mirror, string colorPcb, string colorCopper, string colorSilkscreen, string colorPlating, string tsilcLayers, string bsilcLayers)
 {
 	string cmd = "";
 
@@ -39,7 +39,7 @@ void exportImages(int imgExport, int exportBot, string botImage, int exportTop, 
 		cmd += "SET COLOR_LAYER 127 8;\n";
 		cmd += "SET PALETTE 22 " + colorPcb + ";\n";
 		cmd += "SET Option.LayerSequence 124;\n";
-		layerV9= " 123 124 127";
+		layerV9= "123 124 127";
 	}
 	else{
 		cmd += "SET PALETTE COLORED;\n";
@@ -87,14 +87,14 @@ void exportImages(int imgExport, int exportBot, string botImage, int exportTop, 
 
 	if(exportTop)
 	{
-		cmd += "DISPLAY NONE;DISPLAY 1 18 29 21 25 27 51"+layerV9+";\n";
+		cmd += "DISPLAY NONE;DISPLAY 1 18 29 "+tsilcLayers+" "+layerV9+";\n";
 		if (imgExport) {
 			sprintf(cmd, "%s EXPORT IMAGE '%s' %d;\n", cmd, topImage, resolution);
 		}
 	}
 	if(exportBot)
 	{
-		cmd += "DISPLAY NONE;DISPLAY 16 18 30 22 26 28 52"+layerV9+";\n";
+		cmd += "DISPLAY NONE;DISPLAY 16 18 30 "+bsilcLayers+" "+layerV9+";\n";
 		if (imgExport) {
 			sprintf(cmd, "%s EXPORT IMAGE '%s' %d;\n", cmd, botImage, resolution);
 		}
@@ -164,4 +164,4 @@ void exportImages(int imgExport, int exportBot, string botImage, int exportTop, 
 }
 
 
-exportImages(strtol(argv[12]),strtol(argv[2]),argv[1],strtol(argv[4]),argv[3],strtol(argv[5]),strtol(argv[6]),strtol(argv[7]), argv[8], argv[9], argv[10], argv[11]);
+exportImages(strtol(argv[12]),strtol(argv[2]),argv[1],strtol(argv[4]),argv[3],strtol(argv[5]),strtol(argv[6]),strtol(argv[7]), argv[8], argv[9], argv[10], argv[11], argv[13], argv[14]);

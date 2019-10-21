@@ -72,9 +72,9 @@ bom_xls = 1, bom_csv = 0, bom_dbase3 = 0, bom_farnell = 0, bom_shorten_names = 1
 parts_display_names = 1, parts_display_values = 1, pricing = 0, idf_export = 1, pcbimage_top = 1, 
 pcbimage_bottom = 1, pcbimage_resolution = 2, pcbimage_crop = 1, pcbimage_mirror = 1, pcbimage_color = 0,
 pcbimage_silkscreen_color = 0, pcbimage_plating = 0,
-silkscreen_top = 1, silkscreen_tplace = 1, silkscreen_tnames = 1, silkscreen_tvalues = 1, silkscreen_tdocu = 1,
-silkscreen_bottom = 1, silkscreen_bplace = 1, silkscreen_bnames = 1, silkscreen_bvalues = 1, silkscreen_bdocu = 1,
-silkscreen_width = 8, silkscreen_enable = 1, renumber = 1,
+silkscreen_tplace = 1, silkscreen_tnames = 1, silkscreen_tvalues = 1, silkscreen_tdocu = 1,
+silkscreen_bplace = 1, silkscreen_bnames = 1, silkscreen_bvalues = 1, silkscreen_bdocu = 1,
+renumber = 1,
 output_date_folder = 1, 
 schematic_export = 1, schematic_format = 1, schematic_bw = 1, schematic_color = 1, 
 layout_inner_layer = 1, 
@@ -99,10 +99,6 @@ real board_thickness = 0.0, board_copper_thickness = 0.0,
 bom_quantity, pnp_offset_x = 0.0, pnp_offset_y = 0.0,
 bom_offsetX = 0.15, bom_offsetY = 0.15, bom_width = 179.6;
 
-
-
-string silkTLayer = "20 21 25 27 ";
-string silkBLayer = "20 22 26 28 ";
 
 
 real copper_layer_thickness[]={18, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 18};
@@ -367,9 +363,6 @@ void loadUsersettings(){
 			else if (con=="pcbimage_plating") {
 				pcbimage_plating = strtol(stringTrim(strsub(data[i],(strchr(data[i],'=')+1))));
 			}
-			else if (con=="silkscreen_top") {
-				silkscreen_top = strtol(stringTrim(strsub(data[i],(strchr(data[i],'=')+1))));
-			}
 			else if (con=="silkscreen_tnames") {
 				silkscreen_tnames = strtol(stringTrim(strsub(data[i],(strchr(data[i],'=')+1))));
 			}
@@ -379,9 +372,6 @@ void loadUsersettings(){
 			else if (con=="silkscreen_tdocu") {
 				silkscreen_tdocu = strtol(stringTrim(strsub(data[i],(strchr(data[i],'=')+1))));
 			}
-			else if (con=="silkscreen_bottom") {
-				silkscreen_bottom = strtol(stringTrim(strsub(data[i],(strchr(data[i],'=')+1))));
-			}
 			else if (con=="silkscreen_bnames") {
 				silkscreen_bnames = strtol(stringTrim(strsub(data[i],(strchr(data[i],'=')+1))));
 			}
@@ -390,12 +380,6 @@ void loadUsersettings(){
 			}
 			else if (con=="silkscreen_bdocu") {
 				silkscreen_bdocu = strtol(stringTrim(strsub(data[i],(strchr(data[i],'=')+1))));
-			}
-			else if (con=="silkscreen_width") {
-				silkscreen_width = strtol(stringTrim(strsub(data[i],(strchr(data[i],'=')+1))));
-			}
-			else if (con=="silkscreen_enable") {
-				silkscreen_enable = strtol(stringTrim(strsub(data[i],(strchr(data[i],'=')+1))));
 			}
 			else if (con=="bom_farnell") {
 				bom_farnell = strtol(stringTrim(strsub(data[i],(strchr(data[i],'=')+1))));
@@ -600,16 +584,12 @@ void loadUsersettings(){
 		pcbimage_color = strtol(data[32]);
 		pcbimage_silkscreen_color = strtol(data[33]);
 		pcbimage_plating = strtol(data[34]);
-		silkscreen_top = strtol(data[35]);
 		silkscreen_tnames = strtol(data[36]);
 		silkscreen_tvalues = strtol(data[37]);
 		silkscreen_tdocu = strtol(data[38]);
-		silkscreen_bottom = strtol(data[39]);
 		silkscreen_bnames = strtol(data[40]);
 		silkscreen_bvalues = strtol(data[41]);
 		silkscreen_bdocu = strtol(data[42]);
-		silkscreen_width = strtol(data[43]);
-		silkscreen_enable = strtol(data[44]);
 		bom_farnell = strtol(data[45]);
 		bom_quantity = strtod(data[46]);
 		renumber = strtol(data[47]);
@@ -733,16 +713,12 @@ void saveUsersettings(){
 		printf("pcbimage_silkscreen_color = %d\n", pcbimage_silkscreen_color);
 		printf("pcbimage_plating = %d\n", pcbimage_plating);
 
-		printf("silkscreen_top = %d\n", silkscreen_top);
 		printf("silkscreen_tnames = %d\n", silkscreen_tnames);
 		printf("silkscreen_tvalues = %d\n", silkscreen_tvalues);
 		printf("silkscreen_tdocu = %d\n", silkscreen_tdocu);
-		printf("silkscreen_bottom = %d\n", silkscreen_bottom);
 		printf("silkscreen_bnames = %d\n", silkscreen_bnames);
 		printf("silkscreen_bvalues = %d\n", silkscreen_bvalues);
 		printf("silkscreen_bdocu = %d\n", silkscreen_bdocu);
-		printf("silkscreen_width = %d\n", silkscreen_width);
-		printf("silkscreen_enable = %d\n", silkscreen_enable);
 
 		printf("bom_farnell = %d\n", bom_farnell);
 		printf("bom_quantity = %f\n", bom_quantity);
@@ -1074,6 +1050,17 @@ void export(){
 		printf("echo off\n");
 	}
 
+	string tsilcsreenLayer ="";
+	tsilcsreenLayer += silkscreen_tplace?"21 ":"";
+	tsilcsreenLayer += silkscreen_tnames?"25 ":"";
+	tsilcsreenLayer += silkscreen_tvalues?"27 ":"";
+	tsilcsreenLayer += silkscreen_tdocu?"51":"";
+	string bsilcsreenLayer ="";
+	bsilcsreenLayer += silkscreen_tplace?"22 ":"";
+	bsilcsreenLayer += silkscreen_tnames?"26 ":"";
+	bsilcsreenLayer += silkscreen_tvalues?"28 ":"";
+	bsilcsreenLayer += silkscreen_tdocu?"52":"";
+
 	string preCMD="";
 	if(strstr(OS_SIGNATURE,"Windows")>=0){
 		preCMD="CMD.EXE /C ";
@@ -1314,7 +1301,7 @@ void export(){
 	}
 
 	
-	if(silkscreen_enable && EAGLE_VERSION>=9) {
+	if(EAGLE_VERSION>=9) {
 		sprintf(cmd, "%s RUN '"  + include_path + "SilkGen.ulp';", cmd);
 		cmd += "DISPLAY -123 -124 -127;";
 	}
@@ -1345,31 +1332,31 @@ void export(){
 
 		int row = 0;
 		//Index, Filenames, Default Layers, Layers PNG, Layers PDF
-		ExportSetup[row++] = "L1 	;-l01-top		;1 17 18 20 " + mt + "			;" + layer_image + ";" + layer_pdf + "; Copper L1 - Top";
-		ExportSetup[row++] = "L2 	;-l02			;2 17 18 20 " + mt + "			;" + layer_image + ";" + layer_pdf + "; Copper L2";
-		ExportSetup[row++] = "L3 	;-l03			;3 17 18 20 " + mt + "			;" + layer_image + ";" + layer_pdf + "; Copper L3";
-		ExportSetup[row++] = "L4 	;-l04			;4 17 18 20 " + mt + "			;" + layer_image + ";" + layer_pdf + "; Copper L4";
-		ExportSetup[row++] = "L5 	;-l05			;5 17 18 20 " + mt + "			;" + layer_image + ";" + layer_pdf + "; Copper L5";
-		ExportSetup[row++] = "L6 	;-l06			;6 17 18 20 " + mt + "			;" + layer_image + ";" + layer_pdf + "; Copper L6";
-		ExportSetup[row++] = "L7 	;-l07			;7 17 18 20 " + mt + "			;" + layer_image + ";" + layer_pdf + "; Copper L7";
-		ExportSetup[row++] = "L8 	;-l08			;8 17 18 20 " + mt + "			;" + layer_image + ";" + layer_pdf + "; Copper L8";
-		ExportSetup[row++] = "L9 	;-l09			;9 17 18 20 " + mt + "			;" + layer_image + ";" + layer_pdf + "; Copper L9";
-		ExportSetup[row++] = "L10 	;-l10 			;10 17 18 20 " + mt + "			;" + layer_image + ";" + layer_pdf + "; Copper L10";
-		ExportSetup[row++] = "L11 	;-l11 			;11 17 18 20 " + mt + "			;" + layer_image + ";" + layer_pdf + "; Copper L11";
-		ExportSetup[row++] = "L12 	;-l12 			;12 17 18 20 " + mt + "			;" + layer_image + ";" + layer_pdf + "; Copper L12";
-		ExportSetup[row++] = "L13 	;-l13 			;13 17 18 20 " + mt + "			;" + layer_image + ";" + layer_pdf + "; Copper L13";
-		ExportSetup[row++] = "L14 	;-l14 			;14 17 18 20 " + mt + "			;" + layer_image + ";" + layer_pdf + "; Copper L14";
-		ExportSetup[row++] = "L15 	;-l15 			;15 17 18 20 " + mt + "			;" + layer_image + ";" + layer_pdf + "; Copper L15";
-		ExportSetup[row++] = "L16	;-l16-bot		;16 17 18 20 " + mb + "			;" + layer_image + ";" + layer_pdf + "; Copper L16 - Bottom";
-		ExportSetup[row++] = "PT 	;-parts-top		; " + ltx + silkTLayer + mt + "	;" + layer_image + ";" + layer_pdf + "; Silkscreen - Top";
-		ExportSetup[row++] = "PB 	;-parts-bottom	; " + lbx + silkBLayer + mb + "	;" + layer_image + ";" + layer_pdf + "; Silkscreen - Bottom";
-		ExportSetup[row++] = "ST 	;-stop-top		;20 29 " + mt + "				;" + layer_image + ";" + layer_pdf + "; Stopmask - Top";
-		ExportSetup[row++] = "SB 	;-stop-bottom	;20 30 " + mb + "				;" + layer_image + ";" + layer_pdf + "; Stopmask - Bottom";
-		ExportSetup[row++] = "CT 	;-paste-top		;20 31 " + mt + "				;" + layer_image + ";" + layer_pdf + "; Paste - Top";
-		ExportSetup[row++] = "CB 	;-paste-bottom	;20 32 " + mb + "				;" + layer_image + ";" + layer_pdf + "; Paste - Bottom";
-		ExportSetup[row++] = "FAB	;-fabrication 	;44 45 20 154 "  + mt + "		;" + layer_image + ";" + layer_pdf + "; Fabrication";
-		ExportSetup[row++] = "MECH	;-construction 	;111 20 						;" + layer_image + ";" + layer_pdf + " -" + mt + "; Mechanical";
-		ExportSetup[row++] = "REF	;-reference 	;111 49							;" + layer_image + ";" + layer_pdf + "; Reference";
+		ExportSetup[row++] = "L1 	;-l01-top		;1 17 18 20 " + mt + "				;" + layer_image + ";" + layer_pdf + "; Copper L1 - Top";
+		ExportSetup[row++] = "L2 	;-l02			;2 17 18 20 " + mt + "				;" + layer_image + ";" + layer_pdf + "; Copper L2";
+		ExportSetup[row++] = "L3 	;-l03			;3 17 18 20 " + mt + "				;" + layer_image + ";" + layer_pdf + "; Copper L3";
+		ExportSetup[row++] = "L4 	;-l04			;4 17 18 20 " + mt + "				;" + layer_image + ";" + layer_pdf + "; Copper L4";
+		ExportSetup[row++] = "L5 	;-l05			;5 17 18 20 " + mt + "				;" + layer_image + ";" + layer_pdf + "; Copper L5";
+		ExportSetup[row++] = "L6 	;-l06			;6 17 18 20 " + mt + "				;" + layer_image + ";" + layer_pdf + "; Copper L6";
+		ExportSetup[row++] = "L7 	;-l07			;7 17 18 20 " + mt + "				;" + layer_image + ";" + layer_pdf + "; Copper L7";
+		ExportSetup[row++] = "L8 	;-l08			;8 17 18 20 " + mt + "				;" + layer_image + ";" + layer_pdf + "; Copper L8";
+		ExportSetup[row++] = "L9 	;-l09			;9 17 18 20 " + mt + "				;" + layer_image + ";" + layer_pdf + "; Copper L9";
+		ExportSetup[row++] = "L10 	;-l10 			;10 17 18 20 " + mt + "				;" + layer_image + ";" + layer_pdf + "; Copper L10";
+		ExportSetup[row++] = "L11 	;-l11 			;11 17 18 20 " + mt + "				;" + layer_image + ";" + layer_pdf + "; Copper L11";
+		ExportSetup[row++] = "L12 	;-l12 			;12 17 18 20 " + mt + "				;" + layer_image + ";" + layer_pdf + "; Copper L12";
+		ExportSetup[row++] = "L13 	;-l13 			;13 17 18 20 " + mt + "				;" + layer_image + ";" + layer_pdf + "; Copper L13";
+		ExportSetup[row++] = "L14 	;-l14 			;14 17 18 20 " + mt + "				;" + layer_image + ";" + layer_pdf + "; Copper L14";
+		ExportSetup[row++] = "L15 	;-l15 			;15 17 18 20 " + mt + "				;" + layer_image + ";" + layer_pdf + "; Copper L15";
+		ExportSetup[row++] = "L16	;-l16-bot		;16 17 18 20 " + mb + "				;" + layer_image + ";" + layer_pdf + "; Copper L16 - Bottom";
+		ExportSetup[row++] = "PT 	;-parts-top		; " + ltx + tsilcsreenLayer + mt + ";" + layer_image + ";" + layer_pdf + "; Silkscreen - Top";
+		ExportSetup[row++] = "PB 	;-parts-bottom	; " + lbx + bsilcsreenLayer + mb + ";" + layer_image + ";" + layer_pdf + "; Silkscreen - Bottom";
+		ExportSetup[row++] = "ST 	;-stop-top		;20 29 " + mt + "					;" + layer_image + ";" + layer_pdf + "; Stopmask - Top";
+		ExportSetup[row++] = "SB 	;-stop-bottom	;20 30 " + mb + "					;" + layer_image + ";" + layer_pdf + "; Stopmask - Bottom";
+		ExportSetup[row++] = "CT 	;-paste-top		;20 31 " + mt + "					;" + layer_image + ";" + layer_pdf + "; Paste - Top";
+		ExportSetup[row++] = "CB 	;-paste-bottom	;20 32 " + mb + "					;" + layer_image + ";" + layer_pdf + "; Paste - Bottom";
+		ExportSetup[row++] = "FAB	;-fabrication 	;44 45 20 154 "  + mt + "			;" + layer_image + ";" + layer_pdf + "; Fabrication";
+		ExportSetup[row++] = "MECH	;-construction 	;111 20 							;" + layer_image + ";" + layer_pdf + " -" + mt + "; Mechanical";
+		ExportSetup[row++] = "REF	;-reference 	;111 49								;" + layer_image + ";" + layer_pdf + "; Reference";
 
 		//Switch palette if export is enabled
 		cmd += "SET PALETTE WHITE;";
@@ -1440,7 +1427,7 @@ void export(){
 
 		//Export colored images
 		if((pcbimage_top || pcbimage_bottom) && (enable_export_png || enable_export_pdf)) {
-			sprintf(cmd, "%s RUN '"  + include_path + "ImageExport.ulp' '%s' %d '%s' %d %d %d %d %s %s %s %s %d;", cmd, 
+			sprintf(cmd, "%s RUN '"  + include_path + "ImageExport.ulp' '%s' %d '%s' %d %d %d %d '%s' '%s' '%s' '%s' %d '%s' '%s';", cmd, 
 				output_file_img_pcbb, pcbimage_bottom, 
 				output_file_img_pcbt, pcbimage_top, 
 				pcbImageResolutions[pcbimage_resolution], 
@@ -1449,12 +1436,12 @@ void export(){
 				pcbImageCopperColors[pcbimage_color], 
 				pcbImageSilkscreenColors[pcbimage_silkscreen_color], 
 				pcbImagePlating[pcbimage_plating],
-				enable_export_png
+				enable_export_png, tsilcsreenLayer, bsilcsreenLayer
 			);
 		}		
 	}
 
-	if(pdf_merge){
+	if(pdf_merge&&enable_export_pdf){
 		sprintf(cmd,"%sRUN '%sMergePDF.ulp' %d '%s' '%s' %d %d;\n", cmd, include_path, 
 			output_date_folder, output_folder_pdf,
 			getSystemFilename(".bat"), 
@@ -1597,31 +1584,6 @@ void detectDrillsymbols(){
 			}
 		}
 	}
-}
-
-void dialogSilkscreenSettings(){
-	dlgDialog(lanGetText("headline.exportDlg")){
-		dlgGroup(lanGetText("general.sisc")+" Top:") 
-		{
-			dlgCheckBox("Top "+lanGetText("general.sisc"), silkscreen_top);
-		};
-		dlgGroup(lanGetText("general.sisc")+" Bottom:") 
-		{
-			dlgCheckBox("Bottom "+lanGetText("general.sisc"), silkscreen_bottom);
-		};
-		dlgHBoxLayout
-		{
-			dlgLabel(lanGetText("settings.sisc.with"));
-			dlgIntEdit(silkscreen_width, 1, 20);
-		};
-		dlgGroup(lanGetText("general.info")) 
-		{
-			dlgLabel(lanGetText("dlg.sisc.info"));
-		}
-		dlgPushButton(lanGetText("button.ok")) {
-			dlgAccept();
-		};
-	};
 }
 
 void dialogImageSettings(){
@@ -2071,7 +2033,6 @@ void mainManu(){
 					dlgHBoxLayout {dlgCheckBox(lanGetText("settings.renumber"), renumber); dlgStretch(1);}
 					dlgHBoxLayout {dlgCheckBox(lanGetText("settings.schematic"),schematic_export); dlgStretch(1); dlgPushButton("⚙"){dialogSchematicSettings();}; };
 					dlgHBoxLayout {dlgCheckBox(lanGetText("settings.boardInfo"),boardInfo); dlgStretch(1); dlgPushButton("⚙"){dialogFabricationSettings();}; };
-					dlgHBoxLayout {dlgCheckBox(lanGetText("settings.sisc"),silkscreen_enable); dlgStretch(1); dlgPushButton("⚙"){dialogSilkscreenSettings();}; };
 					dlgHBoxLayout {dlgCheckBox(lanGetText("settings.image"),enable_export_image); dlgStretch(1); dlgPushButton("⚙"){dialogImageSettings();}; };
 					dlgHBoxLayout {dlgCheckBox(lanGetText("settings.pricing"),pricing); dlgStretch(1); };
 					dlgHBoxLayout {dlgCheckBox(lanGetText("settings.bom"),bom); dlgStretch(1); dlgPushButton("⚙"){dialogBomSettings();}; };
