@@ -12,17 +12,52 @@
 
 #include "Include_FastExecute.ulp";
 #include "Include_Misc.ulp";
+#include "Include_String.ulp";
 
-//string defaultLayerStackup7 = "48t 49t 19t 47t 20t 46t 23 27 25 59 57 55 53 50 51 21 44t 45t 37 35 31 29 33 39 41 43t 18t 17t 1-16 17b 18b 43b 42 40 34 30 32 36 38 45b 44b 22 52 54 56 58 60 26 28 24 46b 20b 47b 19b 49b 48b 61-99";
-//string LayerStackup9 = "20 51 52 29 30 21 22 25 26 27 28 1 16 17 18";
 string getFilename(string basename, string ends_with)
 {
 	return filesetext(basename,ends_with);
 }
 
+string updateFrameInformation(string drawing){
+	string name = "";
+	string attributes[];
+	string attribute;
 
-void exportImages(int imgExport, int exportBot, string botImage, int exportTop, string topImage, int resolution, int crop, int mirror, string colorPcb, string colorCopper, string colorSilkscreen, string colorPlating, string tsilcLayers, string bsilcLayers)
-{
+	board(B) {
+		B.elements(E) {
+			if(stringCompare(E.package.name, "FRAME") == 0){
+				name = E.name;
+				int i=0;
+				E.attributes(A) {
+					attributes[i]=A.name;
+					i++;
+				}
+				attribute = strjoin(attributes,';');
+			}
+		}
+	}
+
+	string cmd = "";
+	if(name != "") {
+
+		cmd += "CHANGE DISPLAY OFF;";
+	 	
+	 	if(strstr(attribute,"DRAWING")!=-1) {
+			cmd += "ATTRIBUTE " + name + " DRAWING DELETE;";
+		}
+
+	 	sprintf(cmd, "%sATTRIBUTE %s DRAWING \'%s\'; ", cmd, name, stringTrim(drawing));
+
+	 	if(EAGLE_VERSION>=9){
+	 		cmd += "REPOSITION " + name + "; ";
+	 	}
+	 }
+
+	return cmd;
+}
+
+void exportImages(int imgExport, int pdfExport, int exportBot, string botImage, string botPdf, int exportTop, string topImage, string topPdf, int resolution, int crop, int mirror, string colorPcb, string colorCopper, string colorSilkscreen, string colorPlating, string tsilcLayers, string bsilcLayers, int format, int frame) {
 	string cmd = "";
 
 	string bname = "";
@@ -91,6 +126,15 @@ void exportImages(int imgExport, int exportBot, string botImage, int exportTop, 
 		if (imgExport) {
 			sprintf(cmd, "%s EXPORT IMAGE '%s' %d;\n", cmd, topImage, resolution);
 		}
+		
+		if (pdfExport) {
+			if(frame){
+				cmd += "DISPLAY 153;\n";
+				cmd += updateFrameInformation("PCB - Top");
+			}
+			sprintf(cmd,"%s PRINT SHEETS ALL HIERARCHY PAPER %s FILE '%s';\n", cmd, (format?"A3 landscape":"A4 portrait"), topPdf);
+		}
+		
 	}
 	if(exportBot)
 	{
@@ -98,6 +142,15 @@ void exportImages(int imgExport, int exportBot, string botImage, int exportTop, 
 		if (imgExport) {
 			sprintf(cmd, "%s EXPORT IMAGE '%s' %d;\n", cmd, botImage, resolution);
 		}
+		
+		if (pdfExport) {
+			if(frame){
+				cmd += "DISPLAY 153;\n";
+				cmd += updateFrameInformation("PCB - Bottom");
+			}
+			sprintf(cmd,"%s PRINT SHEETS ALL HIERARCHY PAPER %s FILE '%s';\n", cmd, (format?"A3 landscape":"A4 portrait"), botPdf);
+		}
+		
 	}
 
 
@@ -163,5 +216,4 @@ void exportImages(int imgExport, int exportBot, string botImage, int exportTop, 
 	executeAndExit(cmd);
 }
 
-
-exportImages(strtol(argv[12]),strtol(argv[2]),argv[1],strtol(argv[4]),argv[3],strtol(argv[5]),strtol(argv[6]),strtol(argv[7]), argv[8], argv[9], argv[10], argv[11], argv[13], argv[14]);
+exportImages(strtol(argv[1]),strtol(argv[2]),strtol(argv[3]),argv[4],argv[5],strtol(argv[6]),argv[7],argv[8],strtol(argv[9]),strtol(argv[10]),strtol(argv[11]), argv[12], argv[13], argv[14], argv[15], argv[16], argv[17], strtol(argv[18]), strtol(argv[19]));
