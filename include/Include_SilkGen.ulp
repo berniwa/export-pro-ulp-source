@@ -74,7 +74,6 @@ real cursize = -1.0;
 int clearsilks = 0, saved_grid_unit = GRID_UNIT_MIL;
 string saved_visible_layers[], textorientation, h, cmd;
 int destlayer, curdestlayer = -1, curlinestyle = -1, curratio = -1;
-int poliX=0.0, poliY=0.0;
 
 int wX1[], wY1[], wX2[], wY2[], wRad[], wWid[];
 int index = 0;
@@ -106,13 +105,6 @@ int calctextratio(int size, real width) {
 	return 8;
   }
   return ceil((width / u2mm(size)) * 100);
-}
-
-void set_poligonizePos(int x, int y){
-  if(x+y>poliX+poliY){
-    poliX=x;
-    poliY=y;
-  }
 }
 
 void set_layer() {
@@ -175,6 +167,27 @@ void do_wire(UL_WIRE W, int sourcelayer) {
       wY2[index]=W.arc.y2;
       wRad[index]=W.arc.radius;
       wWid[index]=W.arc.width;
+      if((W.arc.angle2-W.arc.angle1)>180){
+        wX2[index]=((W.arc.x1-W.arc.x2)/2)+W.arc.x2;
+        wX2[index]=W.arc.xc-wX2[index];
+        wY2[index]=((W.arc.y1-W.arc.y2)/2)+W.arc.y2;
+        wY2[index]=W.arc.yc-wY2[index];
+
+        real factor = W.arc.radius/sqrt(pow(wX2[index],2)+pow(wY2[index],2));
+
+        wX2[index]*=factor;
+        wX2[index]+=W.arc.xc;
+        wY2[index]*=factor;
+        wY2[index]+=W.arc.yc;
+        index++;
+
+        wX1[index]=wX2[index-1];
+        wY1[index]=wY2[index-1];
+        wX2[index]=W.arc.x2;
+        wY2[index]=W.arc.y2;
+        wRad[index]=wRad[index-1];
+        wWid[index]=wWid[index-1];
+      }
     }
     else{
       wX1[index]=W.x1;
@@ -190,19 +203,43 @@ void do_wire(UL_WIRE W, int sourcelayer) {
   else {
     if(W.arc) {
       if(W.arc.layer == sourcelayer) {
-        set_poligonizePos(W.arc.x1, W.arc.y1);
-        set_poligonizePos(W.arc.x2, W.arc.y2);
         set_layer();
-        h = "";sprintf(h, "wire %5.3f (%5.3f %5.3f) @%+5.3f  "
-                          "(%5.3f %5.3f);\n", calcwidth(W.arc.width),
-                          u2mm(W.arc.x1), u2mm(W.arc.y1),
-                          u2mm(W.arc.radius),
-                          u2mm(W.arc.x2), u2mm(W.arc.y2));cmd += h;
+        if ((W.arc.angle2-W.arc.angle1)>180){
+          int tmpx, tmpy;
+
+          tmpx=((W.arc.x1-W.arc.x2)/2)+W.arc.x2;
+          tmpx=W.arc.xc-tmpx;
+          tmpy=((W.arc.y1-W.arc.y2)/2)+W.arc.y2;
+          tmpy=W.arc.yc-tmpy;
+
+          real factor = W.arc.radius/sqrt(pow(tmpx,2)+pow(tmpy,2));
+
+          tmpx*=factor;
+          tmpx+=W.arc.xc;
+          tmpy*=factor;
+          tmpy+=W.arc.yc;
+
+          sprintf(cmd,"%s wire %5.3f (%5.3f %5.3f) @%+5.3f (%5.3f %5.3f) @%+5.3f (%5.3f %5.3f);\n",cmd,
+            calcwidth(W.arc.width),
+            u2mm(W.arc.x1), u2mm(W.arc.y1),
+            u2mm(W.arc.radius),
+            u2mm(tmpx), u2mm(tmpy),
+            u2mm(W.arc.radius),
+            u2mm(W.arc.x2), u2mm(W.arc.y2)
+          );
+        }
+        else {
+          h = "";sprintf(h, "wire %5.3f (%5.3f %5.3f) @%+5.3f (%5.3f %5.3f);\n", 
+            calcwidth(W.arc.width),
+            u2mm(W.arc.x1), u2mm(W.arc.y1),
+            u2mm(W.arc.radius),
+            u2mm(W.arc.x2), u2mm(W.arc.y2)
+          );
+          cmd += h;
+        }
       }
     } else {
       if(W.layer == sourcelayer) {
-        set_poligonizePos(W.x1, W.y1);
-        set_poligonizePos(W.x2, W.y2);
         set_layer();
         set_line_style(W.style);
         h = "";sprintf(h, "wire %5.3f (%5.3f %5.3f) (%5.3f %5.3f);\n",
