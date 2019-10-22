@@ -1,3 +1,5 @@
+#include "Include_FastExecute.ulp";
+
 real startX=0, startY=0;
 string LIBRARY_NAME = "fabrication.lbr";
 string BOARD_NAME = ".brd";
@@ -255,8 +257,8 @@ void bomOutputPdfFile(real offsetX, real offsetY, real width){
     cmd += drawBorder(0, 0, row, cols);
 
     sprintf(cmd, "%sWRITE '%s';\n", cmd, LIBRARY_NAME);
+	sprintf(cmd, "%sCLOSE;\n", cmd);
 	sprintf(cmd, "%sEDIT '%s';\n", cmd, BOARD_NAME);
-	//sprintf(cmd, "%sCLOSE '%s';\n", cmd, LIBRARY_NAME);
 	sprintf(cmd, "%sGRID mm 0.1 1 mm;\n", cmd);
 	sprintf(cmd, "%sUSE '%s';\n", cmd, LIBRARY_NAME);
 	sprintf(cmd, "%sLAYER %s %d;\n", cmd, outputLayerName, outputLayer);
@@ -269,5 +271,5 @@ void bomOutputPdfFile(real offsetX, real offsetY, real width){
  		startX, startY
  	);
 
-	exit(cmd);
+	executeAndExit(cmd);
 }
