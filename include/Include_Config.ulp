@@ -18,29 +18,27 @@ real 	cfg_bomPreWidth[];
 int 	cfg_bomPreCount;
 
 void saveConfig() {
-	output(getUlpDir("../exportpro.cfg")) {
-		printf("language = %s\n",cfg_textLanguage);
-		printf("userName = %s\n",cfg_userName);
-		printf("shortUserName = %s\n",cfg_shortUserName);
-		printf("pricingURL = %s\n",cfg_pricingURL);
-		printf("defaultTolerance = %s\n",cfg_defaultTolerance);
-		printf("defaultVoltage = %s\n",cfg_defaultVoltage);
+	cfgset("ULP:ExportPro.language",cfg_textLanguage);
+	cfgset("ULP:ExportPro.userName",cfg_userName);
+	cfgset("ULP:ExportPro.shortUserName",cfg_shortUserName);
+	cfgset("ULP:ExportPro.pricingURL",cfg_pricingURL);
+	cfgset("ULP:ExportPro.defaultTolerance",cfg_defaultTolerance);
+	cfgset("ULP:ExportPro.defaultVoltage",cfg_defaultVoltage);
 
-		if(cfg_bomPreNames[1]!=""){
-			printf("bomPreset = ");
-			int i=1;
-			while(1){
-				printf("%s,%f,%f,%f", cfg_bomPreNames[i], cfg_bomPreOffX[i], cfg_bomPreOffY[i], cfg_bomPreWidth[i]);
+	if(cfg_bomPreNames[1]!=""){
+		string data="";
+		int i=1;
+		while(1){
+			sprintf(data,"%s%s,%f,%f,%f", data, cfg_bomPreNames[i], cfg_bomPreOffX[i], cfg_bomPreOffY[i], cfg_bomPreWidth[i]);
 
-				if(cfg_bomPreNames[++i]){
-					printf(";");
-				}
-				else {
-					printf("\n");
-					break;
-				}
+			if(cfg_bomPreNames[++i]){
+				data+=";";
+			}
+			else {
+				break;
 			}
 		}
+		cfgset("ULP:ExportPro.bomPresets",data);
 	}
 }
 
@@ -113,51 +111,32 @@ char editUserConfig(){
 }
 
 void loadConfig(){
-	string data[];
-	if (filesize(getUlpDir("../exportpro.cfg"))){
-		int lines = fileread(data, getUlpDir("../exportpro.cfg"));
+	
+	cfg_textLanguage = cfgget("ULP:ExportPro.language");
+	cfg_userName = cfgget("ULP:ExportPro.userName");
+	cfg_shortUserName = cfgget("ULP:ExportPro.shortUserName");
+	cfg_pricingURL = cfgget("ULP:ExportPro.pricingURL",cfg_pricingURL);
+	cfg_defaultTolerance = cfgget("ULP:ExportPro.defaultTolerance",cfg_defaultTolerance);
+	cfg_defaultVoltage = cfgget("ULP:ExportPro.defaultVoltage",cfg_defaultVoltage);
+	string tmp = cfgget("ULP:ExportPro.bomPresets");
+	if(tmp!=""){
+		string tmpa[];
+		string tmpb[];
+		cfg_bomPreCount = strsplit(tmpa,tmp,';');
 
-		string con;
-		for (int i=0; i<lines; i++){
-			con = stringTrim(strsub(data[i],0,strchr(data[i],'=')));
-			if (con=="language") {
-				 cfg_textLanguage = stringTrim(strsub(data[i],(strchr(data[i],'=')+1)));
-			}
-			if (con=="userName") {
-				 cfg_userName = stringTrim(strsub(data[i],(strchr(data[i],'=')+1)));
-			}
-			if (con=="shortUserName") {
-				 cfg_shortUserName = stringTrim(strsub(data[i],(strchr(data[i],'=')+1)));
-			}
-			if (con=="pricingURL") {
-				 cfg_pricingURL = stringTrim(strsub(data[i],(strchr(data[i],'=')+1)));
-			}
-			if (con=="defaultTolerance") {
-				 cfg_defaultTolerance = stringTrim(strsub(data[i],(strchr(data[i],'=')+1)));
-			}
-			if (con=="defaultVoltage") {
-				 cfg_defaultVoltage = stringTrim(strsub(data[i],(strchr(data[i],'=')+1)));
-			}
-			if (con=="bomPreset") {
-				string tmp = stringTrim(strsub(data[i],(strchr(data[i],'=')+1)));
-				string tmpa[];
-				string tmpb[];
-				cfg_bomPreCount = strsplit(tmpa,tmp,';');
+		cfg_bomPreNames[0]="";
 
-				cfg_bomPreNames[0]="";
+		for(int n=0; n<cfg_bomPreCount; n++){
+			strsplit(tmpb,tmpa[n],',');
 
-				for(int n=0; n<cfg_bomPreCount; n++){
-					strsplit(tmpb,tmpa[n],',');
-
-					cfg_bomPreNames[n+1]=tmpb[0];
-					cfg_bomPreOffX[n+1]=strtod(tmpb[1]);
-					cfg_bomPreOffY[n+1]=strtod(tmpb[2]);
-					cfg_bomPreWidth[n+1]=strtod(tmpb[3]);
-				}
-			}
+			cfg_bomPreNames[n+1]=tmpb[0];
+			cfg_bomPreOffX[n+1]=strtod(tmpb[1]);
+			cfg_bomPreOffY[n+1]=strtod(tmpb[2]);
+			cfg_bomPreWidth[n+1]=strtod(tmpb[3]);
 		}
 	}
-	else{
+
+	if(cfg_textLanguage=="") {
 		editUserConfig();
 	}
 }

@@ -38,10 +38,10 @@
 /* Version 9                                                */
 /************************************************************/
 
-#include "Include/Include_Misc.ulp";
-#include "Include/Include_Dru.ulp";
-#include "Include/Include_Language.ulp";
-#include "Include/Include_Config.ulp";
+#include "include/Include_Misc.ulp";
+#include "include/Include_Dru.ulp";
+#include "include/Include_Language.ulp";
+#include "include/Include_Config.ulp";
 
 void debugMsg(string msg){
 	//to prevent debug messages to apear in releace
@@ -796,55 +796,6 @@ void saveUsersettings(){
 	}
 }
 
-string getEAGLEconfig(string config){
-	config += " = ";
-
-	string path=EAGLE_HOME;
-	if(strstr(OS_SIGNATURE,"Windows")>=0){
-		path=filedir(path);
-
-		path += "/AppData/Roaming";
-
-		if(EAGLE_VERSION<9){
-			path+="/CadSoft/EAGLE/eaglerc.usr";
-		}
-		else{
-			string sig[];
-			strsplit(sig,EAGLE_SIGNATURE,' ');
-
-			path+="/Eagle/settings/"+sig[2]+"/eaglerc";
-		}
-	}
-	else if(strstr(OS_SIGNATURE,"Linux")>=0){
-		if(EAGLE_VERSION<9){
-			path +="/.eaglerc";
-		}
-		else{
-			string sig[];
-			strsplit(sig,EAGLE_SIGNATURE,' ');
-
-			path+="/.local/share/Eagle/settings/"+sig[2]+"/eaglerc";
-		}
-	}
-	else {
-		debugMsg("hello MAC User");
-		return "1";
-	}
-	string data[];
-	int lines = fileread(data, path);
-
-	for(int i=0;i<lines;i++) {
-		if(strstr(data[i],config)!=-1) {
-			int start = strchr(data[i],'"')+1;
-			int end = strrchr(data[i],'"');
-
-			config = strsub(data[i],start,(end-start));
-			break;
-		}
-	}
-	return config;
-}
-
 string setLayerFill(){
 	string cmd = "";
 	for(int i = 1; i < 52;i++){
@@ -1045,6 +996,8 @@ void export(){
 	cmd+="SET Option.PadNames 0;";
 
 	cmd+="SET Option.ViaLength 0;";
+
+	cmd+="SET Option.DisplayMode 1;";
 
 	output(getSystemFilename(".bat"), "wt"){
 		printf("echo off\n");
@@ -1533,14 +1486,15 @@ void export(){
 	cmd += "RUN '" + include_path + "RunBatch.ulp' '"+getSystemFilename(".bat")+"' '"+preCMD+"';";
 
 	if(EAGLE_VERSION>=9){
-		cmd+="SET Option.SignalNamesOnTraces "+getEAGLEconfig("Option.SignalNamesOnTraces")+";";
-		cmd+="SET Option.SignalNamesOnPads "+getEAGLEconfig("Option.SignalNamesOnPads")+";";
+		cmd+="SET Option.SignalNamesOnTraces "+cfgget("EAGLE:Option.SignalNamesOnTraces")+";";
+		cmd+="SET Option.SignalNamesOnPads "+cfgget("EAGLE:Option.SignalNamesOnPads")+";";
 	}
 	else {
-		cmd+="SET Option.SignalNames "+getEAGLEconfig("Option.SignalNames")+";";
+		cmd+="SET Option.SignalNames "+cfgget("EAGLE:Option.SignalNames")+";";
 	}
-	cmd+="SET Option.PadNames "+getEAGLEconfig("Option.PadNames")+";";
-	cmd+="SET Option.ViaLength "+getEAGLEconfig("Option.ViaLength")+";";
+	cmd+="SET Option.PadNames "+cfgget("EAGLE:Option.PadNames")+";";
+	cmd+="SET Option.ViaLength "+cfgget("EAGLE:Option.ViaLength")+";";
+	cmd+="SET Option.DisplayMode "+cfgget("EAGLE:Option.DisplayMode")+";";
 
 	if(filesize("\'"+filepath+"fabrication.lbr\'")){
 		cmd+="USE \'"+filepath+"fabrication.lbr\';";	//to prevent error messages the fabrication.lbr is loaded befor unloading

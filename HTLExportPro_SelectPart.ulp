@@ -10,16 +10,16 @@
 /* Version 2.0                                              */
 /************************************************************/
 
-#include "Include/Include_Misc.ulp"
-#include "Include/Include_FastExecute.ulp"
-#include "Include/Include_BomConfig.ulp"
-#include "Include/Include_String.ulp"
-#include "Include/Include_BomCategory.ulp"
-#include "Include/Include_BomCommon.ulp"
-#include "Include/Include_BomPricing.ulp"
-#include "Include/Include_Language.ulp"
-#include "Include/Include_Si.ulp"
-#include "Include/Include_Config.ulp";
+#include "include/Include_Misc.ulp"
+#include "include/Include_FastExecute.ulp"
+#include "include/Include_BomConfig.ulp"
+#include "include/Include_String.ulp"
+#include "include/Include_BomCategory.ulp"
+#include "include/Include_BomCommon.ulp"
+#include "include/Include_BomPricing.ulp"
+#include "include/Include_Language.ulp"
+#include "include/Include_Si.ulp"
+#include "include/Include_Config.ulp";
 
 string stdDistributor = "xdevelop";
 
