@@ -349,7 +349,6 @@ string str_replace(string search, string replace, string subject) {
     return subject;
 }
 
-
 void do_element(UL_ELEMENT E, int sourcelayer) {
   E.package.wires(W) if(W.layer == sourcelayer) do_wire(W, sourcelayer);
   E.package.circles(C) if(C.layer == sourcelayer) do_circle(C);
@@ -756,16 +755,15 @@ if(board) {
         }
       }
     }
+    blockEndIndex[si]=i;
 
     if((wX1[i]==wX2[i])&&(wY1[i]==wY2[i])){
       blockLeangth[si]=2*wRad[i]*PI;
-      blockEndIndex[si++]=i;
-      blockStartIndex[si]=-1;
+      blockStartIndex[++si]=-1;
     }
     else if(wX1[blockStartIndex[si]]==wX2[i] && wY1[blockStartIndex[si]]==wY2[i]){
       blockLeangth[si] += sqrt(pow((wX2[i]-wX1[i]),2)+pow((wY2[i]-wY1[i]),2));
-      blockEndIndex[si++]=i;
-      blockStartIndex[si]=-1;
+      blockStartIndex[++si]=-1;
     }
     else{
       blockLeangth[si] += sqrt(pow((wX2[i]-wX1[i]),2)+pow((wY2[i]-wY1[i]),2));
@@ -778,6 +776,7 @@ if(board) {
       longest=i;
     }
   }
+  sprintf(h,"s%d e%d",index,si); dlgMessageBox(h);
 
   for(i=0;i<index;i++){
     if((blockStartIndex[longest]<=i)&&(i<=blockEndIndex[longest])){
