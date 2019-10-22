@@ -1003,12 +1003,12 @@ void export(){
 		printf("echo off\n");
 	}
 
-	string tsilcsreenLayer ="";
+	string tsilcsreenLayer =" ";
 	tsilcsreenLayer += silkscreen_tplace?"21 ":"";
 	tsilcsreenLayer += silkscreen_tnames?"25 ":"";
 	tsilcsreenLayer += silkscreen_tvalues?"27 ":"";
 	tsilcsreenLayer += silkscreen_tdocu?"51":"";
-	string bsilcsreenLayer ="";
+	string bsilcsreenLayer =" ";
 	bsilcsreenLayer += silkscreen_bplace?"22 ":"";
 	bsilcsreenLayer += silkscreen_bnames?"26 ":"";
 	bsilcsreenLayer += silkscreen_bvalues?"28 ":"";
@@ -1301,8 +1301,8 @@ void export(){
 		ExportSetup[row++] = "L14 	;-l14 			;14 17 18 20 " + mt + "				;" + layer_image + ";" + layer_pdf + "; Copper L14";
 		ExportSetup[row++] = "L15 	;-l15 			;15 17 18 20 " + mt + "				;" + layer_image + ";" + layer_pdf + "; Copper L15";
 		ExportSetup[row++] = "L16	;-l16-bot		;16 17 18 20 " + mb + "				;" + layer_image + ";" + layer_pdf + "; Copper L16 - Bottom";
-		ExportSetup[row++] = "PT 	;-parts-top		; " + ltx + tsilcsreenLayer + mt + ";" + layer_image + ";" + layer_pdf + "; Silkscreen - Top";
-		ExportSetup[row++] = "PB 	;-parts-bottom	; " + lbx + bsilcsreenLayer + mb + ";" + layer_image + ";" + layer_pdf + "; Silkscreen - Bottom";
+		ExportSetup[row++] = "PT 	;-parts-top		; " +ltx+tsilcsreenLayer +" "+ mt +";" + layer_image + ";" + layer_pdf + "; Silkscreen - Top";
+		ExportSetup[row++] = "PB 	;-parts-bottom	; " +lbx+bsilcsreenLayer +" "+ mb +";" + layer_image + ";" + layer_pdf + "; Silkscreen - Bottom";
 		ExportSetup[row++] = "ST 	;-stop-top		;20 29 " + mt + "					;" + layer_image + ";" + layer_pdf + "; Stopmask - Top";
 		ExportSetup[row++] = "SB 	;-stop-bottom	;20 30 " + mb + "					;" + layer_image + ";" + layer_pdf + "; Stopmask - Bottom";
 		ExportSetup[row++] = "CT 	;-paste-top		;20 31 " + mt + "					;" + layer_image + ";" + layer_pdf + "; Paste - Top";
@@ -1381,7 +1381,7 @@ void export(){
 		//Export colored images
 		if((pcbimage_top || pcbimage_bottom) && (enable_export_png || enable_export_pdf)) {
 			sprintf(cmd, "%s RUN '"  + include_path + "ImageExport.ulp' %d %d %d '%s' '%s' %d '%s' '%s' %d %d %d '%s' '%s' '%s' '%s' '%s' '%s' %d %d;", cmd, 
-				enable_export_png, enable_export_pdf,
+				enable_export_png, (enable_export_pdf&&EAGLE_VERSION>=9),
 				pcbimage_bottom, output_file_img_pcbb, output_file_pdf_pcbb,
 				pcbimage_top, output_file_img_pcbt, output_file_pdf_pcbt,
 				pcbImageResolutions[pcbimage_resolution],

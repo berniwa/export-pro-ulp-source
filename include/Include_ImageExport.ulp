@@ -65,7 +65,7 @@ void exportImages(int imgExport, int pdfExport, int exportBot, string botImage, 
 	{
 		bname = B.name;
 	}
-	string layerV9="";
+	string versionLayer="";
 
 	if(EAGLE_VERSION>=9){
 		cmd += "SET PALETTE WHITE;\n";
@@ -74,11 +74,13 @@ void exportImages(int imgExport, int pdfExport, int exportBot, string botImage, 
 		cmd += "SET COLOR_LAYER 127 8;\n";
 		cmd += "SET PALETTE 22 " + colorPcb + ";\n";
 		cmd += "SET Option.LayerSequence 124;\n";
-		layerV9= "123 124 127";
+		versionLayer= "123 124 127";
 	}
 	else{
 		cmd += "SET PALETTE COLORED;\n";
 		cmd += "SET PALETTE 0 " + colorPcb + ";\n";
+		cmd += "SET Option.LayerSequence 20b * 20t;\n";
+		versionLayer= "20";
 	}
 
 	cmd += "SET COLOR_LAYER 1 16;\n";
@@ -122,7 +124,7 @@ void exportImages(int imgExport, int pdfExport, int exportBot, string botImage, 
 
 	if(exportTop)
 	{
-		cmd += "DISPLAY NONE;DISPLAY 1 18 29 "+tsilcLayers+" "+layerV9+";\n";
+		cmd += "DISPLAY NONE;DISPLAY 1 18 29 "+tsilcLayers+" "+versionLayer+";\n";
 		if (imgExport) {
 			sprintf(cmd, "%s EXPORT IMAGE '%s' %d;\n", cmd, topImage, resolution);
 		}
@@ -130,7 +132,7 @@ void exportImages(int imgExport, int pdfExport, int exportBot, string botImage, 
 		if (pdfExport) {
 			if(frame){
 				cmd += updateFrameInformation("PCB - Top");
-				cmd += "DISPLAY NONE;DISPLAY 1 18 29 "+tsilcLayers+" "+layerV9+" 153;\n";
+				cmd += "DISPLAY NONE;DISPLAY 1 18 29 "+tsilcLayers+" "+versionLayer+" 153;\n";
 			}
 			sprintf(cmd,"%s PRINT SHEETS ALL HIERARCHY PAPER %s FILE '%s';\n", cmd, (format?"A3 landscape":"A4 portrait"), topPdf);
 		}
@@ -138,7 +140,7 @@ void exportImages(int imgExport, int pdfExport, int exportBot, string botImage, 
 	}
 	if(exportBot)
 	{
-		cmd += "DISPLAY 16 18 30 "+bsilcLayers+" "+layerV9+";\n";
+		cmd += "DISPLAY 16 18 30 "+bsilcLayers+" "+versionLayer+";\n";
 		if (imgExport) {
 			sprintf(cmd, "%s EXPORT IMAGE '%s' %d;\n", cmd, botImage, resolution);
 		}
@@ -146,7 +148,7 @@ void exportImages(int imgExport, int pdfExport, int exportBot, string botImage, 
 		if (pdfExport) {
 			if(frame){
 				cmd += updateFrameInformation("PCB - Bottom");
-				cmd += "DISPLAY NONE;DISPLAY 16 18 30 "+bsilcLayers+" "+layerV9+" 153;\n";
+				cmd += "DISPLAY NONE;DISPLAY 16 18 30 "+bsilcLayers+" "+versionLayer+" 153;\n";
 			}
 			sprintf(cmd,"%s PRINT SHEETS ALL HIERARCHY PAPER %s FILE '%s';\n", cmd, (format?"A3 landscape":"A4 portrait"), botPdf);
 		}
