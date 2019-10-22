@@ -130,7 +130,7 @@ void exportImages(int imgExport, int pdfExport, int exportBot, string botImage, 
 		if (pdfExport) {
 			if(frame){
 				cmd += updateFrameInformation("PCB - Top");
-				cmd += "DISPLAY NONE;DISPLAY 16 18 30 "+tsilcLayers+" "+layerV9+" 153;\n";
+				cmd += "DISPLAY NONE;DISPLAY 1 18 29 "+tsilcLayers+" "+layerV9+" 153;\n";
 			}
 			sprintf(cmd,"%s PRINT SHEETS ALL HIERARCHY PAPER %s FILE '%s';\n", cmd, (format?"A3 landscape":"A4 portrait"), topPdf);
 		}
