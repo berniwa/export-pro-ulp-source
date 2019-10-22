@@ -1056,10 +1056,10 @@ void export(){
 	tsilcsreenLayer += silkscreen_tvalues?"27 ":"";
 	tsilcsreenLayer += silkscreen_tdocu?"51":"";
 	string bsilcsreenLayer ="";
-	bsilcsreenLayer += silkscreen_tplace?"22 ":"";
-	bsilcsreenLayer += silkscreen_tnames?"26 ":"";
-	bsilcsreenLayer += silkscreen_tvalues?"28 ":"";
-	bsilcsreenLayer += silkscreen_tdocu?"52":"";
+	bsilcsreenLayer += silkscreen_bplace?"22 ":"";
+	bsilcsreenLayer += silkscreen_bnames?"26 ":"";
+	bsilcsreenLayer += silkscreen_bvalues?"28 ":"";
+	bsilcsreenLayer += silkscreen_bdocu?"52":"";
 
 	string preCMD="";
 	if(strstr(OS_SIGNATURE,"Windows")>=0){
@@ -1447,7 +1447,7 @@ void export(){
 		sprintf(cmd,"%sRUN '%sMergePDF.ulp' %d '%s' '%s' %d %d;\n", cmd, include_path, 
 			output_date_folder, output_folder_pdf,
 			getSystemFilename(".bat"), 
-			schematic_export, bomToPDF
+			(schematic_export&&schematic_color), (bomToPDF&&bom)
 		);
 	}
 

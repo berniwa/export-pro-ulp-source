@@ -41,16 +41,16 @@ string updateFrameInformation(string drawing){
 	string cmd = "";
 	if(name != "") {
 
-		cmd += "CHANGE DISPLAY OFF;";
+		cmd += "CHANGE DISPLAY OFF;\n";
 	 	
 	 	if(strstr(attribute,"DRAWING")!=-1) {
-			cmd += "ATTRIBUTE " + name + " DRAWING DELETE;";
+			cmd += "ATTRIBUTE " + name + " DRAWING DELETE;\n";
 		}
 
-	 	sprintf(cmd, "%sATTRIBUTE %s DRAWING \'%s\'; ", cmd, name, stringTrim(drawing));
+	 	sprintf(cmd, "%sATTRIBUTE %s DRAWING \'%s\';\n", cmd, name, stringTrim(drawing));
 
 	 	if(EAGLE_VERSION>=9){
-	 		cmd += "REPOSITION " + name + "; ";
+	 		cmd += "REPOSITION " + name + ";\n";
 	 	}
 	 }
 
@@ -129,8 +129,8 @@ void exportImages(int imgExport, int pdfExport, int exportBot, string botImage, 
 		
 		if (pdfExport) {
 			if(frame){
-				cmd += "DISPLAY 153;\n";
 				cmd += updateFrameInformation("PCB - Top");
+				cmd += "DISPLAY NONE;DISPLAY 16 18 30 "+tsilcLayers+" "+layerV9+" 153;\n";
 			}
 			sprintf(cmd,"%s PRINT SHEETS ALL HIERARCHY PAPER %s FILE '%s';\n", cmd, (format?"A3 landscape":"A4 portrait"), topPdf);
 		}
@@ -138,15 +138,15 @@ void exportImages(int imgExport, int pdfExport, int exportBot, string botImage, 
 	}
 	if(exportBot)
 	{
-		cmd += "DISPLAY NONE;DISPLAY 16 18 30 "+bsilcLayers+" "+layerV9+";\n";
+		cmd += "DISPLAY 16 18 30 "+bsilcLayers+" "+layerV9+";\n";
 		if (imgExport) {
 			sprintf(cmd, "%s EXPORT IMAGE '%s' %d;\n", cmd, botImage, resolution);
 		}
 		
 		if (pdfExport) {
 			if(frame){
-				cmd += "DISPLAY 153;\n";
 				cmd += updateFrameInformation("PCB - Bottom");
+				cmd += "DISPLAY NONE;DISPLAY 16 18 30 "+bsilcLayers+" "+layerV9+" 153;\n";
 			}
 			sprintf(cmd,"%s PRINT SHEETS ALL HIERARCHY PAPER %s FILE '%s';\n", cmd, (format?"A3 landscape":"A4 portrait"), botPdf);
 		}
