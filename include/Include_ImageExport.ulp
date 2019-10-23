@@ -14,10 +14,15 @@
 #include "Include_Misc.ulp";
 #include "Include_String.ulp";
 
+
+int ram = 2147483647;	//in byte
+int bytePerPixel = 4;	//R,G,B,Alpha
+
 string getFilename(string basename, string ends_with)
 {
 	return filesetext(basename,ends_with);
 }
+
 
 string updateFrameInformation(string drawing){
 	string name = "";
@@ -61,9 +66,14 @@ void exportImages(int imgExport, int pdfExport, int exportBot, string botImage, 
 	string cmd = "";
 
 	string bname = "";
+	real height, width;
 	board(B)
 	{
 		bname = B.name;
+
+		height = u2inch(B.area.y2-B.area.y1);
+		width = u2inch(B.area.x2-B.area.x1);
+
 	}
 	string versionLayer="";
 
@@ -120,6 +130,10 @@ void exportImages(int imgExport, int pdfExport, int exportBot, string botImage, 
 	if(EAGLE_VERSION > 5 || (EAGLE_VERSION == 5 && EAGLE_RELEASE >= 11) ) //Support for SET CONFIRM form Eagle 5.11 on
 	{
 		cmd += "SET CONFIRM YES;\n";
+	}
+
+	if(height*real(resolution)*width*real(resolution)*real(bytePerPixel)>ram){
+		resolution = int(sqrt(ram/(height*width*bytePerPixel)));
 	}
 
 	if(exportTop)
