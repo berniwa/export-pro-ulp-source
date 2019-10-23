@@ -134,6 +134,10 @@ void exportImages(int imgExport, int pdfExport, int exportBot, string botImage, 
 
 	if(height*real(resolution)*width*real(resolution)*real(bytePerPixel)>ram){
 		resolution = int(sqrt(ram/(height*width*bytePerPixel)));
+
+		string tmp;
+		sprintf(tmp,":PCB image would be to large to export <br>Resolution will be set to: %ddpi",resolution);
+		dlgMessageBox(tmp);
 	}
 
 	if(exportTop)
