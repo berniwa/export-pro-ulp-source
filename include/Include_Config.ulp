@@ -43,13 +43,14 @@ void saveConfig() {
 }
 
 char editUserConfig(){
-	string lastLanguage = cfg_textLanguage;
+	if (!filesize(getUlpDir("../Languages/"+cfg_textLanguage))) {
+		cfg_textLanguage="en.txt";
+	}
+
 	char update=0;
 	string languages[];
 	int languageCount = fileglob(languages,getUlpDir("../Languages/*.txt"));
 	int n = 0;
-
-	lanLoadText(cfg_textLanguage);
 
 	for(int i=0; i<languageCount; i++){
 		languages[i] = filename(languages[i]);
@@ -57,10 +58,11 @@ char editUserConfig(){
 			n=i;
 		}
 		languages[i] = strsub(languages[i],0,(strrstr(languages[i],".txt")));
-
 	}
 
 	cfg_textLanguage = languages[n]+".txt";
+	string lastLanguage = cfg_textLanguage;
+	lanLoadText(cfg_textLanguage);
 
 	real tol = strtod(cfg_defaultTolerance);
 	real volt = strtod(cfg_defaultVoltage);
@@ -131,11 +133,6 @@ void loadConfig(){
 			cfg_bomPreWidth[n+1]=strtod(tmpb[3]);
 		}
 	}
-
-	if(strlen(cfg_textLanguage)>6){
-		cfg_textLanguage=language()+".txt";
-	}
-
 	if(cfg_userName=="") {
 		editUserConfig();
 	}
