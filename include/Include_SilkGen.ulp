@@ -776,7 +776,7 @@ if(board) {
       longest=i;
     }
   }
-  sprintf(h,"s%d e%d",index,si); dlgMessageBox(h);
+  //sprintf(h,"s%d e%d",index,si); dlgMessageBox(h);
 
   for(i=0;i<index;i++){
     if((blockStartIndex[longest]<=i)&&(i<=blockEndIndex[longest])){
