@@ -6,13 +6,14 @@ string  lan="";
 
 void lanLoadText(string languageFile)
 {
-	if (languageFile==""||strlen(languageFile)>6) {
-		languageFile=(language()+".txt");
+	languageFile = "../Languages/" + languageFile;
+	lan=getUlpDir(languageFile);
+
+	if (!filesize(lan)) {
+		languageFile="../Languages/en.txt";
+		lan=getUlpDir(languageFile);
 	}
 
-	languageFile = "../Languages/" + languageFile;
-
-	lan=getUlpDir(languageFile);
 	lanLines = fileread(lanContent, lan);
 }
 
