@@ -70,7 +70,7 @@ char editUserConfig(){
 
 	dlgDialog(set?"Settings":lanGetText("settings.general")) {
 		dlgVBoxLayout {
-			dlgGroup(set?"Initialice settings":lanGetText("settings.general")) {
+			dlgGroup(set?"Initial settings":lanGetText("settings.general")) {
 				dlgGridLayout {
 					dlgCell(0, 0) dlgLabel(set?"Language:":lanGetText("general.language")+":");
 					dlgCell(0, 1) dlgComboBox(languages,n){
