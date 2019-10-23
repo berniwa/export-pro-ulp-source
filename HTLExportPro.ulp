@@ -1226,6 +1226,7 @@ void export(){
 	if(measure) {
 		cmd += "RUN '"  + include_path + "Measure.ulp';";
 	}
+	cmd += "WRITE;";
 	
 	if(drilltable || fabrication || stackup) {
 		//The drilltable ulp has been repalced with the new fabrication ULP
@@ -1237,6 +1238,7 @@ void export(){
 			bname
 		);
 	}
+	cmd += "WRITE;";
 
 	if(bom)	{
 		sprintf(cmd, "%sRUN '"  + include_path + "BOM.ulp' '%s' -multiplier %f %s %s %s %s %s %s %s %f %f %f;",cmd, 
@@ -1252,6 +1254,7 @@ void export(){
 			cmd+=exportLayer(bomToPDF, 0, 1, "", output_folder,  "BOM");
 		}
 	}
+	cmd += "WRITE;";
 
 	
 	if(EAGLE_VERSION>=9) {
