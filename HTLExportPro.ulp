@@ -70,7 +70,7 @@ layout_bot = 1, layout_top = 1, layout_l3 = 0, layout_l2 = 0, parts_top = 1, par
 construction = 1, reference = 0, enable_export_png = 1, bom = 1, mirror_bot = 1, crop_all = 1, no_measures = 0, auto_project = 1,
 bom_xls = 1, bom_csv = 0, bom_dbase3 = 0, bom_farnell = 0, bom_shorten_names = 1, bom_display_package_type = 1, 
 parts_display_names = 1, parts_display_values = 1, pricing = 0, idf_export = 1, pcbimage_top = 1, 
-pcbimage_bottom = 1, pcbimage_resolution = 2, pcbimage_crop = 1, pcbimage_mirror = 1, pcbimage_color = 0,
+pcbimage_bottom = 1, image_resolution = 2, pcbimage_color = 0,
 pcbimage_silkscreen_color = 0, pcbimage_plating = 0,
 silkscreen_tplace = 1, silkscreen_tnames = 1, silkscreen_tvalues = 1, silkscreen_tdocu = 1,
 silkscreen_bplace = 1, silkscreen_bnames = 1, silkscreen_bvalues = 1, silkscreen_bdocu = 1,
@@ -356,14 +356,8 @@ void loadUsersettings(){
 			else if (con=="pcbimage_bottom") {
 				pcbimage_bottom = strtol(stringTrim(strsub(data[i],(strchr(data[i],'=')+1))));
 			}
-			else if (con=="pcbimage_resolution") {
-				pcbimage_resolution = strtol(stringTrim(strsub(data[i],(strchr(data[i],'=')+1))));
-			}
-			else if (con=="pcbimage_crop") {
-				pcbimage_crop = strtol(stringTrim(strsub(data[i],(strchr(data[i],'=')+1))));
-			}
-			else if (con=="pcbimage_mirror") {
-				pcbimage_mirror = strtol(stringTrim(strsub(data[i],(strchr(data[i],'=')+1))));
+			else if (con=="image_resolution") {
+				image_resolution = strtol(stringTrim(strsub(data[i],(strchr(data[i],'=')+1))));
 			}
 			else if (con=="pcbimage_color") {
 				pcbimage_color = strtol(stringTrim(strsub(data[i],(strchr(data[i],'=')+1))));
@@ -589,9 +583,7 @@ void loadUsersettings(){
 		idf_export = strtol(data[26]);
 		pcbimage_top = strtol(data[27]);
 		pcbimage_bottom = strtol(data[28]);
-		pcbimage_resolution = strtol(data[29]);
-		pcbimage_crop = strtol(data[30]);
-		pcbimage_mirror = strtol(data[31]);
+		image_resolution = strtol(data[29]);
 		pcbimage_color = strtol(data[32]);
 		pcbimage_silkscreen_color = strtol(data[33]);
 		pcbimage_plating = strtol(data[34]);
@@ -717,9 +709,7 @@ void saveUsersettings(){
 
 		printf("pcbimage_top = %d\n", pcbimage_top);
 		printf("pcbimage_bottom = %d\n", pcbimage_bottom);
-		printf("pcbimage_resolution = %d\n", pcbimage_resolution);
-		printf("pcbimage_crop = %d\n", pcbimage_crop);
-		printf("pcbimage_mirror = %d\n", pcbimage_mirror);
+		printf("image_resolution = %d\n", image_resolution);
 		printf("pcbimage_color = %d\n", pcbimage_color);
 		printf("pcbimage_silkscreen_color = %d\n", pcbimage_silkscreen_color);
 		printf("pcbimage_plating = %d\n", pcbimage_plating);
@@ -938,11 +928,14 @@ string pngExport(string folder, string index){
 
 	string fields[];
 	int count = strsplit(fields, ExportSetup[i], ';');
+
+	string tmp;
+	sprintf(tmp,"%d",pcbImageResolutions[image_resolution]);
 	return 	"DISPLAY NONE; "+
 			"DISPLAY " + fields[2] + "; " + 
 			"DISPLAY " + fields[3] + "; " + 
 			"SET CONFIRM YES; " + 
-			"EXPORT IMAGE '" + folder + stringTrim(fields[1]) + ".png' MONOCHROME 600;";		
+			"EXPORT IMAGE '" + folder + stringTrim(fields[1]) + ".png' MONOCHROME "+tmp+";";		
 }
 
 string pngCrop(string folder, string index){
@@ -1398,8 +1391,8 @@ void export(){
 				enable_export_png, (enable_export_pdf&&EAGLE_VERSION>=9),
 				pcbimage_bottom, output_file_img_pcbb, output_file_pdf_pcbb,
 				pcbimage_top, output_file_img_pcbt, output_file_pdf_pcbt,
-				pcbImageResolutions[pcbimage_resolution],
-				pcbimage_crop, pcbimage_mirror, 
+				pcbImageResolutions[image_resolution],
+				crop_all, mirror_bot, 
 				pcbImagePcbColors[pcbimage_color],
 				pcbImageCopperColors[pcbimage_color],
 				pcbImageSilkscreenColors[pcbimage_silkscreen_color],
@@ -1558,10 +1551,6 @@ void detectDrillsymbols(){
 
 void dialogImageSettings(){
 	dlgDialog(lanGetText("headline.exportDlg")){
-		dlgGroup(lanGetText("general.filetype")) {
-			dlgCheckBox(lanGetText("settings.png"),enable_export_png);
-			dlgCheckBox(lanGetText("settings.pdf"),enable_export_pdf);
-		}
 
 		dlgGroup(lanGetText("general.view")) {
 			dlgHBoxLayout {
@@ -1582,42 +1571,50 @@ void dialogImageSettings(){
 			dlgHBoxLayout {
 				dlgCheckBox(lanGetText("settings.gerber.ref"), reference);
 			};	
-		};
-		dlgGroup(lanGetText("headline.advancedSettings")){			
-			dlgCheckBox(lanGetText("settings.imag.mirror"), mirror_bot);
-			dlgCheckBox(lanGetText("settings.imag.crop"), crop_all);
-			dlgCheckBox(lanGetText("settings.imag.noMeasures"), no_measures);	
-			dlgCheckBox(lanGetText("settings.imag.alwaysExpT"), parts_top_docu);
-			dlgCheckBox(lanGetText("settings.imag.alwaysExpB"), parts_bot_docu);
-			dlgLabel(lanGetText("dlg.imag.footnote"));
-		};
-		dlgGroup(lanGetText("headline.boardView")){
 			dlgHBoxLayout{
 				dlgCheckBox("Top "+lanGetText("general.view"), pcbimage_top);
 				dlgCheckBox("Bottom "+lanGetText("general.view"), pcbimage_bottom);
 			}
-
-			string tmp[];
-			strsplit(tmp, lanGetText("comb.res"), ';');
-			dlgComboBox(tmp, pcbimage_resolution);
-
-			dlgGroup(lanGetText("headline.postprocessing")){
-				dlgCheckBox(lanGetText("settings.imag.vCrop"), pcbimage_crop);
-				dlgCheckBox(lanGetText("settings.imag.vMirror"), pcbimage_mirror);
+		};
+		dlgGroup(lanGetText("general.filetype")) {
+			dlgHBoxLayout{
+				dlgCheckBox(lanGetText("settings.png"),enable_export_png);
+				dlgCheckBox(lanGetText("settings.pdf"),enable_export_pdf);
 			}
 		}
-		dlgGroup(lanGetText("headline.pdf")) {
-			dlgCheckBox(lanGetText("settings.pdf.Frame"), 	pdf_keep_frame);
-			dlgRadioButton("A4",board_format);
-			dlgRadioButton("A3",board_format);
+		dlgTabWidget {
+			dlgTabPage(lanGetText("headline.png")){
+				dlgGroup("") {
+					string tmp[];
+					strsplit(tmp, lanGetText("comb.res"), ';');
+					dlgComboBox(tmp, image_resolution);
+					dlgCheckBox(lanGetText("settings.imag.mirror"), mirror_bot);
+					dlgCheckBox(lanGetText("settings.imag.crop"), crop_all);
+					dlgLabel(lanGetText("dlg.imag.footnote"));
+					dlgStretch(1);
+				}
+			}
+			dlgTabPage(lanGetText("headline.pdf")) {
+				dlgGroup("") {
+					dlgCheckBox(lanGetText("settings.pdf.Frame"), 	pdf_keep_frame);
+					dlgRadioButton("A4",board_format);
+					dlgRadioButton("A3",board_format);
 
-			if(strstr(OS_SIGNATURE,"Linux")>=0){
-				pdf_merge=0;
-			}
-			else {
-				dlgCheckBox(lanGetText("settings.pdf.Merge")+"*", 	pdf_merge);
-				dlgLabel(lanGetText("dlg.pfd.footnote"));
-			}
+					if(strstr(OS_SIGNATURE,"Linux")>=0){
+						pdf_merge=0;
+					}
+					else {
+						dlgCheckBox(lanGetText("settings.pdf.Merge")+"*", 	pdf_merge);
+						dlgLabel(lanGetText("dlg.pfd.footnote"));
+					}
+					dlgStretch(1);
+				}
+			};
+		}
+		dlgGroup(lanGetText("headline.advancedSettings")){			
+			dlgCheckBox(lanGetText("settings.imag.noMeasures"), no_measures);	
+			dlgCheckBox(lanGetText("settings.imag.alwaysExpT"), parts_top_docu);
+			dlgCheckBox(lanGetText("settings.imag.alwaysExpB"), parts_bot_docu);
 		};
 		dlgPushButton(lanGetText("button.ok")) {
 			dlgAccept();
