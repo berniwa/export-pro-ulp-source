@@ -6,7 +6,7 @@ cfg_textLanguage = "",
 cfg_userName = "", 
 cfg_shortUserName = "",
 cfg_pricingURL = "http://eagle.berniwa.com/price.php",
-cfg_defaultTolerance = "1%",
+cfg_defaultTolerance = "1%%",
 cfg_defaultVoltage = "50V"
 ;
 
@@ -44,7 +44,6 @@ void saveConfig() {
 
 char editUserConfig(){
 	char set=!(strlen(cfg_textLanguage));
-	lanLoadText(cfg_textLanguage);
 	string lastLanguage = cfg_textLanguage;
 	char update=0;
 	string languages[];
@@ -63,6 +62,8 @@ char editUserConfig(){
 			n=i;
 		}
 	}
+
+	cfg_textLanguage = "lang_"+languages[n]+".txt";
 
 	real tol = strtod(cfg_defaultTolerance);
 	real volt = strtod(cfg_defaultVoltage);
