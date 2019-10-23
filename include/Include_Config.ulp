@@ -44,7 +44,10 @@ void saveConfig() {
 
 char editUserConfig(){
 	if (!filesize(getUlpDir("../Languages/"+cfg_textLanguage))) {
-		cfg_textLanguage="en.txt";
+		cfg_textLanguage=language()+".txt";
+		if (!filesize(getUlpDir("../Languages/"+cfg_textLanguage))) {
+			cfg_textLanguage="en.txt";
+		}
 	}
 
 	char update=0;
