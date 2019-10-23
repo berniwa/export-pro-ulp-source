@@ -33,18 +33,6 @@ string availableParts 		= "";
 string priceInformatiom 	= "";
 
 
-
-string type[] = {
-	"0201", 
-	"0402", 
-	"0603", 
-	"0805", 
-	"1206",
-	"1208", 
-	"1210", 
-	"1812"
-};
-
 char prefix[] = {'R', 'k', 'M', 'G', 'T'};
 
 void debug(string msg, real val){
@@ -93,12 +81,20 @@ string getOrderNo(int select){
 		orderNo+="C";
 	}
 
-	for (int i = 0; type[i]; i++){
-		if(strstr(packages[select],type[i])>=0){
-			orderNo += type[i];
-			break;
+	int l=0, a=0;
+	for (int i = 0; i < strlen(packages[select]); i++){
+		if(isdigit(packages[select][i])){
+			l++;
+			if(l>=4){
+				break;
+			}
+		}
+		else{
+			l=0;
+			a=i+1;
 		}
 	}
+	orderNo+=strsub(packages[select],a,l);
 
 	real val;
 	val=siParseValue(values[select]);
