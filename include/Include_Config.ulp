@@ -43,63 +43,58 @@ void saveConfig() {
 }
 
 char editUserConfig(){
-	char set=!(strlen(cfg_textLanguage));
 	string lastLanguage = cfg_textLanguage;
 	char update=0;
 	string languages[];
-	int languageCount = fileglob(languages,getUlpDir("../Languages/lang_*.txt"));
+	int languageCount = fileglob(languages,getUlpDir("../Languages/*.txt"));
 	int n = 0;
 
-	if(!set){
-		lanLoadText(cfg_textLanguage);
-	}
+	lanLoadText(cfg_textLanguage);
 
 	for(int i=0; i<languageCount; i++){
 		languages[i] = filename(languages[i]);
-		languages[i] = strsub(languages[i],5,(strrstr(languages[i],".txt")-5));
-
 		if(strstr(cfg_textLanguage,languages[i])!=-1){
 			n=i;
 		}
+		languages[i] = strsub(languages[i],0,(strrstr(languages[i],".txt")));
+
 	}
 
-	cfg_textLanguage = "lang_"+languages[n]+".txt";
+	cfg_textLanguage = languages[n]+".txt";
 
 	real tol = strtod(cfg_defaultTolerance);
 	real volt = strtod(cfg_defaultVoltage);
 
-	dlgDialog(set?"Settings":lanGetText("settings.general")) {
+	dlgDialog(lanGetText("settings.general")) {
 		dlgVBoxLayout {
-			dlgGroup(set?"Initial settings":lanGetText("settings.general")) {
+			dlgGroup(lanGetText("settings.general")) {
 				dlgGridLayout {
-					dlgCell(0, 0) dlgLabel(set?"Language:":lanGetText("general.language")+":");
+					dlgCell(0, 0) dlgLabel(lanGetText("general.language")+":");
 					dlgCell(0, 1) dlgComboBox(languages,n){
-						cfg_textLanguage = "lang_"+languages[n]+".txt";
+						cfg_textLanguage = languages[n]+".txt";
 						update=1;
 					};
 
-					dlgCell(1, 0) dlgLabel(set?"Username:":lanGetText("grneral.userName")+":");
+					dlgCell(1, 0) dlgLabel(lanGetText("grneral.userName")+":");
 					dlgCell(1, 1) dlgStringEdit(cfg_userName);
-					dlgCell(2, 0) dlgLabel(set?"Shortname:":lanGetText("general.shortName")+":");
+					dlgCell(2, 0) dlgLabel(lanGetText("general.shortName")+":");
 					dlgCell(2, 1) dlgStringEdit(cfg_shortUserName);
-					dlgCell(3, 0) dlgLabel(set?"Pricing URL:":lanGetText("general.pricingURL")+":");
+					dlgCell(3, 0) dlgLabel(lanGetText("general.pricingURL")+":");
 					dlgCell(3, 1) dlgStringEdit(cfg_pricingURL);
-					dlgCell(4, 0) dlgLabel(set?"Default resistor tolerance:":lanGetText("settings.default.tolerance")+":");
+					dlgCell(4, 0) dlgLabel(lanGetText("settings.default.tolerance")+":");
 					dlgCell(4, 1) dlgHBoxLayout {dlgRealEdit(tol); dlgLabel("%");}
-					dlgCell(5, 0) dlgLabel(set?"Default capacitor voltage:":lanGetText("settings.default.voltage")+":");
+					dlgCell(5, 0) dlgLabel(lanGetText("settings.default.voltage")+":");
 					dlgCell(5, 1) dlgHBoxLayout {dlgRealEdit(volt); dlgLabel("V");}
 				}
 			}
 
 			dlgHBoxLayout{
-			dlgPushButton(set?"OK":lanGetText("button.ok")){dlgAccept();};
-				if(!set){
-					dlgPushButton(lanGetText("button.cancel")){
-						update=0;
-						cfg_textLanguage = lastLanguage;
-						dlgReject();
-					};
-				}
+			dlgPushButton(lanGetText("button.ok")){dlgAccept();};
+				dlgPushButton(lanGetText("button.cancel")){
+					update=0;
+					cfg_textLanguage = lastLanguage;
+					dlgReject();
+				};
 			}
 		}
 	};
@@ -113,7 +108,7 @@ char editUserConfig(){
 
 void loadConfig(){
 	
-	cfg_textLanguage = cfgget("ULP:ExportPro.language");
+	cfg_textLanguage = cfgget("ULP:ExportPro.language",(language()+".txt"));
 	cfg_userName = cfgget("ULP:ExportPro.userName");
 	cfg_shortUserName = cfgget("ULP:ExportPro.shortUserName");
 	cfg_pricingURL = cfgget("ULP:ExportPro.pricingURL",cfg_pricingURL);
@@ -137,7 +132,11 @@ void loadConfig(){
 		}
 	}
 
-	if(cfg_textLanguage=="") {
+	if(strlen(cfg_textLanguage)>6){
+		cfg_textLanguage=language()+".txt";
+	}
+
+	if(cfg_userName=="") {
 		editUserConfig();
 	}
 }

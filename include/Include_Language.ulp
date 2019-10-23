@@ -6,8 +6,8 @@ string  lan="";
 
 void lanLoadText(string languageFile)
 {
-	if (languageFile=="") {
-		languageFile="lang_English.txt";
+	if (languageFile==""||strlen(languageFile)>6) {
+		languageFile=(language()+".txt");
 	}
 
 	languageFile = "../Languages/" + languageFile;
