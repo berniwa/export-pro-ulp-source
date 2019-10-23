@@ -6,7 +6,7 @@ cfg_textLanguage = "",
 cfg_userName = "", 
 cfg_shortUserName = "",
 cfg_pricingURL = "http://eagle.berniwa.com/price.php",
-cfg_defaultTolerance = "1%%",
+cfg_defaultTolerance = "1%",
 cfg_defaultVoltage = "50V"
 ;
 
