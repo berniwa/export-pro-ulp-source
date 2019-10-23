@@ -140,7 +140,7 @@ void exportImages(int imgExport, int pdfExport, int exportBot, string botImage, 
 	}
 	if(exportBot)
 	{
-		cmd += "DISPLAY 16 18 30 "+bsilcLayers+" "+versionLayer+";\n";
+		cmd += "DISPLAY NONE;DISPLAY 16 18 30 "+bsilcLayers+" "+versionLayer+";\n";
 		if (imgExport) {
 			sprintf(cmd, "%s EXPORT IMAGE '%s' %d;\n", cmd, botImage, resolution);
 		}
