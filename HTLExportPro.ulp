@@ -209,6 +209,16 @@ project.board(B){
 
 string filepath = bname;
 
+real convert2mm(string val){
+	real mm = strtod(val);
+
+	if(strstr(val,"mic")!=-1)	mm=u2mm(mic2u(mm));
+	else if(strstr(val,"mil")!=-1)	mm=u2mm(mil2u(mm));
+	else if(strstr(val,"inch")!=-1)	mm=u2mm(inch2u(mm));
+
+	return mm;
+}
+
 void loadDRCSettings(){
 	string layerSetup=drcGetRule("layerSetup");
 	int layer[];
@@ -235,15 +245,16 @@ void loadDRCSettings(){
 	board_thickness = 0.0;
 	board_copper_thickness = 0.0;
 
+	real conFakt=0;
 	i=0;	//Yes this works
 	for (int l=0;l<16;l++) {
 		if(l<(layerCount-1)){
-			board_thickness += strtod(isolate[l]);
+			board_thickness += convert2mm(isolate[l]);
 		}
 		if(l==(layer[i]-1)){
-			board_thickness += strtod(copper[l]);
+			board_thickness += convert2mm(copper[l]);
 			board_layer[l]=1;
-			copper_layer_thickness[l]=strtod(copper[l])*1000;
+			copper_layer_thickness[l]=convert2mm(copper[l])*1000;
 			i++;
 		}
 		else{
