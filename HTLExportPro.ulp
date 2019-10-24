@@ -1485,7 +1485,13 @@ void export(){
 		
 
 		//Generate specification file
-		sprintf(cmd, "%s RUN '"  + include_path + "Specification.ulp' '%s' %fmm '%s' %d %fum '%s' '%s' '%s' '%s' '%s';", cmd, output_file_eagle_spec, board_thickness, PcbType[board_type], count, board_copper_thickness, pcbSpecColor[pcbimage_color], pcbSpecSilkscreenColor[pcbimage_silkscreen_color], pcbSpecPlating[pcbimage_plating], tsilk_layers, bsilk_layers); 		
+		sprintf(cmd, "%s RUN '"  + include_path + "Specification.ulp' '%s' %fmm '%s' %d %fum '%s' '%s' '%s' '%s' '%s';", cmd, 
+			output_file_eagle_spec, board_thickness, 
+			PcbType[board_type], count, board_copper_thickness, 
+			pcbSpecColor[pcbimage_color], 
+			pcbSpecSilkscreenColor[pcbimage_silkscreen_color], 
+			pcbSpecPlating[pcbimage_plating], tsilk_layers, bsilk_layers
+		); 		
 	}	
 	
 	cmd += "EDIT \'" + filepath + boardname + ".brd\'" + ";";
