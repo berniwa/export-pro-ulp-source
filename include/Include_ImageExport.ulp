@@ -89,8 +89,8 @@ void exportImages(int imgExport, int pdfExport, int exportBot, string botImage, 
 	else{
 		cmd += "SET PALETTE COLORED;\n";
 		cmd += "SET PALETTE 0 " + colorPcb + ";\n";
-		cmd += "SET Option.LayerSequence 20b * 20t;\n";
-		versionLayer= "20";
+		cmd += "SET Option.LayerSequence 20;\n";
+		versionLayer= "20 123";
 	}
 
 	cmd += "SET COLOR_LAYER 1 16;\n";
@@ -127,8 +127,7 @@ void exportImages(int imgExport, int pdfExport, int exportBot, string botImage, 
 	cmd += "SET PALETTE 21 " + colorSilkscreen + ";\n";
 	cmd += "SET PALETTE 8 0xFFFFFFFF;\n";
 
-	if(EAGLE_VERSION > 5 || (EAGLE_VERSION == 5 && EAGLE_RELEASE >= 11) ) //Support for SET CONFIRM form Eagle 5.11 on
-	{
+	if(EAGLE_VERSION > 5 || (EAGLE_VERSION == 5 && EAGLE_RELEASE >= 11) ) { //Support for SET CONFIRM form Eagle 5.11 on
 		cmd += "SET CONFIRM YES;\n";
 	}
 

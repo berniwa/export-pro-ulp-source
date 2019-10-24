@@ -993,6 +993,7 @@ void export(){
 	if(EAGLE_VERSION>=9){
 		cmd+="SET Option.SignalNamesOnTraces 0;";
 		cmd+="SET Option.SignalNamesOnPads 0;";
+		cmd+="SET Option.LiveDrc 0;";
 	}
 	else{
 		cmd+="SET Option.SignalNames 0;";
@@ -1000,8 +1001,7 @@ void export(){
 	cmd+="SET Option.PadNames 0;";
 	cmd+="SET Option.ViaLength 0;";
 	cmd+="SET Option.DisplayMode 1;";
-	cmd+="SET Option.PolygonRatsnest 1;";
-	cmd+="SET Option.LiveDrc 0;\n";
+	cmd+="SET Option.PolygonRatsnest 1;\n";
 
 	output(getSystemFilename(".bat"), "wt"){
 		printf("echo off\n");
@@ -1501,6 +1501,7 @@ void export(){
 	if(EAGLE_VERSION>=9){
 		cmd+="SET Option.SignalNamesOnTraces "+cfgget("EAGLE:Option.SignalNamesOnTraces")+";";
 		cmd+="SET Option.SignalNamesOnPads "+cfgget("EAGLE:Option.SignalNamesOnPads")+";";
+		cmd+="SET Option.LiveDrc "+cfgget("EAGLE:Option.LiveDrc")+";";
 	}
 	else {
 		cmd+="SET Option.SignalNames "+cfgget("EAGLE:Option.SignalNames")+";";
@@ -1508,8 +1509,7 @@ void export(){
 	cmd+="SET Option.PadNames "+cfgget("EAGLE:Option.PadNames")+";";
 	cmd+="SET Option.ViaLength "+cfgget("EAGLE:Option.ViaLength")+";";
 	cmd+="SET Option.DisplayMode "+cfgget("EAGLE:Option.DisplayMode")+";";
-	cmd+="SET Option.PolygonRatsnest "+cfgget("EAGLE:Option.PolygonRatsnest")+";";
-	cmd+="SET Option.LiveDrc "+cfgget("EAGLE:Option.LiveDrc")+";";
+	cmd+="SET Option.PolygonRatsnest "+cfgget("EAGLE:Option.PolygonRatsnest")+";\n";
 
 	if(filesize("\'"+filepath+"fabrication.lbr\'")){
 		cmd+="USE \'"+filepath+"fabrication.lbr\';";	//to prevent error messages the fabrication.lbr is loaded befor unloading

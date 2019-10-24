@@ -720,87 +720,89 @@ if(board) {
   	}
   }
 
-  cmd += "display none "+emptyname+" "+backgroundname+";\n";
+  if(EAGLE_VERSION>=9){
+    cmd += "display none "+emptyname+" "+backgroundname+";\n";
 
-  int blockStartIndex[];
-  int blockEndIndex[];
-  real blockLeangth[];
-  int i, si=0;
+    int blockStartIndex[];
+    int blockEndIndex[];
+    real blockLeangth[];
+    int i, si=0;
 
-  blockStartIndex[si]=-1;
-  for(i=0;i<index;i++){
-    if(blockStartIndex[si]==-1){ //new block
-      blockStartIndex[si]=i;
-      blockLeangth[si]=0;
-    }
-    else if((wX1[i]==wX2[i-1])&&(wY1[i]==wY2[i-1])){
-    }
-    else if ((wX2[i]==wX2[i-1])&&(wY2[i]==wY2[i-1])){
-      //reversing the direction of the wire so every wire either gos cclockwise or countercclockwise
-      reverseDirection(i);
-    }
-    else{
-      for(int j=i+1;j<index;j++){
-        if((wX1[j]==wX2[i-1])&&(wY1[j]==wY2[i-1])){
-          swopPlaces(i,j);
-          break;
-        }
-        else if((wX2[j]==wX2[i-1])&&(wY2[j]==wY2[i-1])){
-          swopPlaces(i,j);
+    blockStartIndex[si]=-1;
+    for(i=0;i<index;i++){
+      if(blockStartIndex[si]==-1){ //new block
+        blockStartIndex[si]=i;
+        blockLeangth[si]=0;
+      }
+      else if((wX1[i]==wX2[i-1])&&(wY1[i]==wY2[i-1])){
+      }
+      else if ((wX2[i]==wX2[i-1])&&(wY2[i]==wY2[i-1])){
+        //reversing the direction of the wire so every wire either gos cclockwise or countercclockwise
+        reverseDirection(i);
+      }
+      else{
+        for(int j=i+1;j<index;j++){
+          if((wX1[j]==wX2[i-1])&&(wY1[j]==wY2[i-1])){
+            swopPlaces(i,j);
+            break;
+          }
+          else if((wX2[j]==wX2[i-1])&&(wY2[j]==wY2[i-1])){
+            swopPlaces(i,j);
 
-          //reversing the direction of the wire so every wire either gos cclockwise or countercclockwise
-          reverseDirection(i);
+            //reversing the direction of the wire so every wire either gos cclockwise or countercclockwise
+            reverseDirection(i);
 
-          break;
+            break;
+          }
         }
       }
-    }
-    blockEndIndex[si]=i;
+      blockEndIndex[si]=i;
 
-    if((wX1[i]==wX2[i])&&(wY1[i]==wY2[i])){
-      blockLeangth[si]=2*wRad[i]*PI;
-      blockStartIndex[++si]=-1;
-    }
-    else if(wX1[blockStartIndex[si]]==wX2[i] && wY1[blockStartIndex[si]]==wY2[i]){
-      blockLeangth[si] += sqrt(pow((wX2[i]-wX1[i]),2)+pow((wY2[i]-wY1[i]),2));
-      blockStartIndex[++si]=-1;
-    }
-    else{
-      blockLeangth[si] += sqrt(pow((wX2[i]-wX1[i]),2)+pow((wY2[i]-wY1[i]),2));
-    }
-  }
-
-  int longest=0;
-  for(i=0;i<si;i++){
-    if(blockLeangth[longest]<blockLeangth[i]){
-      longest=i;
-    }
-  }
-  //sprintf(h,"s%d e%d",index,si); dlgMessageBox(h);
-
-  for(i=0;i<index;i++){
-    if((blockStartIndex[longest]<=i)&&(i<=blockEndIndex[longest])){
-      cmd+="CHANGE LAYER "+backgroundname+"; ";
-    }
-    else {
-      cmd+="CHANGE LAYER "+emptyname+"; ";
+      if((wX1[i]==wX2[i])&&(wY1[i]==wY2[i])){
+        blockLeangth[si]=2*wRad[i]*PI;
+        blockStartIndex[++si]=-1;
+      }
+      else if(wX1[blockStartIndex[si]]==wX2[i] && wY1[blockStartIndex[si]]==wY2[i]){
+        blockLeangth[si] += sqrt(pow((wX2[i]-wX1[i]),2)+pow((wY2[i]-wY1[i]),2));
+        blockStartIndex[++si]=-1;
+      }
+      else{
+        blockLeangth[si] += sqrt(pow((wX2[i]-wX1[i]),2)+pow((wY2[i]-wY1[i]),2));
+      }
     }
 
-    if((wX1[i]==wX2[i])&&(wY1[i]==wY2[i])){
-      sprintf(cmd, "%s circle 0 (%5.3f %5.3f) (%5.3f %5.3f);\n", cmd,
-          u2mm(wX1[i]), u2mm(wY1[i]), 
-          u2mm(wX1[i] + wRad[i]), u2mm(wY1[i])
-      );
+    int longest=0;
+    for(i=0;i<si;i++){
+      if(blockLeangth[longest]<blockLeangth[i]){
+        longest=i;
+      }
     }
-    else{
-      sprintf(cmd, "%s wire %5.3f (%5.3f %5.3f) @%+5.3f (%5.3f %5.3f);\n", cmd, 
-          calcwidth(wWid[i]),
-          u2mm(wX1[i]), u2mm(wY1[i]),
-          u2mm(wRad[i]),
-          u2mm(wX2[i]), u2mm(wY2[i])
-      );
+    //sprintf(h,"s%d e%d",index,si); dlgMessageBox(h);
 
-      sprintf(cmd,"%spolygonize (%f %f);\n",cmd ,u2mm(wX1[i]),u2mm(wY1[i]));
+    for(i=0;i<index;i++){
+      if((blockStartIndex[longest]<=i)&&(i<=blockEndIndex[longest])){
+        cmd+="CHANGE LAYER "+backgroundname+"; ";
+      }
+      else {
+        cmd+="CHANGE LAYER "+emptyname+"; ";
+      }
+
+      if((wX1[i]==wX2[i])&&(wY1[i]==wY2[i])){
+        sprintf(cmd, "%s circle 0 (%5.3f %5.3f) (%5.3f %5.3f);\n", cmd,
+            u2mm(wX1[i]), u2mm(wY1[i]), 
+            u2mm(wX1[i] + wRad[i]), u2mm(wY1[i])
+        );
+      }
+      else{
+        sprintf(cmd, "%s wire %5.3f (%5.3f %5.3f) @%+5.3f (%5.3f %5.3f);\n", cmd, 
+            calcwidth(wWid[i]),
+            u2mm(wX1[i]), u2mm(wY1[i]),
+            u2mm(wRad[i]),
+            u2mm(wX2[i]), u2mm(wY2[i])
+        );
+
+        sprintf(cmd,"%spolygonize (%f %f);\n",cmd ,u2mm(wX1[i]),u2mm(wY1[i]));
+      }
     }
   }
 
