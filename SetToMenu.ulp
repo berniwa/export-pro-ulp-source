@@ -1,0 +1,36 @@
+if((!board)&&(!schematic)){
+	dlgMessageBox("this ulp has to be executed in a board or an schematic");
+	exit("");
+}
+
+string cmd="";
+string path=filedir(argv[0]);
+if(argv[1]){
+	path=argv[1];
+}
+
+cmd+="MENU ";
+cmd+="'Export Pro: RUN "+path+"HTLExportPro.ulp;' ";
+cmd+="'Select Part: RUN "+path+"HTLExportPro_SelectPart.ulp;' ";
+cmd+=";\n";
+
+if(board){
+	cmd+="EDIT .sch;\n";
+}
+else{
+	cmd+="EDIT .brd;\n";
+}
+
+cmd+="MENU ";
+cmd+="'Export Pro: RUN "+path+"HTLExportPro.ulp;' ";
+cmd+="'Select Part: RUN "+path+"HTLExportPro_SelectPart.ulp;' ";
+cmd+=";\n";
+
+if(board){
+	cmd+="EDIT .brd;\n";
+}
+else{
+	cmd+="EDIT .sch;\n";
+}
+
+exit(cmd);
