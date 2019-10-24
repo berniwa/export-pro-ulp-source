@@ -1292,31 +1292,31 @@ void export(){
 
 		int row = 0;
 		//Index, Filenames, Default Layers, Layers PNG, Layers PDF
-		ExportSetup[row++] = "L1 	;-l01-top		;1 17 18 20 " + mt + "				;" + layer_image + ";" + layer_pdf + "; Copper L1 - Top";
-		ExportSetup[row++] = "L2 	;-l02			;2 17 18 20 " + mt + "				;" + layer_image + ";" + layer_pdf + "; Copper L2";
-		ExportSetup[row++] = "L3 	;-l03			;3 17 18 20 " + mt + "				;" + layer_image + ";" + layer_pdf + "; Copper L3";
-		ExportSetup[row++] = "L4 	;-l04			;4 17 18 20 " + mt + "				;" + layer_image + ";" + layer_pdf + "; Copper L4";
-		ExportSetup[row++] = "L5 	;-l05			;5 17 18 20 " + mt + "				;" + layer_image + ";" + layer_pdf + "; Copper L5";
-		ExportSetup[row++] = "L6 	;-l06			;6 17 18 20 " + mt + "				;" + layer_image + ";" + layer_pdf + "; Copper L6";
-		ExportSetup[row++] = "L7 	;-l07			;7 17 18 20 " + mt + "				;" + layer_image + ";" + layer_pdf + "; Copper L7";
-		ExportSetup[row++] = "L8 	;-l08			;8 17 18 20 " + mt + "				;" + layer_image + ";" + layer_pdf + "; Copper L8";
-		ExportSetup[row++] = "L9 	;-l09			;9 17 18 20 " + mt + "				;" + layer_image + ";" + layer_pdf + "; Copper L9";
-		ExportSetup[row++] = "L10 	;-l10 			;10 17 18 20 " + mt + "				;" + layer_image + ";" + layer_pdf + "; Copper L10";
-		ExportSetup[row++] = "L11 	;-l11 			;11 17 18 20 " + mt + "				;" + layer_image + ";" + layer_pdf + "; Copper L11";
-		ExportSetup[row++] = "L12 	;-l12 			;12 17 18 20 " + mt + "				;" + layer_image + ";" + layer_pdf + "; Copper L12";
-		ExportSetup[row++] = "L13 	;-l13 			;13 17 18 20 " + mt + "				;" + layer_image + ";" + layer_pdf + "; Copper L13";
-		ExportSetup[row++] = "L14 	;-l14 			;14 17 18 20 " + mt + "				;" + layer_image + ";" + layer_pdf + "; Copper L14";
-		ExportSetup[row++] = "L15 	;-l15 			;15 17 18 20 " + mt + "				;" + layer_image + ";" + layer_pdf + "; Copper L15";
-		ExportSetup[row++] = "L16	;-l16-bot		;16 17 18 20 " + mb + "				;" + layer_image + ";" + layer_pdf + "; Copper L16 - Bottom";
-		ExportSetup[row++] = "PT 	;-parts-top		;20 "+ltx+tsilcsreenLayer+" "+mt+"	;" + layer_image + ";" + layer_pdf + "; Silkscreen - Top";
-		ExportSetup[row++] = "PB 	;-parts-bottom	;20 "+lbx+bsilcsreenLayer+" "+mb+"	;" + layer_image + ";" + layer_pdf + "; Silkscreen - Bottom";
-		ExportSetup[row++] = "ST 	;-stop-top		;20 29 " + mt + "					;" + layer_image + ";" + layer_pdf + "; Stopmask - Top";
-		ExportSetup[row++] = "SB 	;-stop-bottom	;20 30 " + mb + "					;" + layer_image + ";" + layer_pdf + "; Stopmask - Bottom";
-		ExportSetup[row++] = "CT 	;-paste-top		;20 31 " + mt + "					;" + layer_image + ";" + layer_pdf + "; Paste - Top";
-		ExportSetup[row++] = "CB 	;-paste-bottom	;20 32 " + mb + "					;" + layer_image + ";" + layer_pdf + "; Paste - Bottom";
-		ExportSetup[row++] = "FAB	;-fabrication 	;44 45 20 154 "  + mt + "			;" + layer_image + ";" + layer_pdf + "; Fabrication";
-		ExportSetup[row++] = "MECH	;-construction 	;111 20 							;" + layer_image + ";" + layer_pdf + " -" + mt + "; Mechanical";
-		ExportSetup[row++] = "REF	;-reference 	;111 49								;" + layer_image + ";" + layer_pdf + "; Reference";
+		ExportSetup[row++] = "L1 	;-l01-top		;1 17 18 20 " + mt + "						;" + layer_image + ";" + layer_pdf + "; Copper L1 - Top";
+		ExportSetup[row++] = "L2 	;-l02			;2 17 18 20 " + mt + "						;" + layer_image + ";" + layer_pdf + "; Copper L2";
+		ExportSetup[row++] = "L3 	;-l03			;3 17 18 20 " + mt + "						;" + layer_image + ";" + layer_pdf + "; Copper L3";
+		ExportSetup[row++] = "L4 	;-l04			;4 17 18 20 " + mt + "						;" + layer_image + ";" + layer_pdf + "; Copper L4";
+		ExportSetup[row++] = "L5 	;-l05			;5 17 18 20 " + mt + "						;" + layer_image + ";" + layer_pdf + "; Copper L5";
+		ExportSetup[row++] = "L6 	;-l06			;6 17 18 20 " + mt + "						;" + layer_image + ";" + layer_pdf + "; Copper L6";
+		ExportSetup[row++] = "L7 	;-l07			;7 17 18 20 " + mt + "						;" + layer_image + ";" + layer_pdf + "; Copper L7";
+		ExportSetup[row++] = "L8 	;-l08			;8 17 18 20 " + mt + "						;" + layer_image + ";" + layer_pdf + "; Copper L8";
+		ExportSetup[row++] = "L9 	;-l09			;9 17 18 20 " + mt + "						;" + layer_image + ";" + layer_pdf + "; Copper L9";
+		ExportSetup[row++] = "L10 	;-l10 			;10 17 18 20 " + mt + "						;" + layer_image + ";" + layer_pdf + "; Copper L10";
+		ExportSetup[row++] = "L11 	;-l11 			;11 17 18 20 " + mt + "						;" + layer_image + ";" + layer_pdf + "; Copper L11";
+		ExportSetup[row++] = "L12 	;-l12 			;12 17 18 20 " + mt + "						;" + layer_image + ";" + layer_pdf + "; Copper L12";
+		ExportSetup[row++] = "L13 	;-l13 			;13 17 18 20 " + mt + "						;" + layer_image + ";" + layer_pdf + "; Copper L13";
+		ExportSetup[row++] = "L14 	;-l14 			;14 17 18 20 " + mt + "						;" + layer_image + ";" + layer_pdf + "; Copper L14";
+		ExportSetup[row++] = "L15 	;-l15 			;15 17 18 20 " + mt + "						;" + layer_image + ";" + layer_pdf + "; Copper L15";
+		ExportSetup[row++] = "L16	;-l16-bot		;16 17 18 20 " + mb + "						;" + layer_image + ";" + layer_pdf + "; Copper L16 - Bottom";
+		ExportSetup[row++] = "PT 	;-parts-top		;20 " + ltx + tsilcsreenLayer + " " + mt + ";" + layer_image + ";" + layer_pdf + "; Silkscreen - Top";
+		ExportSetup[row++] = "PB 	;-parts-bottom	;20 " + lbx + bsilcsreenLayer + " " + mb + ";" + layer_image + ";" + layer_pdf + "; Silkscreen - Bottom";
+		ExportSetup[row++] = "ST 	;-stop-top		;20 29 " + mt + "							;" + layer_image + ";" + layer_pdf + "; Stopmask - Top";
+		ExportSetup[row++] = "SB 	;-stop-bottom	;20 30 " + mb + "							;" + layer_image + ";" + layer_pdf + "; Stopmask - Bottom";
+		ExportSetup[row++] = "CT 	;-paste-top		;20 31 " + mt + "							;" + layer_image + ";" + layer_pdf + "; Paste - Top";
+		ExportSetup[row++] = "CB 	;-paste-bottom	;20 32 " + mb + "							;" + layer_image + ";" + layer_pdf + "; Paste - Bottom";
+		ExportSetup[row++] = "FAB	;-fabrication 	;44 45 20 154 "  + mt + "					;" + layer_image + ";" + layer_pdf + "; Fabrication";
+		ExportSetup[row++] = "MECH	;-construction 	;111 20 									;" + layer_image + ";" + layer_pdf + " -" + mt + "; Mechanical";
+		ExportSetup[row++] = "REF	;-reference 	;111 49										;" + layer_image + ";" + layer_pdf + "; Reference";
 
 		//Switch palette if export is enabled
 		cmd += "SET PALETTE WHITE;";
