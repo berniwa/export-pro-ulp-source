@@ -2039,7 +2039,7 @@ void mainManu(){
 			dlgPushButton(lanGetText("button.ok")) {
 				saveUsersettings();
 
-				exit("DRC; RUN " + getUlpDir("../HTLExportPro.ulp") + " execute;");
+				exit("DRC; RUN " + getUlpDir("../ExportPro.ulp") + " execute;");
 			};
 			dlgPushButton(lanGetText("button.cancel")) {
 				saveUsersettings();
@@ -2048,7 +2048,7 @@ void mainManu(){
 			dlgPushButton("⚙") {
 				if(editUserConfig()){
 					saveUsersettings();
-					exit("RUN " + getUlpDir("../HTLExportPro.ulp") + " drcLoaded;");
+					exit("RUN " + getUlpDir("../ExportPro.ulp") + " drcLoaded;");
 				}
 			};
 			dlgStretch(1); 
