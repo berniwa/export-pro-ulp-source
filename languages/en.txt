@@ -19,6 +19,7 @@ dlg.newVal.footnote = * might be overwritten when requesting the price over the 
 dlg.username = Pleace enter your name and short-name
 dlg.cantEdit = Can not edit "Last"
 dlg.DrillError = :Not all diameters have asigned drill symbols. <br>Please assign drill symbol in EAGLE menu! 
+dlg.add2Menu = Would you like to ad the ULP to the text menu?
 
 general.copper = Copper
 general.side = Side
@@ -146,6 +147,7 @@ settings.offset.y = Offset Y
 settings.bom.width = Bom width
 settings.default.tolerance = Default resistor tolerance 
 settings.default.voltage = Default capacitor voltage
+settings.menu = Set ULP to text menu
 
 comb.res = 600dpi - normal resolution;1200dpi - high resolution;2400dpi - very high resolution
 comb.pcbColor = Green;Red;Black;White;Polyimid

@@ -19,6 +19,7 @@ dlg.newVal.footnote = * könnte von dem Preis aus dem Internet überschrieben we
 dlg.username = Bitte geben Sie Ihren Namen und Ihr Kürzel an
 dlg.cantEdit = Editieren von "Letztes" nicht möglich
 dlg.DrillError = :Nicht alle Bohrungen haben zugehörige Bohrsymbole. <br>Bitte weisen sie die restlichen im EAGLE-Menu zu!
+dlg.add2Menu = Möchten Sie die ULP zum Textmenu hinzufügen?
 
 general.copper = Kupfer
 general.side = Seite
@@ -146,6 +147,7 @@ settings.offset.y = Abstand Y
 settings.bom.width = Bom Breite
 settings.default.tolerance = Standard Widerstadstoleranz  
 settings.default.voltage = Standard Kondensatorspannung
+settings.menu = ULP in das Textmenü setzen
 
 comb.res = 600dpi - normale Auflösung;1200dpi - hohe Auflösung;2400dpi - extrem hohe Auflösung
 comb.pcbColor = Grüne PCB;Rote PCB;Schwarze PCB;Weiße PCB;Polyimid

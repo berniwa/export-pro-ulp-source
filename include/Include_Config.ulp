@@ -42,6 +42,49 @@ void saveConfig() {
 	}
 }
 
+string isNotMenu(){
+	string pathSCR="",scrI;
+	string pathO="";
+
+	for(int i=0;path_scr[i];i++){
+		pathSCR = path_scr[i]+"/eagle.scr";
+		
+		if(filesize(pathSCR)){
+			string scrI, scrO;
+
+			fileread(scrI,pathSCR);
+
+			if(strstr(scrI,"/ExportPro.ulp")==-1){
+				pathO=pathSCR;
+			}
+			break;
+		}
+	}
+
+	return pathO;
+}
+
+void setToMenu(){
+	string pathULP = filedir(argv[0]);
+	string pathSCR = isNotMenu();
+	if(pathSCR){
+		string scrO,scrI;
+
+		fileread(scrI,pathSCR);
+
+		scrO  = strsub(scrI,0,strstr(scrI,"MENU",strstr(scrI,"BRD:"))+5);
+		scrO += "'Export Pro: RUN "+pathULP+"ExportPro.ulp;'\\\n\t";
+		scrO += "'Select Part: RUN "+pathULP+"SelectPart.ulp;'\\\n\t";
+		scrO += strsub(scrI,strstr(scrI,"MENU",strstr(scrI,"BRD:"))+5,(strstr(scrI,"MENU",strstr(scrI,"SCH:"))-strstr(scrI,"MENU",strstr(scrI,"BRD:"))));
+		scrO += "'Export Pro: RUN "+pathULP+"ExportPro.ulp;'\\\n\t";
+		scrO += "'Select Part: RUN "+pathULP+"SelectPart.ulp;'\\\n\t";
+		scrO += strsub(scrI,strstr(scrI,"MENU",strstr(scrI,"SCH:"))+5);
+		output(pathSCR){
+			printf(scrO);
+		}
+	}	
+}
+
 char editUserConfig(){
 	if (!filesize(getUlpDir("../Languages/"+cfg_textLanguage))) {
 		cfg_textLanguage=language()+".txt";
@@ -67,6 +110,13 @@ char editUserConfig(){
 	string lastLanguage = cfg_textLanguage;
 	lanLoadText(cfg_textLanguage);
 
+	if(!cfg_userName){ //first start of the ulp
+		int opt = dlgMessageBox(lanGetText("dlg.add2Menu"),lanGetText("general.yes"),lanGetText("general.no"));
+		if (!opt){
+			setToMenu();
+		}
+	}
+
 	real tol = strtod(cfg_defaultTolerance);
 	real volt = strtod(cfg_defaultVoltage);
 
@@ -90,6 +140,9 @@ char editUserConfig(){
 					dlgCell(4, 1) dlgHBoxLayout {dlgRealEdit(tol); dlgLabel("%");}
 					dlgCell(5, 0) dlgLabel(lanGetText("settings.default.voltage")+":");
 					dlgCell(5, 1) dlgHBoxLayout {dlgRealEdit(volt); dlgLabel("V");}
+				}
+				if(isNotMenu()){
+					dlgPushButton(lanGetText("settings.menu")){setToMenu();};
 				}
 			}
 
