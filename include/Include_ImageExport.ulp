@@ -151,7 +151,7 @@ void exportImages(int imgExport, int pdfExport, int exportBot, string botImage, 
 				cmd += updateFrameInformation("PCB - Top");
 				cmd += "DISPLAY NONE;DISPLAY 1 18 29 "+tsilcLayers+" "+versionLayer+" 153;\n";
 			}
-			sprintf(cmd,"%s PRINT SHEETS ALL HIERARCHY PAPER %s FILE '%s';\n", cmd, (format?"A3 landscape":"A4 portrait"), topPdf);
+			sprintf(cmd,"%s PRINT SHEETS ALL HIERARCHY -BLACK PAPER %s FILE '%s';\n", cmd, (format?"A3 landscape":"A4 portrait"), topPdf);
 		}
 		
 	}
@@ -167,7 +167,7 @@ void exportImages(int imgExport, int pdfExport, int exportBot, string botImage, 
 				cmd += updateFrameInformation("PCB - Bottom");
 				cmd += "DISPLAY NONE;DISPLAY 16 18 30 "+bsilcLayers+" "+versionLayer+" 153;\n";
 			}
-			sprintf(cmd,"%s PRINT SHEETS ALL HIERARCHY PAPER %s FILE '%s';\n", cmd, (format?"A3 landscape":"A4 portrait"), botPdf);
+			sprintf(cmd,"%s PRINT SHEETS ALL HIERARCHY -BLACK PAPER %s FILE '%s';\n", cmd, (format?"A3 landscape":"A4 portrait"), botPdf);
 		}
 		
 	}
