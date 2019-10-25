@@ -1,36 +1,25 @@
-if((!board)&&(!schematic)){
-	dlgMessageBox("this ulp has to be executed in a board or an schematic");
-	exit("");
+string pathULP = filedir(argv[0]);
+string pathSCR = filedir(EAGLE_PATH)+"/examples/scripts/examples/eagle.scr";
+
+string scrI, scrO;
+
+fileread(scrI,pathSCR);
+
+if(strstr(scrI,"HTLExportPro.ulp")==-1){
+	scrO  = strsub(scrI,0,strstr(scrI,"MENU",strstr(scrI,"BRD:"))+5);
+	scrO += "'Export Pro: RUN "+pathULP+"HTLExportPro.ulp;'\\\n\t";
+	scrO += "'Select Part: RUN "+pathULP+"HTLExportPro_SelectPart.ulp;'\\\n\t";
+	scrO += strsub(scrI,strstr(scrI,"MENU",strstr(scrI,"BRD:"))+5,(strstr(scrI,"MENU",strstr(scrI,"SCH:"))-strstr(scrI,"MENU",strstr(scrI,"BRD:"))));
+	scrO += "'Export Pro: RUN "+pathULP+"HTLExportPro.ulp;'\\\n\t";
+	scrO += "'Select Part: RUN "+pathULP+"HTLExportPro_SelectPart.ulp;'\\\n\t";
+	scrO += strsub(scrI,strstr(scrI,"MENU",strstr(scrI,"SCH:"))+5);
+	output(pathSCR){
+		printf(scrO);
+	}
 }
 
 string cmd="";
-string path=filedir(argv[0]);
-if(argv[1]){
-	path=argv[1];
-}
 
-cmd+="MENU ";
-cmd+="'Export Pro: RUN "+path+"HTLExportPro.ulp;' ";
-cmd+="'Select Part: RUN "+path+"HTLExportPro_SelectPart.ulp;' ";
-cmd+=";\n";
 
-if(board){
-	cmd+="EDIT .sch;\n";
-}
-else{
-	cmd+="EDIT .brd;\n";
-}
-
-cmd+="MENU ";
-cmd+="'Export Pro: RUN "+path+"HTLExportPro.ulp;' ";
-cmd+="'Select Part: RUN "+path+"HTLExportPro_SelectPart.ulp;' ";
-cmd+=";\n";
-
-if(board){
-	cmd+="EDIT .brd;\n";
-}
-else{
-	cmd+="EDIT .sch;\n";
-}
 
 exit(cmd);
