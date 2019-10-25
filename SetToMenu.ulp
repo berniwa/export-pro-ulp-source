@@ -1,23 +1,30 @@
 string pathULP = filedir(argv[0]);
-string pathSCR = filedir(EAGLE_PATH)+"/examples/scripts/examples/eagle.scr";
+string pathSCR = path_scr[0]+"/eagle.scr";
 
-string scrI, scrO;
+for(int i=0;path_scr[i];i++){
+	pathSCR = path_scr[i]+"/eagle.scr";
+	
+	if(filesize(pathSCR)){
+		string scrI, scrO;
+		
+		fileread(scrI,pathSCR);
 
-fileread(scrI,pathSCR);
+		if(strstr(scrI,"HTLExportPro.ulp")==-1){
+			scrO  = strsub(scrI,0,strstr(scrI,"MENU",strstr(scrI,"BRD:"))+5);
+			scrO += "'Export Pro: RUN "+pathULP+"HTLExportPro.ulp;'\\\n\t";
+			scrO += "'Select Part: RUN "+pathULP+"HTLExportPro_SelectPart.ulp;'\\\n\t";
+			scrO += strsub(scrI,strstr(scrI,"MENU",strstr(scrI,"BRD:"))+5,(strstr(scrI,"MENU",strstr(scrI,"SCH:"))-strstr(scrI,"MENU",strstr(scrI,"BRD:"))));
+			scrO += "'Export Pro: RUN "+pathULP+"HTLExportPro.ulp;'\\\n\t";
+			scrO += "'Select Part: RUN "+pathULP+"HTLExportPro_SelectPart.ulp;'\\\n\t";
+			scrO += strsub(scrI,strstr(scrI,"MENU",strstr(scrI,"SCH:"))+5);
+			output(pathSCR){
+				printf(scrO);
+			}
+		}
 
-if(strstr(scrI,"HTLExportPro.ulp")==-1){
-	scrO  = strsub(scrI,0,strstr(scrI,"MENU",strstr(scrI,"BRD:"))+5);
-	scrO += "'Export Pro: RUN "+pathULP+"HTLExportPro.ulp;'\\\n\t";
-	scrO += "'Select Part: RUN "+pathULP+"HTLExportPro_SelectPart.ulp;'\\\n\t";
-	scrO += strsub(scrI,strstr(scrI,"MENU",strstr(scrI,"BRD:"))+5,(strstr(scrI,"MENU",strstr(scrI,"SCH:"))-strstr(scrI,"MENU",strstr(scrI,"BRD:"))));
-	scrO += "'Export Pro: RUN "+pathULP+"HTLExportPro.ulp;'\\\n\t";
-	scrO += "'Select Part: RUN "+pathULP+"HTLExportPro_SelectPart.ulp;'\\\n\t";
-	scrO += strsub(scrI,strstr(scrI,"MENU",strstr(scrI,"SCH:"))+5);
-	output(pathSCR){
-		printf(scrO);
+		break;
 	}
 }
-
 string cmd="";
 
 
