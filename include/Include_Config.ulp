@@ -1,5 +1,6 @@
 #include "Include_Misc.ulp";
 #include "Include_Language.ulp";
+#include "Include_String.ulp";
 
 string 
 cfg_textLanguage = "", 
@@ -79,6 +80,9 @@ void setToMenu(){
 		scrO += "'Export Pro: RUN "+pathULP+"ExportPro.ulp;'\\\n\t";
 		scrO += "'Select Part: RUN "+pathULP+"SelectPart.ulp;'\\\n\t";
 		scrO += strsub(scrI,strstr(scrI,"MENU",strstr(scrI,"SCH:"))+5);
+
+		scrO = stringReplace(scrO,"SCH:","SCH:\nSET CONTEXT instance SelectPart 'run "+getUlpDir("../SelectPart.ulp")+" 1';");
+
 		output(pathSCR){
 			printf(scrO);
 		}
