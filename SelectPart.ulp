@@ -395,7 +395,7 @@ void editDevice(int selected){
 	}	
 }
 
-int showListOfDevices(){
+int showListOfDevices(char singelPart){
 
 	if(board){
 		exit("EDIT .sch; RUN "+argv[0]+";");
@@ -416,97 +416,124 @@ int showListOfDevices(){
 	while(1){
 		updateAttributeList();
 	
-		int dstatus = dlgDialog(lanGetText("headline.dlg.SPMain")){
-			dlgHBoxLayout{
-				dlgVBoxLayout dlgSpacing(600);
-				dlgListView(lanGetText("tab.part")+"\t"+
-					lanGetText("tab.value")+"\t"+
-					lanGetText("tab.pac")+"\t"+
-					lanGetText("tab.sheet")+"\t"+
-					lanGetText("tab.distriputor")+"\t"+
-					lanGetText("tab.order.No")+"\t"+
-					lanGetText("tab.manufacturer")+"\t"+
-					lanGetText("tab.part.No")+"\t"+
-					lanGetText("tab.price")+"\t"+
-					lanGetText("tab.available")+"\t"+
-					lanGetText("tab.perPkg")+"\t"+
-					lanGetText("tab.minQuantity")+"\t"+
-					lanGetText("tab.QuantityMulti")+"\t"+
-					lanGetText("tab.populate")+"\t"+
-					lanGetText("tab.category")+"\t"+
-					lanGetText("tab.note"), 
-					list, selected, sorted)
-				{
-					if (dlgSelectionChanged()){
-						populateset 	= populate[selected];
-						populateMode 	= getPopulateMode(populate[selected]);
-					} else{
-						editDevice(selected);
-						updateAttributeList();
-					}
-				}
-			}
-			dlgHBoxLayout{
-				dlgVBoxLayout dlgSpacing(100);
-				dlgGroup(lanGetText("general.info")){
-					dlgGridLayout{
-									
-						dlgCell(0, 1) dlgLabel(lanGetText("settings.orderInfo")+":");
-						dlgCell(0, 2) dlgLabel(partsWithOrderNo, 1);
-						dlgCell(1, 1) dlgLabel(lanGetText("settings.priceInfo")+":");
-						dlgCell(1, 2) dlgLabel(partsWithPrice, 1);
-						dlgCell(2, 1) dlgLabel(lanGetText("settings.available")+":");
-						dlgCell(2, 2) dlgLabel(availableParts, 1);
-					}
-				}
-				dlgGroup(lanGetText("headline.pricing")){
-					dlgGridLayout{
-						dlgCell(0, 3) dlgLabel(lanGetText("settings.quanttity")+":");
-						dlgCell(0, 4) dlgIntEdit(quantity);
-						dlgCell(1, 3, 1, 4) dlgPushButton(lanGetText("button.priceRequest")){
-							bomPricingRequestAllWithMultiplier(quantity);
+		if(!singelPart){
+			int dstatus = dlgDialog(lanGetText("headline.dlg.SPMain")){
+				dlgHBoxLayout{
+					dlgVBoxLayout dlgSpacing(600);
+					dlgListView(lanGetText("tab.part")+"\t"+
+						lanGetText("tab.value")+"\t"+
+						lanGetText("tab.pac")+"\t"+
+						lanGetText("tab.sheet")+"\t"+
+						lanGetText("tab.distriputor")+"\t"+
+						lanGetText("tab.order.No")+"\t"+
+						lanGetText("tab.manufacturer")+"\t"+
+						lanGetText("tab.part.No")+"\t"+
+						lanGetText("tab.price")+"\t"+
+						lanGetText("tab.available")+"\t"+
+						lanGetText("tab.perPkg")+"\t"+
+						lanGetText("tab.minQuantity")+"\t"+
+						lanGetText("tab.QuantityMulti")+"\t"+
+						lanGetText("tab.populate")+"\t"+
+						lanGetText("tab.category")+"\t"+
+						lanGetText("tab.note"), 
+						list, selected, sorted)
+					{
+						if (dlgSelectionChanged()){
+							populateset 	= populate[selected];
+							populateMode 	= getPopulateMode(populate[selected]);
+						} else{
+							editDevice(selected);
 							updateAttributeList();
-						};
-						dlgCell(2, 3) dlgLabel(lanGetText("settings.overPrice")+"*:");
-						dlgCell(2, 4) dlgLabel(priceInformatiom, 1);
-					}
-				}	
-				dlgGroup(lanGetText("headline.populate")){
-					dlgGridLayout{
-						dlgCell(0, 0) dlgLabel(lanGetText("tab.populate"));
-						dlgCell(0, 1) dlgRadioButton(lanGetText("general.yes"), 			populateMode);
-						dlgCell(1, 1) dlgRadioButton(lanGetText("general.no"), 				populateMode);
-						dlgCell(2, 1) dlgRadioButton(lanGetText("general.special")+":", 	populateMode);
-
-						dlgCell(2, 2) dlgStringEdit(populateset);	
-						dlgCell(3, 0, 3, 2) dlgPushButton(lanGetText("button.setpopulate")){
-							populate[selected] = getPopulate(populateMode, populateset);
-							updateAttributeList();
-						};
-					}			
-				}			
-				dlgStretch(1);
-				dlgVBoxLayout{
-					dlgStretch(1); 
-					dlgPushButton("⚙") {
-						if(editUserConfig()){
-							exit("RUN " + argv[0] + ";");
 						}
-					};
-					dlgPushButton(lanGetText("button.cancel")){dlgReject(); return 0;}
-					dlgPushButton(lanGetText("button.save")){dlgAccept(); return 1;}
+					}
+				}
+				dlgHBoxLayout{
+					dlgVBoxLayout dlgSpacing(100);
+					dlgGroup(lanGetText("general.info")){
+						dlgGridLayout{
+										
+							dlgCell(0, 1) dlgLabel(lanGetText("settings.orderInfo")+":");
+							dlgCell(0, 2) dlgLabel(partsWithOrderNo, 1);
+							dlgCell(1, 1) dlgLabel(lanGetText("settings.priceInfo")+":");
+							dlgCell(1, 2) dlgLabel(partsWithPrice, 1);
+							dlgCell(2, 1) dlgLabel(lanGetText("settings.available")+":");
+							dlgCell(2, 2) dlgLabel(availableParts, 1);
+						}
+					}
+					dlgGroup(lanGetText("headline.pricing")){
+						dlgGridLayout{
+							dlgCell(0, 3) dlgLabel(lanGetText("settings.quanttity")+":");
+							dlgCell(0, 4) dlgIntEdit(quantity);
+							dlgCell(1, 3, 1, 4) dlgPushButton(lanGetText("button.priceRequest")){
+								bomPricingRequestAllWithMultiplier(quantity);
+								updateAttributeList();
+							};
+							dlgCell(2, 3) dlgLabel(lanGetText("settings.overPrice")+"*:");
+							dlgCell(2, 4) dlgLabel(priceInformatiom, 1);
+						}
+					}	
+					dlgGroup(lanGetText("headline.populate")){
+						dlgGridLayout{
+							dlgCell(0, 0) dlgLabel(lanGetText("tab.populate"));
+							dlgCell(0, 1) dlgRadioButton(lanGetText("general.yes"), 			populateMode);
+							dlgCell(1, 1) dlgRadioButton(lanGetText("general.no"), 				populateMode);
+							dlgCell(2, 1) dlgRadioButton(lanGetText("general.special")+":", 	populateMode);
+
+							dlgCell(2, 2) dlgStringEdit(populateset);	
+							dlgCell(3, 0, 3, 2) dlgPushButton(lanGetText("button.setpopulate")){
+								populate[selected] = getPopulate(populateMode, populateset);
+								updateAttributeList();
+							};
+						}			
+					}			
+					dlgStretch(1);
+					dlgVBoxLayout{
+						dlgStretch(1); 
+						dlgPushButton("⚙") {
+							if(editUserConfig()){
+								exit("RUN " + argv[0] + ";");
+							}
+						};
+						dlgPushButton(lanGetText("button.cancel")){dlgReject(); return 0;}
+						dlgPushButton(lanGetText("button.save")){dlgAccept(); return 1;}
+					}
+				}
+			};
+			if(dstatus == -1){
+				break;
+			}
+		}
+		else{
+			string iname;
+			schematic(S){
+				S.allparts(P){
+					P.instances(I){
+						if(ingroup(I)) {
+							iname=I.name;
+						}
+					}
 				}
 			}
-		};
+			string pVal[];
+			for(int n=0;n<partcount;n++){
+				strsplit(pVal,list[n],'\t');
 
-		if(dstatus == -1){
-			break;
+				if(strstr(pVal[0],iname)!=-1){
+					selected=n;
+					break;
+				}
+			}
+
+			editDevice(selected);
+			updateAttributeList();
+			return 1;
 		}
+
 	}
 
 	return 1;
 }
 
-if(showListOfDevices()){
+if(showListOfDevices(strtol(argv[1]))){
 	executeAndExit(bomUpdateChanges());
 }
