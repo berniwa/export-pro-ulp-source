@@ -1562,7 +1562,7 @@ void dialogImageSettings(){
 
 		dlgGroup(lanGetText("general.view")) {
 			dlgHBoxLayout {
-				dlgCheckBox(lanGetText("general.layout")+" Bot.", layout_bot);
+				dlgCheckBox(lanGetText("general.layout")+" Bot", layout_bot);
 				dlgCheckBox(lanGetText("general.layout")+" Top", layout_top);
 			};
 			dlgCheckBox(lanGetText("settings.imag.innerLayer"), layout_inner_layer);
